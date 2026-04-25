@@ -26,14 +26,22 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "motion/react";
+import { toast } from "sonner";
+
+interface PermissionSetting {
+  id: string;
+  name: string;
+  type: "RANK" | "STAFF" | "DEPT";
+  allowed: boolean;
+}
 
 interface Room {
   id: string;
   name: string;
   type: string;
   gateActive: boolean;
-  inventory: { name: string; count: number; exportAllowed: boolean }[];
-  permissions: { rank: string; allowed: boolean }[];
+  floor: string;
+  permissions: PermissionSetting[];
   groups: string[];
 }
 
@@ -43,15 +51,13 @@ const initialRooms: Room[] = [
     name: "서버실", 
     type: "보안구역", 
     gateActive: true,
-    inventory: [
-      { name: "메인 서버랙", count: 4, exportAllowed: false },
-      { name: "백업 스토리지", count: 2, exportAllowed: false }
-    ],
+    floor: "3F",
     permissions: [
-      { rank: "부장", allowed: true },
-      { rank: "과장", allowed: true },
-      { rank: "대리", allowed: false },
-      { rank: "사원", allowed: false }
+      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
+      { id: "rank-2", name: "과장", type: "RANK", allowed: true },
+      { id: "staff-1", name: "김호탈", type: "STAFF", allowed: true },
+      { id: "dept-1", name: "보안팀", type: "DEPT", allowed: true },
+      { id: "dept-2", name: "IT개발부", type: "DEPT", allowed: false },
     ],
     groups: ["IT본부", "보안팀"]
   },
@@ -60,15 +66,10 @@ const initialRooms: Room[] = [
     name: "개발 1팀", 
     type: "사무공간", 
     gateActive: true,
-    inventory: [
-      { name: "테스트용 단말기", count: 15, exportAllowed: true },
-      { name: "워크스테이션", count: 20, exportAllowed: false }
-    ],
+    floor: "3F",
     permissions: [
-      { rank: "부장", allowed: true },
-      { rank: "과장", allowed: true },
-      { rank: "대리", allowed: true },
-      { rank: "사원", allowed: true }
+      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
+      { id: "dept-2", name: "IT개발부", type: "DEPT", allowed: true },
     ],
     groups: ["개발본부"]
   },
@@ -77,14 +78,10 @@ const initialRooms: Room[] = [
     name: "임원실", 
     type: "보안구역", 
     gateActive: true,
-    inventory: [
-      { name: "금고", count: 1, exportAllowed: false }
-    ],
+    floor: "3F",
     permissions: [
-      { rank: "부장", allowed: true },
-      { rank: "과장", allowed: false },
-      { rank: "대리", allowed: false },
-      { rank: "사원", allowed: false }
+      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
+      { id: "staff-2", name: "이대표", type: "STAFF", allowed: true },
     ],
     groups: ["경영지원"]
   },
@@ -93,29 +90,120 @@ const initialRooms: Room[] = [
     name: "회의실 A", 
     type: "공용공간", 
     gateActive: false,
-    inventory: [
-      { name: "프로젝터", count: 1, exportAllowed: true }
-    ],
+    floor: "3F",
     permissions: [
-      { rank: "부장", allowed: true },
-      { rank: "과장", allowed: true },
-      { rank: "대리", allowed: true },
-      { rank: "사원", allowed: true }
+      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
     ],
     groups: ["전체"]
+  },
+  { 
+    id: "5", 
+    name: "R&D 센터", 
+    type: "보안구역", 
+    gateActive: true,
+    floor: "5F",
+    permissions: [
+      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
+      { id: "dept-3", name: "연구소", type: "DEPT", allowed: true },
+    ],
+    groups: ["연구개발"]
+  },
+  { 
+    id: "6", 
+    name: "안내 데스크", 
+    type: "일반구역", 
+    gateActive: false,
+    floor: "1F",
+    permissions: [
+      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
+    ],
+    groups: ["운영지원"]
+  },
+  { 
+    id: "7", 
+    name: "물류 창고", 
+    type: "보안구역", 
+    gateActive: true,
+    floor: "1F",
+    permissions: [
+      { id: "dept-4", name: "물류팀", type: "DEPT", allowed: true },
+    ],
+    groups: ["물류팀"]
+  },
+  { 
+    id: "8", 
+    name: "마케팅실", 
+    type: "사무공간", 
+    gateActive: true,
+    floor: "2F",
+    permissions: [
+      { id: "dept-5", name: "마케팅팀", type: "DEPT", allowed: true },
+    ],
+    groups: ["마케팅팀"]
+  },
+  { 
+    id: "9", 
+    name: "인사팀", 
+    type: "사무공간", 
+    gateActive: true,
+    floor: "2F",
+    permissions: [
+      { id: "dept-6", name: "인사본부", type: "DEPT", allowed: true },
+    ],
+    groups: ["인사본부"]
+  },
+  { 
+    id: "10", 
+    name: "디자인 랩", 
+    type: "보안구역", 
+    gateActive: true,
+    floor: "4F",
+    permissions: [
+      { id: "dept-7", name: "디자인팀", type: "DEPT", allowed: true },
+    ],
+    groups: ["디자인팀"]
+  },
+  { 
+    id: "11", 
+    name: "전략회의실", 
+    type: "공용공간", 
+    gateActive: false, 
+    floor: "4F", 
+    permissions: [
+      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
+    ], 
+    groups: ["전략기획"] 
   }
 ];
 
 export function ZoneManagement() {
-  const [selectedRoomId, setSelectedRoomId] = useState<string>("1");
   const [rooms, setRooms] = useState<Room[]>(initialRooms);
   const [selectedFloor, setSelectedFloor] = useState("3F");
+  const floorRooms = rooms.filter(r => r.floor === selectedFloor);
+  
+  const [selectedRoomId, setSelectedRoomId] = useState<string>(floorRooms[0]?.id || "");
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAddGateOpen, setIsAddGateOpen] = useState(false);
+  const [isAddingGroup, setIsAddingGroup] = useState(false);
+  const [newGroupInput, setNewGroupInput] = useState("");
+  const [permissionTypeTab, setPermissionTypeTab] = useState<"RANK" | "STAFF" | "DEPT">("RANK");
+  const [isAddPermissionOpen, setIsAddPermissionOpen] = useState(false);
+
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState("");
 
-  const selectedRoom = rooms.find(r => r.id === selectedRoomId) || rooms[0];
+  const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState("일반구역");
+
+  const selectedRoom = rooms.find(r => r.id === selectedRoomId) || floorRooms[0] || initialRooms[0];
+
+  React.useEffect(() => {
+    const currentFloorRooms = rooms.filter(r => r.floor === selectedFloor);
+    if (currentFloorRooms.length > 0) {
+      setSelectedRoomId(currentFloorRooms[0].id);
+    }
+  }, [selectedFloor, rooms]);
 
   const toggleGate = (id: string) => {
     setRooms(prevRooms => prevRooms.map(room => 
@@ -123,13 +211,13 @@ export function ZoneManagement() {
     ));
   };
 
-  const togglePermission = (roomId: string, rank: string) => {
+  const togglePermission = (roomId: string, permissionId: string) => {
     setRooms(prevRooms => prevRooms.map(room => 
       room.id === roomId 
         ? { 
             ...room, 
             permissions: room.permissions.map(p => 
-              p.rank === rank ? { ...p, allowed: !p.allowed } : p
+              p.id === permissionId ? { ...p, allowed: !p.allowed } : p
             ) 
           } 
         : room
@@ -141,7 +229,9 @@ export function ZoneManagement() {
       room.id === roomId 
         ? { 
             ...room, 
-            permissions: room.permissions.map(p => ({ ...p, allowed: true })) 
+            permissions: room.permissions.map(p => 
+              p.type === permissionTypeTab ? { ...p, allowed: true } : p
+            ) 
           } 
         : room
     ));
@@ -175,27 +265,210 @@ export function ZoneManagement() {
     const newId = (Date.now()).toString();
     const newRoom: Room = {
       id: newId,
-      name: `신규 구역 ${rooms.length + 1}`,
-      type: "일반구역",
+      name: newName || `신규 구역 ${rooms.length + 1}`,
+      type: newType,
       gateActive: false,
-      inventory: [],
+      floor: selectedFloor,
       permissions: [
-        { rank: "부장", allowed: false },
-        { rank: "과장", allowed: false },
-        { rank: "대리", allowed: false },
-        { rank: "사원", allowed: false }
+        { id: `rank-${Date.now()}-1`, name: "부장", type: "RANK", allowed: false },
+        { id: `rank-${Date.now()}-2`, name: "과장", type: "RANK", allowed: false },
+        { id: `rank-${Date.now()}-3`, name: "대리", type: "RANK", allowed: false },
+        { id: `rank-${Date.now()}-4`, name: "사원", type: "RANK", allowed: false }
       ],
       groups: ["미지정"]
     };
     setRooms([...rooms, newRoom]);
     setSelectedRoomId(newId);
+    setIsAddGateOpen(false);
+    setNewName("");
+    setNewType("일반구역");
+  };
+
+  const handleDeleteGroup = (roomId: string, groupToDelete: string) => {
+    setRooms(prev => prev.map(room => 
+      room.id === roomId 
+        ? { ...room, groups: room.groups.filter(g => g !== groupToDelete) }
+        : room
+    ));
+  };
+
+  const handleAddGroupTag = (roomId: string) => {
+    if (!newGroupInput.trim()) {
+      setIsAddingGroup(false);
+      return;
+    }
+    
+    setRooms(prev => prev.map(room => {
+      if (room.id === roomId) {
+        if (room.groups.includes(newGroupInput.trim())) return room;
+        return { ...room, groups: [...room.groups, newGroupInput.trim()] };
+      }
+      return room;
+    }));
+    
+    setNewGroupInput("");
+    setIsAddingGroup(false);
+  };
+
+  const masterData = {
+    RANK: ["사장", "전무", "상무", "이사", "부장", "과장", "대리", "사원", "인턴", "외부인"],
+    DEPT: ["경영지원팀", "인사팀", "재무팀", "IT본부", "디자인팀", "마케팅팀", "운영팀", "보안팀", "연구소"],
+    STAFF: ["김호탈", "이대표", "홍길동", "성춘향", "이몽룡", "장희빈", "김철수", "박영희"]
+  };
+
+  const handleAddPermission = (name: string) => {
+    setRooms(prev => prev.map(room => {
+      if (room.id === selectedRoomId) {
+        // Only add if not already there
+        if (room.permissions.some(p => p.name === name && p.type === permissionTypeTab)) {
+          toast.error("이미 목록에 존재합니다.");
+          return room;
+        }
+        
+        const newPermission: PermissionSetting = {
+          id: `${permissionTypeTab.toLowerCase()}-${Date.now()}`,
+          name,
+          type: permissionTypeTab,
+          allowed: false
+        };
+        
+        return {
+          ...room,
+          permissions: [...room.permissions, newPermission]
+        };
+      }
+      return room;
+    }));
+    setIsAddPermissionOpen(false);
+    toast.success(`${name} 항목이 추가되었습니다.`);
   };
 
   return (
     <div className="space-y-8 pb-12 relative">
+      {/* Add Permission Item Modal */}
+      {isAddPermissionOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-8"
+          >
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {permissionTypeTab === "RANK" ? "직급" : permissionTypeTab === "DEPT" ? "부서" : "직원"} 추가
+              </h2>
+              <p className="text-gray-500 font-medium">관리 대상 목록에서 선택하여 추가할 수 있습니다</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto p-1">
+              {masterData[permissionTypeTab].map(item => {
+                const isAlreadyPresent = selectedRoom.permissions.some(p => p.name === item && p.type === permissionTypeTab);
+                return (
+                  <button
+                    key={item}
+                    disabled={isAlreadyPresent}
+                    onClick={() => handleAddPermission(item)}
+                    className={cn(
+                      "p-4 rounded-2xl border-2 transition-all font-bold text-sm",
+                      isAlreadyPresent 
+                        ? "bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed" 
+                        : "border-gray-50 hover:border-black bg-white"
+                    )}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex gap-3">
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsAddPermissionOpen(false)}
+                className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+              >
+                닫기
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Add Gate Modal */}
+      {isAddGateOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-8"
+          >
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-gray-900">보안 게이트 추가</h2>
+              <p className="text-gray-500 font-medium">{selectedFloor}에 신규 보안 게이트를 설치합니다</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-400 ml-1">구역 명칭</label>
+                <Input 
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-lg font-bold"
+                  placeholder="예: 서버실, 회의실 B"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-bold text-gray-400 ml-1">구역 유형</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { id: "보안구역", icon: Shield, color: "bg-black text-white" },
+                    { id: "사무공간", icon: Layout, color: "bg-blue-50 text-blue-600" },
+                    { id: "공용공간", icon: Users, color: "bg-orange-50 text-orange-600" },
+                    { id: "일반구역", icon: MapIcon, color: "bg-gray-100 text-gray-600" },
+                  ].map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => setNewType(type.id)}
+                      className={cn(
+                        "flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left",
+                        newType === type.id 
+                          ? "border-black bg-white shadow-sm" 
+                          : "border-gray-50 bg-gray-50/50 hover:border-gray-100"
+                      )}
+                    >
+                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", type.color)}>
+                        <type.icon className="w-5 h-5" />
+                      </div>
+                      <span className="font-bold text-sm">{type.id}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsAddGateOpen(false)}
+                className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+              >
+                취소
+              </Button>
+              <Button 
+                onClick={handleAddGate}
+                className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
+              >
+                게이트 추가
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Settings Modal Overlay */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -217,19 +490,32 @@ export function ZoneManagement() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <label className="text-sm font-bold text-gray-400 ml-1">구역 유형</label>
-                <Select value={editType} onValueChange={setEditType}>
-                  <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-lg font-bold">
-                    <SelectValue placeholder="유형 선택" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-gray-100">
-                    <SelectItem value="보안구역">보안구역</SelectItem>
-                    <SelectItem value="사무공간">사무공간</SelectItem>
-                    <SelectItem value="공용공간">공용공간</SelectItem>
-                    <SelectItem value="일반구역">일반구역</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { id: "보안구역", icon: Shield, color: "bg-black text-white" },
+                    { id: "사무공간", icon: Layout, color: "bg-blue-50 text-blue-600" },
+                    { id: "공용공간", icon: Users, color: "bg-orange-50 text-orange-600" },
+                    { id: "일반구역", icon: MapIcon, color: "bg-gray-100 text-gray-600" },
+                  ].map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => setEditType(type.id)}
+                      className={cn(
+                        "flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left",
+                        editType === type.id 
+                          ? "border-black bg-white shadow-sm" 
+                          : "border-gray-50 bg-gray-50/50 hover:border-gray-100"
+                      )}
+                    >
+                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", type.color)}>
+                        <type.icon className="w-5 h-5" />
+                      </div>
+                      <span className="font-bold text-sm">{type.id}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -271,7 +557,7 @@ export function ZoneManagement() {
             </SelectContent>
           </Select>
           <Button 
-            onClick={handleAddGate}
+            onClick={() => setIsAddGateOpen(true)}
             className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -303,7 +589,7 @@ export function ZoneManagement() {
 
             {/* Mock Floor Plan Layout */}
             <div className="flex-1 grid grid-cols-2 gap-4 relative">
-              {rooms.map((room) => (
+              {floorRooms.map((room) => (
                 <div key={room.id} className="relative group">
                   <button
                     onClick={() => setSelectedRoomId(room.id)}
@@ -345,10 +631,6 @@ export function ZoneManagement() {
                 </div>
               ))}
               
-              {/* Decorative Hallway */}
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <div className="w-full h-8 bg-gray-50/50 rounded-full border border-gray-100/50"></div>
-              </div>
             </div>
           </div>
         </div>
@@ -416,52 +698,62 @@ export function ZoneManagement() {
                   onClick={() => selectAllPermissions(selectedRoom.id)}
                   className="text-sm font-bold text-gray-400 hover:text-black"
                 >
-                  전체 선택
+                  현재 탭 전체 허용
                 </button>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                {selectedRoom.permissions.map((p) => (
-                  <button 
-                    key={p.rank}
-                    onClick={() => togglePermission(selectedRoom.id, p.rank)}
+              
+              {/* Permission Tabs */}
+              <div className="flex bg-gray-50 p-1 rounded-2xl gap-1">
+                {(["RANK", "DEPT", "STAFF"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setPermissionTypeTab(tab)}
                     className={cn(
-                      "p-5 rounded-2xl border-2 flex items-center justify-between transition-all text-left",
-                      p.allowed ? "border-black bg-white" : "border-gray-100 bg-gray-50/50 opacity-60"
+                      "flex-1 py-2.5 rounded-xl text-xs font-bold transition-all",
+                      permissionTypeTab === tab 
+                        ? "bg-white text-black shadow-sm" 
+                        : "text-gray-400 hover:text-gray-600"
                     )}
                   >
-                    <span className="text-base font-bold text-gray-900">{p.rank}</span>
-                    <div className={cn(
-                      "w-6 h-6 rounded-full border-2 flex items-center justify-center",
-                      p.allowed ? "border-black bg-black" : "border-gray-300"
-                    )}>
-                      {p.allowed && <div className="w-2 h-2 bg-white rounded-full" />}
-                    </div>
+                    {tab === "RANK" ? "직급별" : tab === "DEPT" ? "부서별" : "직원별"}
                   </button>
                 ))}
               </div>
-            </div>
 
-            {/* Inventory Status */}
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-gray-400" />
-                  구역 내 주요 자산
-                </h4>
-                <span className="text-xs font-bold text-gray-400 italic">재고 관리 연동됨</span>
-              </div>
-              <div className="space-y-3">
-                {selectedRoom.inventory.map((item) => (
-                  <div key={item.name} className="p-5 rounded-2xl border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                    <div>
-                      <p className="text-base font-bold text-gray-900">{item.name}</p>
-                      <p className="text-sm font-medium text-gray-400">{item.count}개 보유</p>
-                    </div>
-                    <Badge variant={item.exportAllowed ? "outline" : "destructive"} className="text-xs font-black uppercase tracking-tight px-3 py-1">
-                      {item.exportAllowed ? "반출 가능" : "반출 불가"}
-                    </Badge>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 gap-4">
+                {selectedRoom.permissions
+                  .filter(p => p.type === permissionTypeTab)
+                  .map((p) => (
+                    <button 
+                      key={p.id}
+                      onClick={() => togglePermission(selectedRoom.id, p.id)}
+                      className={cn(
+                        "p-5 rounded-2xl border-2 flex items-center justify-between transition-all text-left",
+                        p.allowed ? "border-black bg-white" : "border-gray-100 bg-gray-50/50 opacity-60"
+                      )}
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-base font-bold text-gray-900">{p.name}</span>
+                        <span className="text-[10px] text-gray-400 font-medium">
+                          {p.type === "RANK" ? "직급 권한" : p.type === "DEPT" ? "부서 단위" : "개별 지정"}
+                        </span>
+                      </div>
+                      <div className={cn(
+                        "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                        p.allowed ? "border-black bg-black scale-110" : "border-gray-300"
+                      )}>
+                        {p.allowed && <div className="w-2 h-2 bg-white rounded-full" />}
+                      </div>
+                    </button>
+                  ))}
+                  <Button 
+                    variant="outline" 
+                    className="h-full border-dashed border-gray-200 rounded-2xl min-h-[72px] flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-black hover:border-gray-300 transition-all"
+                    onClick={() => setIsAddPermissionOpen(true)}
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span className="text-[10px] font-bold">항목 추가</span>
+                  </Button>
               </div>
             </div>
 
@@ -473,14 +765,49 @@ export function ZoneManagement() {
               </h4>
               <div className="flex flex-wrap gap-3">
                 {selectedRoom.groups.map(group => (
-                  <Badge key={group} className="bg-gray-100 text-gray-600 hover:bg-gray-200 border-none rounded-xl px-4 py-2 font-bold text-sm flex items-center gap-2">
+                  <Badge 
+                    key={group} 
+                    className="h-9 bg-gray-100 text-gray-600 hover:bg-gray-200 border-none rounded-xl px-4 font-bold text-sm flex items-center gap-2 transition-all"
+                  >
                     {group}
-                    <Trash2 className="w-4 h-4 cursor-pointer hover:text-red-500" />
+                    <button 
+                      type="button"
+                      className="inline-flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteGroup(selectedRoom.id, group);
+                      }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </Badge>
                 ))}
-                <Button variant="outline" size="sm" className="rounded-xl border-dashed border-gray-200 text-gray-400 h-10 px-4 font-bold">
-                  <Plus className="w-4 h-4 mr-1" /> 추가
-                </Button>
+                
+                {isAddingGroup ? (
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      autoFocus
+                      className="h-9 w-28 rounded-xl text-sm font-bold px-4 border-gray-100 bg-gray-50 focus-visible:ring-black/5 shadow-sm"
+                      value={newGroupInput}
+                      onChange={(e) => setNewGroupInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleAddGroupTag(selectedRoom.id);
+                        if (e.key === 'Escape') setIsAddingGroup(false);
+                      }}
+                      onBlur={() => handleAddGroupTag(selectedRoom.id)}
+                      placeholder="그룹 명칭"
+                    />
+                  </div>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setIsAddingGroup(true)}
+                    className="rounded-xl border-dashed border-gray-200 text-gray-400 h-9 px-4 font-bold hover:bg-gray-50 hover:text-black hover:border-gray-300 transition-all text-sm"
+                  >
+                    <Plus className="w-4 h-4 mr-1" /> 추가
+                  </Button>
+                )}
               </div>
             </div>
           </div>

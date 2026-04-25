@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
+import { DatePicker } from "@/components/ui/DatePicker";
+
 interface AccessRecord {
   id: string;
   timestamp: string;
@@ -41,16 +43,32 @@ const initialRecords: AccessRecord[] = [
   { id: "7", timestamp: "2026-03-24 08:50:20", name: "정우성", employeeId: "20181205", gate: "1층 메인 로비", method: "Face ID", status: "정상 승인" },
   { id: "8", timestamp: "2026-03-24 08:45:10", name: "한소희", employeeId: "20240930", gate: "지하 주차장 엘리베이터", method: "NFC 태그", status: "정상 승인" },
   { id: "9", timestamp: "2026-03-23 23:10:05", name: "강호동", employeeId: "20170412", gate: "3층 서버실", method: "마스터키", status: "야간 출입" },
-  { id: "10", timestamp: "2026-03-23 22:05:40", name: "유재석", employeeId: "20200220", gate: "1층 메인 로비", method: "NFC 태그", status: "정상 승인" },
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: (i + 11).toString(),
-    timestamp: `2026-03-${23 - Math.floor(i/10)} 14:00:00`,
-    name: `사용자 ${i + 11}`,
-    employeeId: `202${Math.floor(Math.random() * 10000)}`,
-    gate: ["1층 메인 로비", "3층 개발본부", "지하 주차장", "5층 임원실"][Math.floor(Math.random() * 4)],
-    method: ["NFC 태그", "Face ID", "QR 코드", "마스터키"][Math.floor(Math.random() * 4)],
-    status: ["정상 승인", "인가 실패", "야간 출입"][Math.floor(Math.random() * 3)] as any,
-  }))
+  { id: "10", timestamp: "2026-03-24 22:05:40", name: "유재석", employeeId: "20200220", gate: "1층 메인 로비", method: "NFC 태그", status: "정상 승인" },
+  ...Array.from({ length: 150 }, (_, i) => {
+    const day = 23 + Math.floor(i / 40);
+    const hour = Math.floor(Math.random() * 24);
+    const min = Math.floor(Math.random() * 60);
+    const sec = Math.floor(Math.random() * 60);
+    const timestamp = `2026-03-${day} ${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    
+    // Logical status based on hour
+    let status: "정상 승인" | "인가 실패" | "야간 출입" = "정상 승인";
+    if (hour >= 22 || hour <= 6) {
+      status = "야간 출입";
+    } else if (Math.random() > 0.95) {
+      status = "인가 실패";
+    }
+
+    return {
+      id: (i + 11).toString(),
+      timestamp,
+      name: `사용자 ${i + 11}`,
+      employeeId: `202${Math.floor(10000 + Math.random() * 90000)}`,
+      gate: ["1층 메인 로비", "3층 개발본부", "지하 주차장", "5층 임원실", "2층 식당"][Math.floor(Math.random() * 5)],
+      method: ["NFC 태그", "Face ID", "QR 코드", "마스터키"][Math.floor(Math.random() * 4)],
+      status,
+    };
+  })
 ];
 
 export function AccessRecordTable() {
@@ -61,15 +79,17 @@ export function AccessRecordTable() {
   const [selectedStatus, setSelectedStatus] = useState("전체");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = 10; // Fixed to 10 pages as requested
 
-  const filteredRecords = initialRecords.filter(record => {
+  const matchesDate = (timestamp: string) => {
+    const recordDate = timestamp.split(" ")[0];
+    return recordDate >= startDate && recordDate <= endDate;
+  };
+
+  const recordsInDateRange = initialRecords.filter(r => matchesDate(r.timestamp));
+
+  const filteredRecords = recordsInDateRange.filter(record => {
     // Search filter
     const matchesSearch = record.name.includes(searchTerm) || record.employeeId.includes(searchTerm);
-    
-    // Date filter
-    const recordDate = record.timestamp.split(" ")[0];
-    const matchesDate = recordDate >= startDate && recordDate <= endDate;
     
     // Gate filter
     const matchesGate = selectedGate === "전체" || record.gate.includes(selectedGate);
@@ -77,46 +97,84 @@ export function AccessRecordTable() {
     // Status filter
     const matchesStatus = selectedStatus === "전체" || record.status === selectedStatus;
 
-    return matchesSearch && matchesDate && matchesGate && matchesStatus;
+    return matchesSearch && matchesGate && matchesStatus;
   });
 
+  const stats = {
+    total: recordsInDateRange.length,
+    abnormal: recordsInDateRange.filter(r => r.status === "인가 실패").length,
+    night: recordsInDateRange.filter(r => r.status === "야간 출입").length,
+    // Just a mock calculation for remaining people based on data density
+    remaining: Math.floor(recordsInDateRange.filter(r => r.status === "정상 승인").length * 0.4)
+  };
+
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / itemsPerPage));
   const currentRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <RecordStatCard icon={Users} label="오늘 총 출입자 수" value="142" unit="명" />
-        <RecordStatCard icon={AlertCircle} label="비정상 접근 시도" value="3" unit="건" color="text-red-500" />
-        <RecordStatCard icon={Moon} label="야간/휴일 출입 건수" value="11" unit="건" color="text-indigo-500" />
-        <RecordStatCard icon={Users} label="현재 사내 잔류 인원" value="31" unit="명" color="text-green-500" />
+        <RecordStatCard 
+          icon={Users} 
+          label="오늘 총 출입자 수" 
+          value={stats.total.toString()} 
+          unit="명" 
+          onClick={() => {
+            setSelectedStatus("전체");
+            setSelectedGate("전체");
+            setSearchTerm("");
+            setCurrentPage(1);
+          }}
+        />
+        <RecordStatCard 
+          icon={AlertCircle} 
+          label="비정상 접근 시도" 
+          value={stats.abnormal.toString()} 
+          unit="건" 
+          color="text-red-500" 
+          onClick={() => {
+            setSelectedStatus("인가 실패");
+            setCurrentPage(1);
+          }}
+        />
+        <RecordStatCard 
+          icon={Moon} 
+          label="야간/휴일 출입 건수" 
+          value={stats.night.toString()} 
+          unit="건" 
+          color="text-indigo-500" 
+          onClick={() => {
+            setSelectedStatus("야간 출입");
+            setCurrentPage(1);
+          }}
+        />
+        <RecordStatCard 
+          icon={Users} 
+          label="현재 사내 잔류 인원" 
+          value={stats.remaining.toString()} 
+          unit="명" 
+          color="text-green-500" 
+          onClick={() => {
+            setSelectedStatus("전체");
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {/* Filters */}
       <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-400 ml-1">시작일</label>
-            <div className="relative">
-              <Input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
-                className="bg-gray-50 border-gray-100 rounded-xl h-12 pl-4" 
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-400 ml-1">종료일</label>
-            <div className="relative">
-              <Input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
-                className="bg-gray-50 border-gray-100 rounded-xl h-12 pl-4" 
-              />
-            </div>
-          </div>
+          <DatePicker 
+            label="시작일"
+            date={startDate} 
+            onChange={(val) => { setStartDate(val); setCurrentPage(1); }}
+          />
+          <DatePicker 
+            label="종료일"
+            date={endDate} 
+            onChange={(val) => { setEndDate(val); setCurrentPage(1); }}
+          />
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-400 ml-1">출입 게이트</label>
             <Select value={selectedGate} onValueChange={(val) => { setSelectedGate(val); setCurrentPage(1); }}>
@@ -222,19 +280,34 @@ export function AccessRecordTable() {
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <div className="flex items-center gap-1 px-2">
-              {Array.from({ length: 10 }, (_, i) => (
-                <Button
-                  key={i + 1}
-                  variant={currentPage === i + 1 ? "default" : "ghost"}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={cn(
-                    "w-10 h-10 rounded-xl font-bold",
-                    currentPage === i + 1 ? "bg-black text-white" : "text-gray-400 hover:text-black hover:bg-gray-100"
-                  )}
-                >
-                  {i + 1}
-                </Button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => {
+                const pageNum = i + 1;
+                // Only show a range of buttons if there are too many pages
+                if (totalPages > 10) {
+                  const isFirstSet = pageNum <= 3;
+                  const isLastSet = pageNum > totalPages - 3;
+                  const isMiddle = Math.abs(pageNum - currentPage) <= 1;
+                  
+                  if (!isFirstSet && !isLastSet && !isMiddle) {
+                    if (pageNum === 4 || pageNum === totalPages - 3) return <span key={pageNum} className="text-gray-300 px-1">...</span>;
+                    return null;
+                  }
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "ghost"}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={cn(
+                      "w-10 h-10 rounded-xl font-bold transition-all",
+                      currentPage === pageNum ? "bg-black text-white shadow-lg" : "text-gray-400 hover:text-black hover:bg-gray-100"
+                    )}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
             </div>
             <Button
               variant="outline"
@@ -252,10 +325,13 @@ export function AccessRecordTable() {
   );
 }
 
-function RecordStatCard({ icon: Icon, label, value, unit, color }: any) {
+function RecordStatCard({ icon: Icon, label, value, unit, color, onClick }: any) {
   return (
-    <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
-      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center">
+    <button 
+      onClick={onClick}
+      className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4 text-left w-full hover:border-black/10 hover:shadow-md transition-all active:scale-[0.98] group cursor-pointer"
+    >
+      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-gray-100 transition-colors">
         <Icon className={cn("w-6 h-6", color || "text-black")} />
       </div>
       <div>
@@ -265,6 +341,6 @@ function RecordStatCard({ icon: Icon, label, value, unit, color }: any) {
           <span className="text-sm font-medium text-gray-400">{unit}</span>
         </div>
       </div>
-    </div>
+    </button>
   );
 }

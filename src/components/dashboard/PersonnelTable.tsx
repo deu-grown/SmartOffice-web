@@ -79,7 +79,6 @@ export function PersonnelTable({ onTabChange, onAddGuest }: PersonnelTableProps)
   const [filterDepartment, setFilterDepartment] = useState<string>("전체");
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
   // Stats for REQ-U-002
@@ -106,7 +105,7 @@ export function PersonnelTable({ onTabChange, onAddGuest }: PersonnelTableProps)
     });
   }, [employees, searchTerm, filterStatus, filterDepartment]);
 
-  const totalPages = Math.max(Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE), 10);
+  const totalPages = Math.max(Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE), 1);
   const paginatedEmployees = filteredEmployees.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -150,30 +149,6 @@ export function PersonnelTable({ onTabChange, onAddGuest }: PersonnelTableProps)
     }
   };
 
-  const handleSaveGuest = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const newGuest = {
-      id: Date.now().toString(),
-      name: formData.get("name") as string,
-      company: formData.get("company") as string,
-      host: formData.get("host") as string,
-      details: formData.get("details") as string,
-      status: formData.get("status") as any,
-      entryTime: formData.get("entryTime") as string || "--:--",
-      exitTime: formData.get("exitTime") as string || "-",
-      date: formData.get("date") as string,
-    };
-
-    if (onAddGuest) onAddGuest(newGuest);
-    
-    toast.success("게스트가 등록되었습니다.", {
-      description: "게스트 관리 페이지에서 현황을 확인하실 수 있습니다.",
-    });
-    setIsGuestModalOpen(false);
-    if (onTabChange) onTabChange("게스트 관리");
-  };
-
   return (
     <div className="space-y-8">
       {/* Summary Stats (REQ-U-002) */}
@@ -195,7 +170,7 @@ export function PersonnelTable({ onTabChange, onAddGuest }: PersonnelTableProps)
         <div className="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm">
           <p className="text-gray-400 text-sm font-medium mb-1">예상 총 급여</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-black">₩{(totalExpectedSalary / 10000).toLocaleString()}만</span>
+            <span className="text-3xl font-bold text-black">₩{Math.floor(totalExpectedSalary / 10000).toLocaleString()}만</span>
           </div>
         </div>
         <div className="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm">
@@ -256,83 +231,15 @@ export function PersonnelTable({ onTabChange, onAddGuest }: PersonnelTableProps)
           </div>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <Dialog open={isGuestModalOpen} onOpenChange={setIsGuestModalOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="bg-white border-gray-100 text-gray-500 hover:bg-gray-50 hover:text-black rounded-xl h-12 px-6 font-bold flex items-center gap-2 shadow-sm">
-                <Users className="w-4 h-4" />
-                게스트 등록
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-white border-gray-100 text-black max-w-lg rounded-3xl">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">신규 게스트 등록</DialogTitle>
-                <DialogDescription className="text-gray-400">
-                  방문객 정보를 입력해주세요. 등록 후 게스트 관리 페이지로 이동합니다.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSaveGuest} className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="guest-name">이름</Label>
-                    <Input id="guest-name" name="name" required placeholder="성함 입력" className="bg-gray-50 border-gray-100" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="guest-company">소속사</Label>
-                    <Input id="guest-company" name="company" required placeholder="회사명 입력" className="bg-gray-50 border-gray-100" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="guest-host">담당자</Label>
-                    <Input id="guest-host" name="host" required placeholder="담당 직원 이름" className="bg-gray-50 border-gray-100" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="guest-date">방문날짜</Label>
-                    <Input id="guest-date" name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} className="bg-gray-50 border-gray-100" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guest-details">세부사항</Label>
-                  <Input id="guest-details" name="details" placeholder="방문 목적 (예: 회의, 결재 등)" className="bg-gray-50 border-gray-100" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="guest-entry">출입시간</Label>
-                    <Input id="guest-entry" name="entryTime" type="time" className="bg-gray-50 border-gray-100" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="guest-exit">퇴장시간</Label>
-                    <Input id="guest-exit" name="exitTime" type="time" className="bg-gray-50 border-gray-100" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guest-status">상태</Label>
-                  <Select name="status" defaultValue="대기">
-                    <SelectTrigger className="bg-gray-50 border-gray-100">
-                      <SelectValue placeholder="선택" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-100 text-black">
-                      <SelectItem value="대기">대기</SelectItem>
-                      <SelectItem value="방문중">방문중</SelectItem>
-                      <SelectItem value="방문완료">방문완료</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <DialogFooter className="pt-4">
-                  <Button type="button" variant="ghost" onClick={() => setIsGuestModalOpen(false)} className="text-gray-400">취소</Button>
-                  <Button type="submit" className="bg-black text-white hover:bg-black/90">등록 완료</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2 shadow-md">
-                <UserPlus className="w-4 h-4" />
-                직원 등록
-              </Button>
-            </DialogTrigger>
+            <DialogTrigger 
+              render={
+                <Button className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2 shadow-md">
+                  <UserPlus className="w-4 h-4" />
+                  직원 등록
+                </Button>
+              }
+            />
             <DialogContent className="bg-white border-gray-100 text-black max-w-lg rounded-3xl">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">신규 직원 등록</DialogTitle>
@@ -450,7 +357,7 @@ export function PersonnelTable({ onTabChange, onAddGuest }: PersonnelTableProps)
                     </div>
                   </td>
                   <td className="px-6 py-4 text-black font-bold">
-                    ₩{(emp.expectedSalary / 10000).toLocaleString()}만
+                    ₩{Math.floor(emp.expectedSalary / 10000).toLocaleString()}만
                   </td>
                   <td className="px-6 py-4">
                     <Badge className={cn(
@@ -507,24 +414,34 @@ export function PersonnelTable({ onTabChange, onAddGuest }: PersonnelTableProps)
             </Button>
             
             <div className="flex items-center gap-1 px-2">
-              {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-                // Showing up to 10 pages for simplicity as requested, or logic for more
+              {Array.from({ length: totalPages }, (_, i) => {
                 const pageNum = i + 1;
+                // Only show a range of buttons if there are too many pages
+                if (totalPages > 10) {
+                  const isFirstSet = pageNum <= 3;
+                  const isLastSet = pageNum > totalPages - 3;
+                  const isMiddle = Math.abs(pageNum - currentPage) <= 1;
+                  
+                  if (!isFirstSet && !isLastSet && !isMiddle) {
+                    if (pageNum === 4 || pageNum === totalPages - 3) return <span key={pageNum} className="text-gray-300 px-1">...</span>;
+                    return null;
+                  }
+                }
+
                 return (
                   <Button
                     key={pageNum}
                     variant={currentPage === pageNum ? "default" : "ghost"}
                     onClick={() => setCurrentPage(pageNum)}
                     className={cn(
-                      "w-10 h-10 rounded-xl font-bold",
-                      currentPage === pageNum ? "bg-black text-white" : "text-gray-400 hover:text-black hover:bg-gray-100"
+                      "w-10 h-10 rounded-xl font-bold transition-all",
+                      currentPage === pageNum ? "bg-black text-white shadow-lg" : "text-gray-400 hover:text-black hover:bg-gray-100"
                     )}
                   >
                     {pageNum}
                   </Button>
                 );
               })}
-              {totalPages > 10 && <span className="text-gray-400 px-2">...</span>}
             </div>
 
             <Button

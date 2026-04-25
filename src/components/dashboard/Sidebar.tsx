@@ -48,7 +48,7 @@ export function Sidebar({ activeTab, onTabChange, isCollapsed, onToggle, onLogou
             animate={{ opacity: 1 }}
             className="text-black font-bold text-xl tracking-tight"
           >
-            Equa
+            Grown
           </motion.span>
         )}
       </div>

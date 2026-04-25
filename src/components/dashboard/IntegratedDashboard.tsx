@@ -24,6 +24,13 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from "lucide-react";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { motion } from "motion/react";
 
 const occupancyData = [
@@ -35,6 +42,13 @@ const occupancyData = [
   { time: "18:00", count: 210 },
   { time: "20:00", count: 80 },
 ];
+
+const zoneEnvData: Record<string, { temp: string; humidity: string; co2: string; status: { temp: string; humidity: string; co2: string } }> = {
+  "본관 전체": { temp: "24.5", humidity: "45", co2: "650", status: { temp: "쾌적", humidity: "적정", co2: "좋음" } },
+  "개발본부": { temp: "23.8", humidity: "42", co2: "710", status: { temp: "쾌적", humidity: "적정", co2: "보통" } },
+  "연구동": { temp: "22.5", humidity: "48", co2: "580", status: { temp: "쾌적", humidity: "적정", co2: "좋음" } },
+  "데이터센터": { temp: "19.0", humidity: "35", co2: "420", status: { temp: "안정", humidity: "건조", co2: "좋음" } },
+};
 
 const energyData = [
   { day: "월", usage: 450 },
@@ -60,6 +74,9 @@ const accessLogs = [
 ];
 
 export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) => void }) {
+  const [selectedZone, setSelectedZone] = React.useState("본관 전체");
+  const currentEnv = zoneEnvData[selectedZone] || zoneEnvData["본관 전체"];
+
   return (
     <div className="space-y-8 pb-12">
       <header>
@@ -68,7 +85,7 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
       </header>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard 
           icon={Users} 
           label="현재 건물 내 인원" 
@@ -91,12 +108,6 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
           subValue="%"
           trend="+8%" 
           trendType="up"
-        />
-        <StatCard 
-          icon={Monitor} 
-          label="활성 워크스테이션" 
-          value="328" 
-          subValue="/ 450"
         />
       </div>
 
@@ -158,11 +169,24 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
 
         {/* Environmental Status */}
         <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm space-y-8">
-          <h3 className="text-xl font-bold text-gray-900">환경 모니터링</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-gray-900">환경 모니터링</h3>
+            <Select value={selectedZone} onValueChange={setSelectedZone}>
+              <SelectTrigger className="w-[140px] h-9 bg-gray-50 border-gray-100 rounded-xl text-xs font-bold">
+                <SelectValue placeholder="구역 선택" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-gray-100">
+                <SelectItem value="본관 전체">본관 전체</SelectItem>
+                <SelectItem value="개발본부">개발본부</SelectItem>
+                <SelectItem value="연구동">연구동</SelectItem>
+                <SelectItem value="데이터센터">데이터센터</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-6">
-            <EnvItem icon={Thermometer} label="온도" value="24.5" unit="°C" status="쾌적" color="text-orange-500" bg="bg-orange-50" />
-            <EnvItem icon={Droplets} label="습도" value="45" unit="%" status="적정" color="text-blue-500" bg="bg-blue-50" />
-            <EnvItem icon={Wind} label="CO2 농도" value="650" unit="ppm" status="좋음" color="text-green-500" bg="bg-green-50" />
+            <EnvItem icon={Thermometer} label="온도" value={currentEnv.temp} unit="°C" status={currentEnv.status.temp} color="text-orange-500" bg="bg-orange-50" />
+            <EnvItem icon={Droplets} label="습도" value={currentEnv.humidity} unit="%" status={currentEnv.status.humidity} color="text-blue-500" bg="bg-blue-50" />
+            <EnvItem icon={Wind} label="CO2 농도" value={currentEnv.co2} unit="ppm" status={currentEnv.status.co2} color="text-green-500" bg="bg-green-50" />
           </div>
           <div className="pt-4 border-t border-gray-50">
             <p className="text-xs text-gray-400 leading-relaxed">
@@ -175,7 +199,7 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Energy Usage */}
         <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-          <h3 className="text-xl font-bold text-gray-900 mb-8">주간 에너지 소비</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-8">주간 에너지 소비 (kWh)</h3>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={energyData}>
@@ -187,7 +211,11 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
                   tick={{ fill: '#9ca3af', fontSize: 12 }}
                   dy={10}
                 />
-                <YAxis hide />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                />
                 <Tooltip 
                   cursor={{ fill: '#f9fafb' }}
                   contentStyle={{ 
@@ -195,6 +223,7 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
                     border: 'none', 
                     boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
                   }}
+                  formatter={(value: number) => [`${value} kWh`, '에너지 소비']}
                 />
                 <Bar dataKey="usage" radius={[6, 6, 0, 0]}>
                   {energyData.map((entry, index) => (

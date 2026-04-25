@@ -11,6 +11,8 @@ import { GuestTable } from "./components/dashboard/GuestTable";
 import { IntegratedDashboard } from "./components/dashboard/IntegratedDashboard";
 import { AccessRecordTable } from "./components/dashboard/AccessRecordTable";
 import { ZoneManagement } from "./components/dashboard/ZoneManagement";
+import { SalaryManagement } from "./components/dashboard/SalaryManagement";
+import { BuildingManagement } from "./components/dashboard/BuildingManagement";
 import { LoginPage } from "./components/auth/LoginPage";
 import { Briefcase, CheckCircle2, Hourglass, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -22,7 +24,7 @@ export interface Guest {
   company: string;
   host: string;
   details: string;
-  status: "방문중" | "대기" | "방문완료";
+  status: "방문중" | "출입 전" | "방문완료";
   entryTime: string;
   exitTime: string;
   date: string;
@@ -30,7 +32,7 @@ export interface Guest {
 
 const initialGuests: Guest[] = [
   { id: "1", name: "김호탈", company: "삼성전자", host: "강경석", details: "회의", status: "방문중", entryTime: "10:50", exitTime: "-", date: "26.12.25" },
-  { id: "2", name: "강덕순", company: "LG", host: "임한석", details: "결재", status: "대기", entryTime: "13:30", exitTime: "-", date: "26.08.17" },
+  { id: "2", name: "강덕순", company: "LG", host: "임한석", details: "결재", status: "출입 전", entryTime: "13:30", exitTime: "-", date: "26.08.17" },
   { id: "3", name: "임호탈", company: "현대자동차", host: "이문영", details: "사장접견", status: "방문완료", entryTime: "10:00", exitTime: "12:30", date: "26.02.20" },
   // 27 more mock guests
   ...[
@@ -43,7 +45,7 @@ const initialGuests: Guest[] = [
     company: ["네이버", "카카오", "쿠팡", "배달의민족", "토스", "당근마켓", "직방"][Math.floor(Math.random() * 7)],
     host: ["김철수", "이영희", "박민수", "최지우", "정다은"][Math.floor(Math.random() * 5)],
     details: ["업무 미팅", "면접", "장비 점검", "계약 체결", "단순 방문"][Math.floor(Math.random() * 5)],
-    status: ["방문중", "대기", "방문완료"][Math.floor(Math.random() * 3)] as any,
+    status: ["방문중", "출입 전", "방문완료"][Math.floor(Math.random() * 3)] as any,
     entryTime: `${Math.floor(9 + Math.random() * 8)}:00`,
     exitTime: Math.random() > 0.5 ? `${Math.floor(14 + Math.random() * 4)}:30` : "-",
     date: `26.04.${Math.floor(10 + Math.random() * 20)}`
@@ -69,6 +71,10 @@ export default function App() {
     switch (activeTab) {
       case "통합 관제":
         return <IntegratedDashboard onTabChange={setActiveTab} />;
+      case "건물 관리":
+        return <BuildingManagement />;
+      case "급여 관리":
+        return <SalaryManagement />;
       case "구역 관리":
         return <ZoneManagement />;
       case "출입 기록 관리":

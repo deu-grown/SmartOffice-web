@@ -104,15 +104,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               로그인하기
             </Button>
           </form>
-
-          <footer className="pt-4 text-center">
-            <p className="text-gray-400 font-medium">
-              아직 계정이 없으신가요?{" "}
-              <button className="text-black font-bold hover:underline ml-1 transition-all">
-                회원가입하기
-              </button>
-            </p>
-          </footer>
         </div>
       </motion.div>
     </div>
