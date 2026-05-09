@@ -2,8 +2,7 @@ import { LayoutDashboard, FolderKanban, Calendar, Sparkles, Timer, BarChart3, Lo
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion } from "motion/react";
-
-export type TabType = "건물 관리" | "구역 관리" | "출입 기록 관리" | "재고 관리" | "인사 관리" | "급여 관리" | "회의실 관리" | "주차 관리" | "통합 관제" | "게스트 관리";
+import { TabType } from "../../types";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "통합 관제" },

@@ -1,0 +1,19 @@
+
+export interface PermissionSetting {
+  id: string;
+  name: string;
+  type: "RANK" | "STAFF" | "DEPT";
+  allowed: boolean;
+}
+
+export interface Room {
+  id: string;
+  name: string;
+  type: string;
+  gateActive: boolean;
+  floor: string;
+  permissions: PermissionSetting[];
+  groups: string[];
+}
+
+export type TabType = "통합 관제" | "인사 관리" | "게스트 관리" | "출입 기록 관리" | "구역 관리" | "급여 관리" | "재고 관리" | "주차 관리" | "건물 관리" | "시스템 설정";

@@ -31,6 +31,7 @@ export function TopBar() {
   // Modal states
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showMyPageModal, setShowMyPageModal] = useState(false);
 
   // Profile data
   const [profile, setProfile] = useState({
@@ -38,14 +39,19 @@ export function TopBar() {
     email: "alex.j@smartoffice.com",
     phone: "010-1234-5678",
     department: "시스템 관리팀",
-    role: "Admin"
+    role: "관리자"
   });
 
-  // Security settings
-  const [security, setSecurity] = useState({
-    twoFactor: true,
-    autoLock: true,
-    accessLogs: true
+  // Password change state
+  const [passwords, setPasswords] = useState({
+    current: "",
+    new: "",
+    confirm: ""
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
   });
 
   // System settings
@@ -74,29 +80,39 @@ export function TopBar() {
     setShowSettingsModal(false);
   };
 
+  const handleChangePassword = () => {
+    if (!passwords.current || !passwords.new || !passwords.confirm) {
+      toast.error("모든 비밀번호 필드를 입력해주세요.");
+      return;
+    }
+    if (passwords.new !== passwords.confirm) {
+      toast.error("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    toast.success("비밀번호가 성공적으로 변경되었습니다.");
+    setPasswords({ current: "", new: "", confirm: "" });
+    setShowMyPageModal(false);
+  };
+
   return (
     <header className="h-20 flex items-center justify-end px-8 bg-white border-b border-gray-100">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 ml-2">
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-gray-400 hover:text-black hover:bg-gray-50 rounded-full relative outline-none"
-              >
-                <Bell className="w-5 h-5" />
-                {hasUnreadNotifications && (
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-                )}
-              </Button>
+            <DropdownMenuTrigger className="text-gray-400 hover:text-black hover:bg-gray-50 rounded-full relative outline-none w-10 h-10 flex items-center justify-center transition-colors">
+              <Bell className="w-5 h-5" />
+              {hasUnreadNotifications && (
+                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+              )}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80 bg-white text-black border border-gray-100 shadow-2xl rounded-2xl p-2 z-50">
-              <DropdownMenuLabel className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">최근 알람</DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">최근 알람</DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-gray-100 mx-2 my-1" />
               <div className="max-h-[300px] overflow-y-auto">
                 <DropdownMenuItem 
-                  className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors cursor-pointer outline-none"
+                   className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors cursor-pointer outline-none focus:bg-gray-50"
                   onClick={() => setHasUnreadNotifications(false)}
                 >
                   <div className="flex items-center gap-2 w-full">
@@ -109,7 +125,7 @@ export function TopBar() {
                   </p>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors cursor-pointer outline-none"
+                   className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors cursor-pointer outline-none focus:bg-gray-50"
                   onClick={() => {}}
                 >
                   <div className="flex items-center gap-2 w-full">
@@ -122,7 +138,7 @@ export function TopBar() {
                   </p>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors cursor-pointer outline-none"
+                   className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors cursor-pointer outline-none focus:bg-gray-50"
                   onClick={() => {}}
                 >
                   <div className="flex items-center gap-2 w-full">
@@ -147,8 +163,8 @@ export function TopBar() {
           </DropdownMenu>
           
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Avatar className="w-10 h-10 border-2 border-gray-100 cursor-pointer hover:border-gray-200 transition-all outline-none">
+            <DropdownMenuTrigger className="w-10 h-10 border-2 border-gray-100 cursor-pointer hover:border-gray-200 transition-all outline-none rounded-full overflow-hidden flex items-center justify-center">
+              <Avatar className="w-full h-full border-none">
                 <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" />
                 <AvatarFallback>AX</AvatarFallback>
               </Avatar>
@@ -159,23 +175,29 @@ export function TopBar() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-gray-100 mx-2 my-1" />
               <DropdownMenuItem 
-                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors cursor-pointer outline-none"
-                onClick={() => setShowProfileModal(true)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors cursor-pointer outline-none focus:bg-gray-50"
+                onClick={() => setShowMyPageModal(true)}
               >
-                <User className="w-4 h-4" /> 프로필 설정
+                <User className="w-4 h-4" /> 마이페이지
               </DropdownMenuItem>
               <DropdownMenuItem 
-                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors cursor-pointer outline-none"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors cursor-pointer outline-none focus:bg-gray-50"
+                onClick={() => setShowProfileModal(true)}
+              >
+                <Settings className="w-4 h-4" /> 프로필 설정
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors cursor-pointer outline-none focus:bg-gray-50"
                 onClick={() => setShowSettingsModal(true)}
               >
-                <Settings className="w-4 h-4" /> 시스템 설정
+                <Shield className="w-4 h-4" /> 시스템 설정
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-gray-100 mx-2 my-1" />
               <DropdownMenuItem 
-                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer outline-none"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer outline-none focus:bg-red-50"
                 onClick={() => {
                   toast.success("로그아웃 되었습니다.");
-                  window.location.reload(); // Simple way to logout in this demo
+                  window.location.reload(); 
                 }}
               >
                 <LogOut className="w-4 h-4" /> 로그아웃
@@ -185,6 +207,82 @@ export function TopBar() {
         </div>
       </div>
 
+      {/* My Page Modal (비밀번호 변경) */}
+      <Dialog open={showMyPageModal} onOpenChange={setShowMyPageModal}>
+        <DialogContent className="sm:max-w-[450px] bg-white rounded-[32px] p-8 border-none shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">마이페이지</DialogTitle>
+            <DialogDescription className="text-gray-500">계정의 보안 및 비밀번호를 관리합니다.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="space-y-4">
+              <Label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">비밀번호 변경</Label>
+              
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-600">현재 비밀번호</Label>
+                <div className="relative">
+                  <Input 
+                    type={showPasswords.current ? "text" : "password"}
+                    value={passwords.current}
+                    onChange={(e) => setPasswords({...passwords, current: e.target.value})}
+                    className="bg-gray-50 border-none rounded-xl h-12 px-4 focus:ring-2 focus:ring-black/5 pr-12"
+                    placeholder="현재 비밀번호를 입력하세요"
+                  />
+                  <button 
+                    onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+                  >
+                    {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-600">새 비밀번호</Label>
+                <div className="relative">
+                  <Input 
+                    type={showPasswords.new ? "text" : "password"}
+                    value={passwords.new}
+                    onChange={(e) => setPasswords({...passwords, new: e.target.value})}
+                    className="bg-gray-50 border-none rounded-xl h-12 px-4 focus:ring-2 focus:ring-black/5 pr-12"
+                    placeholder="새 비밀번호를 입력하세요"
+                  />
+                  <button 
+                    onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+                  >
+                    {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-600">새 비밀번호 확인</Label>
+                <div className="relative">
+                  <Input 
+                    type={showPasswords.confirm ? "text" : "password"}
+                    value={passwords.confirm}
+                    onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
+                    className="bg-gray-50 border-none rounded-xl h-12 px-4 focus:ring-2 focus:ring-black/5 pr-12"
+                    placeholder="새 비밀번호를 다시 입력하세요"
+                  />
+                  <button 
+                    onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+                  >
+                    {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setShowMyPageModal(false)} className="rounded-xl font-bold">취소</Button>
+            <Button onClick={handleChangePassword} className="bg-black text-white hover:bg-black/90 rounded-xl font-bold px-6">비밀번호 변경</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+ 
       {/* Profile Settings Modal */}
       <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
         <DialogContent className="sm:max-w-[450px] bg-white rounded-[32px] p-8 border-none shadow-2xl">
@@ -231,7 +329,7 @@ export function TopBar() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
+ 
       {/* System Settings Modal */}
       <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
         <DialogContent className="sm:max-w-[450px] bg-white rounded-[32px] p-8 border-none shadow-2xl">
@@ -242,16 +340,13 @@ export function TopBar() {
           <div className="space-y-6 py-6">
             <div className="space-y-3">
               <Label className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">기본 언어</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {["한국어", "ENG", "日本語"].map(lang => (
+              <div className="grid grid-cols-1 gap-2">
+                {["한국어"].map(lang => (
                   <Button 
                     key={lang}
-                    variant={system.language === (lang === "한국어" ? "ko" : lang === "ENG" ? "en" : "jp") ? "default" : "outline"}
-                    className={cn(
-                      "rounded-xl h-10 font-bold text-xs",
-                      system.language === (lang === "한국어" ? "ko" : lang === "ENG" ? "en" : "jp") ? "bg-black text-white" : "border-gray-100"
-                    )}
-                    onClick={() => setSystem({...system, language: lang === "한국어" ? "ko" : lang === "ENG" ? "en" : "jp"})}
+                    variant="default"
+                    className="rounded-xl h-10 font-bold text-xs bg-black text-white"
+                    onClick={() => {}}
                   >
                     {lang}
                   </Button>
@@ -268,17 +363,6 @@ export function TopBar() {
                  </div>
                </div>
                <Switch checked={system.notifications} onCheckedChange={(val) => setSystem({...system, notifications: val})} />
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-               <div className="flex items-center gap-3">
-                 <Globe className="w-5 h-5 text-gray-400" />
-                 <div className="space-y-0.5">
-                   <Label className="text-sm font-bold">글로벌 타임존</Label>
-                   <p className="text-[10px] text-gray-400">데이터를 UTC 기준으로 표시합니다.</p>
-                 </div>
-               </div>
-               <Switch checked={false} disabled />
             </div>
           </div>
           <DialogFooter>

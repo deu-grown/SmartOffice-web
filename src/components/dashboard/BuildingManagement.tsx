@@ -43,7 +43,24 @@ const generateHistoryData = (points: number, min: number, max: number) => {
   }));
 };
 
-export function BuildingManagement() {
+interface BuildingManagementProps {
+  locks: {
+    temp: boolean;
+    hum: boolean;
+    light: boolean;
+  };
+  setLocks: (val: any) => void;
+  settings: {
+    targetTemp: number;
+    targetHumidity: number;
+    isLightOn: boolean;
+    brightness: number;
+  };
+  setSettings: (val: any) => void;
+  setHasUnsavedChanges: (val: boolean) => void;
+}
+
+export function BuildingManagement({ locks, setLocks, settings, setSettings, setHasUnsavedChanges }: BuildingManagementProps) {
   const [selectedArea, setSelectedArea] = useState("제 1 연구소");
   const [selectedRoom, setSelectedRoom] = useState("R101");
   
@@ -69,17 +86,46 @@ export function BuildingManagement() {
     }
   };
 
-  // Individual Admin Locks
-  const [locks, setLocks] = useState({
-    temp: false,
-    hum: false,
-    light: false
-  });
+  const { targetTemp, targetHumidity, isLightOn, brightness } = settings;
 
-  const [targetTemp, setTargetTemp] = useState(24);
-  const [targetHumidity, setTargetHumidity] = useState(45);
-  const [isLightOn, setIsLightOn] = useState(true);
-  const [brightness, setBrightness] = useState(80);
+  const setTargetTemp = (val: number) => {
+    setSettings((prev: any) => ({ ...prev, targetTemp: val }));
+    setHasUnsavedChanges(true);
+  };
+
+  const setTargetHumidity = (val: number) => {
+    setSettings((prev: any) => ({ ...prev, targetHumidity: val }));
+    setHasUnsavedChanges(true);
+  };
+
+  const setIsLightOn = (val: boolean) => {
+    setSettings((prev: any) => ({ ...prev, isLightOn: val }));
+    setHasUnsavedChanges(true);
+  };
+
+  const setBrightness = (val: number) => {
+    setSettings((prev: any) => ({ ...prev, brightness: val }));
+    setHasUnsavedChanges(true);
+  };
+
+  // Lock confirmation state
+  const [showLockConfirm, setShowLockConfirm] = useState(false);
+  const [pendingLock, setPendingLock] = useState<{ key: keyof typeof locks, value: boolean } | null>(null);
+
+  const confirmLockToggle = () => {
+    if (pendingLock) {
+      setLocks(prev => ({ ...prev, [pendingLock.key]: pendingLock.value }));
+      setHasUnsavedChanges(true);
+      toast.success(`${pendingLock.value ? '관리자 모드가 활성화되었습니다.' : '관리자 모드가 해제되었습니다.'}`);
+    }
+    setShowLockConfirm(false);
+    setPendingLock(null);
+  };
+
+  const handleLockToggleRequest = (key: keyof typeof locks, value: boolean) => {
+    setPendingLock({ key, value });
+    setShowLockConfirm(true);
+  };
 
   // Sync current values when room or area changes
   const currentTemp = roomDataConfig[selectedArea]?.[selectedRoom]?.temp || 20;
@@ -102,8 +148,44 @@ export function BuildingManagement() {
       <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
         <div className="space-y-1">
           <h1 className="text-4xl font-black tracking-tight text-gray-900">시스템 제어 센터</h1>
-          <p className="text-gray-400 font-medium lowercase tracking-wide">building integrated management system / v2.4</p>
         </div>
+
+        {/* Lock Confirmation Modal */}
+        <AnimatePresence>
+          {showLockConfirm && (
+            <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white rounded-[40px] w-full max-w-sm p-10 shadow-2xl space-y-8 text-center"
+              >
+                <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto">
+                  <ShieldAlert className="w-10 h-10" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-bold text-gray-900 leading-tight">관리자 모드 상태를<br />변경하시겠습니까?</h2>
+                  <p className="text-gray-500 font-medium font-sans">관리자 모드 활성 시 일반 사용자의 설정이 제한됩니다</p>
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => { setShowLockConfirm(false); setPendingLock(null); }}
+                    className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                  >
+                    취소
+                  </Button>
+                  <Button 
+                    onClick={confirmLockToggle}
+                    className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
+                  >
+                    변경하기
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
         
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
@@ -149,52 +231,56 @@ export function BuildingManagement() {
           title="온도 모니터링" 
           unit="°C" 
           data={tempHistory} 
-          color="#f43f5e" 
+          color="#f97316" 
           icon={Thermometer}
           currentValue={currentTemp}
           targetValue={targetTemp}
           onTargetChange={setTargetTemp}
           isAdminLocked={locks.temp}
-          onLockToggle={(v) => setLocks(prev => ({ ...prev, temp: v }))}
+          onLockToggle={(v) => handleLockToggleRequest('temp', v)}
+          yDomain={[18, 30]}
+          yTicks={[18, 20, 22, 24, 26, 28, 30]}
         />
 
         <ChartSection 
           title="습도 모니터링" 
           unit="%" 
           data={humidityHistory} 
-          color="#0ea5e9" 
+          color="#06b6d4" 
           icon={Droplets}
           currentValue={currentHum}
           targetValue={targetHumidity}
           onTargetChange={setTargetHumidity}
           isAdminLocked={locks.hum}
-          onLockToggle={(v) => setLocks(prev => ({ ...prev, hum: v }))}
+          onLockToggle={(v) => handleLockToggleRequest('hum', v)}
+          yDomain={[20, 70]}
+          yTicks={[20, 30, 40, 50, 60, 70]}
         />
 
         {/* Lighting control expanded to be more prominent */}
         <div className={cn(
-          "bg-[#0a0a0a] text-white p-10 rounded-[50px] shadow-2xl relative overflow-hidden transition-all duration-500",
+          "bg-white text-gray-900 p-10 rounded-[50px] shadow-sm border border-gray-100 relative overflow-hidden transition-all duration-500",
           locks.light && "opacity-90 grayscale-[0.3]"
         )}>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 blur-[100px] pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 blur-[100px] pointer-events-none" />
           
           <div className="flex items-center justify-between relative z-10 mb-12">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
-                <Lightbulb className={cn("w-7 h-7 transition-all duration-500", isLightOn ? "text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]" : "text-zinc-600")} />
+              <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100">
+                <Lightbulb className={cn("w-7 h-7 transition-all duration-500", isLightOn ? "text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.3)]" : "text-gray-300")} />
               </div>
               <div>
                 <h3 className="text-2xl font-black">시스템 조명 설정</h3>
-                <p className="text-sm text-zinc-500 font-medium">영역 내 모든 광원을 일괄 제어합니다</p>
+                <p className="text-sm text-gray-400 font-medium">영역 내 모든 광원을 일괄 제어합니다</p>
               </div>
             </div>
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl">
-                <ShieldAlert className="w-3 h-3 text-zinc-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">관리자 모드</span>
+              <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
+                <ShieldAlert className="w-3 h-3 text-gray-400" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">관리자 모드</span>
                 <Switch 
                   checked={locks.light} 
-                  onCheckedChange={(v) => setLocks(prev => ({ ...prev, light: v }))}
+                  onCheckedChange={(v) => handleLockToggleRequest('light', v)}
                   className="data-[state=checked]:bg-indigo-600 scale-75"
                 />
               </div>
@@ -214,14 +300,14 @@ export function BuildingManagement() {
               disabled={!isLightOn || locks.light} 
             />
             
-            <div className="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md">
+            <div className="p-6 bg-yellow-50/50 rounded-3xl border border-yellow-100">
               <div className="flex items-start gap-4">
                 <div className="bg-yellow-500/20 p-2 rounded-lg">
-                  <Zap className="w-4 h-4 text-yellow-500" />
+                  <Zap className="w-4 h-4 text-yellow-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-zinc-300">에너지 효율 경고</p>
-                  <p className="text-[11px] text-zinc-500 leading-relaxed mt-1">
+                  <p className="text-xs font-bold text-yellow-900">에너지 효율 경고</p>
+                  <p className="text-[11px] text-yellow-700/70 leading-relaxed mt-1">
                     현재 구역의 조도가 필요 이상으로 높게 설정되어 있습니다. 70% 이하 설정을 권장합니다.
                   </p>
                 </div>
@@ -268,12 +354,15 @@ interface ChartSectionProps {
   onTargetChange: (val: number) => void;
   isAdminLocked: boolean;
   onLockToggle: (v: boolean) => void;
+  yDomain?: [number, number];
+  yTicks?: number[];
 }
 
 function ChartSection({ 
   title, unit, data, color, icon: Icon, 
   currentValue, targetValue, onTargetChange, 
-  isAdminLocked, onLockToggle 
+  isAdminLocked, onLockToggle,
+  yDomain, yTicks
 }: ChartSectionProps) {
   const [localValue, setLocalValue] = useState(targetValue);
 
@@ -306,50 +395,63 @@ function ChartSection({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div className="md:col-span-8 h-[240px] w-full bg-gray-50/50 p-6 rounded-[30px] border border-gray-50">
+        <div className="md:col-span-9 h-[240px] w-full bg-white p-5 rounded-[30px] border border-gray-100 shadow-inner">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
-              <defs>
-                <linearGradient id={`color${title}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor={color} stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" strokeOpacity={0.5} />
-              <XAxis dataKey="time" hide />
-              <YAxis hide domain={['dataMin - 1', 'dataMax + 1']} />
+            <AreaChart data={data} margin={{ top: 15, right: 10, left: 20, bottom: 30 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis 
+                dataKey="time" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: '700' }} 
+                dy={10}
+                interval={3}
+              />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: '700' }} 
+                domain={yDomain || ['dataMin - 2', 'dataMax + 2']} 
+                ticks={yTicks}
+                width={55}
+                dx={-10}
+              />
               <RechartsTooltip 
                 contentStyle={{ 
-                  borderRadius: '20px', 
+                  borderRadius: '16px', 
                   border: 'none', 
-                  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                   fontWeight: 'bold',
-                  fontSize: '12px'
+                  fontSize: '12px',
+                  backgroundColor: 'white'
                 }}
+                labelStyle={{ color: '#64748b', marginBottom: '4px' }}
+                itemStyle={{ padding: '0px' }}
+                formatter={(value: any) => [`${value}${unit}`, title.split(' ')[0]]}
               />
-              <Area type="monotone" dataKey="value" stroke={color} strokeWidth={4} fillOpacity={1} fill={`url(#color${title})`} />
+              <Area type="monotone" dataKey="value" stroke={color} strokeWidth={4} fill="none" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="md:col-span-4 flex flex-col gap-4">
-          <div className="flex-1 p-6 bg-zinc-900 text-white rounded-[30px] flex flex-col justify-center items-center shadow-xl">
-            <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-2">실시간 현재</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-black font-mono tracking-tighter">{currentValue}</span>
-              <span className="text-xs font-bold text-zinc-500">{unit}</span>
+        <div className="md:col-span-3 flex flex-col gap-3">
+          <div className="flex-1 p-4 bg-gray-50/50 text-gray-900 border border-gray-100 rounded-[28px] flex flex-col justify-center items-center">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">현재 상태</span>
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-3xl font-black font-mono tracking-tighter">{currentValue}</span>
+              <span className="text-xs font-bold text-gray-400">{unit}</span>
             </div>
           </div>
 
           <div className={cn(
-            "flex-1 p-6 bg-white rounded-[30px] border border-gray-100 flex flex-col justify-between transition-all",
+            "flex-1 p-5 bg-white rounded-[28px] border border-gray-100 flex flex-col justify-between shadow-sm transition-all",
             isAdminLocked && "opacity-20 pointer-events-none scale-95"
           )}>
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">설정 변경</span>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">목표 설정</span>
               <div className="flex items-baseline gap-0.5">
-                <span className="text-xl font-black font-mono text-indigo-600">{localValue}</span>
-                <span className="text-[10px] font-bold text-indigo-400">{unit}</span>
+                <span className="text-lg font-black font-mono text-indigo-600">{localValue}</span>
+                <span className="text-[9px] font-bold text-indigo-300">{unit}</span>
               </div>
             </div>
             <Slider 
@@ -379,10 +481,10 @@ function BrightnessSlider({ value, onChange, disabled }: { value: number, onChan
     <div className={cn("space-y-6 transition-all", disabled && "opacity-20 pointer-events-none")}>
       <div className="flex justify-between items-end">
         <div>
-          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] block mb-1">인텐시티 레벨</span>
-          <h4 className="text-3xl font-black font-mono">{localValue}%</h4>
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] block mb-1">밝기 단계</span>
+          <h4 className="text-3xl font-black font-mono text-gray-900">{localValue}%</h4>
         </div>
-        <Sliders className="w-5 h-5 text-zinc-700" />
+        <Sliders className="w-5 h-5 text-gray-400" />
       </div>
       <Slider 
         value={[localValue]} 

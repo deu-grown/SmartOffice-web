@@ -27,157 +27,16 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { Room, PermissionSetting } from "../../types";
 
-interface PermissionSetting {
-  id: string;
-  name: string;
-  type: "RANK" | "STAFF" | "DEPT";
-  allowed: boolean;
+interface ZoneManagementProps {
+  rooms: Room[];
+  setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
+  setHasUnsavedChanges: (val: boolean) => void;
+  onSave?: () => void;
 }
 
-interface Room {
-  id: string;
-  name: string;
-  type: string;
-  gateActive: boolean;
-  floor: string;
-  permissions: PermissionSetting[];
-  groups: string[];
-}
-
-const initialRooms: Room[] = [
-  { 
-    id: "1", 
-    name: "서버실", 
-    type: "보안구역", 
-    gateActive: true,
-    floor: "3F",
-    permissions: [
-      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
-      { id: "rank-2", name: "과장", type: "RANK", allowed: true },
-      { id: "staff-1", name: "김호탈", type: "STAFF", allowed: true },
-      { id: "dept-1", name: "보안팀", type: "DEPT", allowed: true },
-      { id: "dept-2", name: "IT개발부", type: "DEPT", allowed: false },
-    ],
-    groups: ["IT본부", "보안팀"]
-  },
-  { 
-    id: "2", 
-    name: "개발 1팀", 
-    type: "사무공간", 
-    gateActive: true,
-    floor: "3F",
-    permissions: [
-      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
-      { id: "dept-2", name: "IT개발부", type: "DEPT", allowed: true },
-    ],
-    groups: ["개발본부"]
-  },
-  { 
-    id: "3", 
-    name: "임원실", 
-    type: "보안구역", 
-    gateActive: true,
-    floor: "3F",
-    permissions: [
-      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
-      { id: "staff-2", name: "이대표", type: "STAFF", allowed: true },
-    ],
-    groups: ["경영지원"]
-  },
-  { 
-    id: "4", 
-    name: "회의실 A", 
-    type: "공용공간", 
-    gateActive: false,
-    floor: "3F",
-    permissions: [
-      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
-    ],
-    groups: ["전체"]
-  },
-  { 
-    id: "5", 
-    name: "R&D 센터", 
-    type: "보안구역", 
-    gateActive: true,
-    floor: "5F",
-    permissions: [
-      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
-      { id: "dept-3", name: "연구소", type: "DEPT", allowed: true },
-    ],
-    groups: ["연구개발"]
-  },
-  { 
-    id: "6", 
-    name: "안내 데스크", 
-    type: "일반구역", 
-    gateActive: false,
-    floor: "1F",
-    permissions: [
-      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
-    ],
-    groups: ["운영지원"]
-  },
-  { 
-    id: "7", 
-    name: "물류 창고", 
-    type: "보안구역", 
-    gateActive: true,
-    floor: "1F",
-    permissions: [
-      { id: "dept-4", name: "물류팀", type: "DEPT", allowed: true },
-    ],
-    groups: ["물류팀"]
-  },
-  { 
-    id: "8", 
-    name: "마케팅실", 
-    type: "사무공간", 
-    gateActive: true,
-    floor: "2F",
-    permissions: [
-      { id: "dept-5", name: "마케팅팀", type: "DEPT", allowed: true },
-    ],
-    groups: ["마케팅팀"]
-  },
-  { 
-    id: "9", 
-    name: "인사팀", 
-    type: "사무공간", 
-    gateActive: true,
-    floor: "2F",
-    permissions: [
-      { id: "dept-6", name: "인사본부", type: "DEPT", allowed: true },
-    ],
-    groups: ["인사본부"]
-  },
-  { 
-    id: "10", 
-    name: "디자인 랩", 
-    type: "보안구역", 
-    gateActive: true,
-    floor: "4F",
-    permissions: [
-      { id: "dept-7", name: "디자인팀", type: "DEPT", allowed: true },
-    ],
-    groups: ["디자인팀"]
-  },
-  { 
-    id: "11", 
-    name: "전략회의실", 
-    type: "공용공간", 
-    gateActive: false, 
-    floor: "4F", 
-    permissions: [
-      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
-    ], 
-    groups: ["전략기획"] 
-  }
-];
-
-export function ZoneManagement() {
-  const [rooms, setRooms] = useState<Room[]>(initialRooms);
+export function ZoneManagement({ rooms, setRooms, setHasUnsavedChanges, onSave }: ZoneManagementProps) {
   const [selectedFloor, setSelectedFloor] = useState("3F");
   const floorRooms = rooms.filter(r => r.floor === selectedFloor);
   
@@ -185,6 +44,11 @@ export function ZoneManagement() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAddGateOpen, setIsAddGateOpen] = useState(false);
+  
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [pendingGateToggle, setPendingGateToggle] = useState<string | null>(null);
+
   const [isAddingGroup, setIsAddingGroup] = useState(false);
   const [newGroupInput, setNewGroupInput] = useState("");
   const [permissionTypeTab, setPermissionTypeTab] = useState<"RANK" | "STAFF" | "DEPT">("RANK");
@@ -196,7 +60,9 @@ export function ZoneManagement() {
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState("일반구역");
 
-  const selectedRoom = rooms.find(r => r.id === selectedRoomId) || floorRooms[0] || initialRooms[0];
+  const [localHasUnsavedChanges, setLocalHasUnsavedChanges] = useState(false);
+
+  const selectedRoom = rooms.find(r => r.id === selectedRoomId) || floorRooms[0] || rooms[0];
 
   React.useEffect(() => {
     const currentFloorRooms = rooms.filter(r => r.floor === selectedFloor);
@@ -206,9 +72,19 @@ export function ZoneManagement() {
   }, [selectedFloor, rooms]);
 
   const toggleGate = (id: string) => {
+    setPendingGateToggle(id);
+    setShowSaveConfirm(true);
+  };
+
+  const confirmGateToggle = () => {
+    if (!pendingGateToggle) return;
     setRooms(prevRooms => prevRooms.map(room => 
-      room.id === id ? { ...room, gateActive: !room.gateActive } : room
+      room.id === pendingGateToggle ? { ...room, gateActive: !room.gateActive } : room
     ));
+    setHasUnsavedChanges(true);
+    toast.success("보안 게이트 상태가 성공적으로 변경되었습니다.");
+    setShowSaveConfirm(false);
+    setPendingGateToggle(null);
   };
 
   const togglePermission = (roomId: string, permissionId: string) => {
@@ -222,6 +98,7 @@ export function ZoneManagement() {
           } 
         : room
     ));
+    setHasUnsavedChanges(true);
   };
 
   const selectAllPermissions = (roomId: string) => {
@@ -235,12 +112,14 @@ export function ZoneManagement() {
           } 
         : room
     ));
+    setHasUnsavedChanges(true);
   };
 
   const handleDeleteRoom = (id: string) => {
-    if (rooms.length <= 1) return; // Keep at least one room
+    if (rooms.length <= 1) return;
     const newRooms = rooms.filter(r => r.id !== id);
     setRooms(newRooms);
+    setHasUnsavedChanges(true);
     if (selectedRoomId === id) {
       setSelectedRoomId(newRooms[0].id);
     }
@@ -249,7 +128,21 @@ export function ZoneManagement() {
   const handleSettingsClick = () => {
     setEditName(selectedRoom.name);
     setEditType(selectedRoom.type);
+    setLocalHasUnsavedChanges(false);
     setIsSettingsOpen(true);
+  };
+
+  const handleSettingsFieldChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+    setter(value);
+    setLocalHasUnsavedChanges(true);
+  };
+
+  const handleCloseSettings = () => {
+    if (localHasUnsavedChanges) {
+      setShowExitConfirm(true);
+    } else {
+      setIsSettingsOpen(false);
+    }
   };
 
   const handleSaveSettings = () => {
@@ -258,6 +151,16 @@ export function ZoneManagement() {
         ? { ...room, name: editName, type: editType } 
         : room
     ));
+    setLocalHasUnsavedChanges(false);
+    setHasUnsavedChanges(false); // Update parent
+    if (onSave) onSave();
+    setIsSettingsOpen(false);
+    toast.success("구역 설정이 저장되었습니다.");
+  };
+
+  const confirmExitWithoutSave = () => {
+    setLocalHasUnsavedChanges(false);
+    setShowExitConfirm(false);
     setIsSettingsOpen(false);
   };
 
@@ -278,6 +181,7 @@ export function ZoneManagement() {
       groups: ["미지정"]
     };
     setRooms([...rooms, newRoom]);
+    setHasUnsavedChanges(true);
     setSelectedRoomId(newId);
     setIsAddGateOpen(false);
     setNewName("");
@@ -290,6 +194,7 @@ export function ZoneManagement() {
         ? { ...room, groups: room.groups.filter(g => g !== groupToDelete) }
         : room
     ));
+    setHasUnsavedChanges(true);
   };
 
   const handleAddGroupTag = (roomId: string) => {
@@ -305,6 +210,7 @@ export function ZoneManagement() {
       }
       return room;
     }));
+    setHasUnsavedChanges(true);
     
     setNewGroupInput("");
     setIsAddingGroup(false);
@@ -339,6 +245,7 @@ export function ZoneManagement() {
       }
       return room;
     }));
+    setHasUnsavedChanges(true);
     setIsAddPermissionOpen(false);
     toast.success(`${name} 항목이 추가되었습니다.`);
   };
@@ -484,7 +391,7 @@ export function ZoneManagement() {
                 <label className="text-sm font-bold text-gray-400 ml-1">구역 명칭</label>
                 <Input 
                   value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
+                  onChange={(e) => handleSettingsFieldChange(setEditName, e.target.value)}
                   className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-lg font-bold"
                   placeholder="구역 이름을 입력하세요"
                 />
@@ -501,7 +408,7 @@ export function ZoneManagement() {
                   ].map((type) => (
                     <button
                       key={type.id}
-                      onClick={() => setEditType(type.id)}
+                      onClick={() => handleSettingsFieldChange(setEditType, type.id)}
                       className={cn(
                         "flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left",
                         editType === type.id 
@@ -522,7 +429,7 @@ export function ZoneManagement() {
             <div className="flex gap-3 pt-4">
               <Button 
                 variant="ghost" 
-                onClick={() => setIsSettingsOpen(false)}
+                onClick={handleCloseSettings}
                 className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
               >
                 취소
@@ -532,6 +439,81 @@ export function ZoneManagement() {
                 className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
               >
                 저장하기
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Gate Toggle Confirmation */}
+      {showSaveConfirm && (
+        <div className="fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[40px] w-full max-w-sm p-10 shadow-2xl space-y-8 text-center"
+          >
+            <div className="w-20 h-20 bg-black text-white rounded-3xl flex items-center justify-center mx-auto">
+              <Shield className="w-10 h-10" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-gray-900 leading-tight">보안 게이트 상태를<br />변경하시겠습니까?</h2>
+              <p className="text-gray-500 font-medium">상태 변경 시 출입 기록에 즉시 반영됩니다</p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="ghost" 
+                onClick={() => { setShowSaveConfirm(false); setPendingGateToggle(null); }}
+                className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+              >
+                취소
+              </Button>
+              <Button 
+                onClick={confirmGateToggle}
+                className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
+              >
+                변경하기
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Exit Settings Confirmation */}
+      {showExitConfirm && (
+        <div className="fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[40px] w-full max-w-sm p-10 shadow-2xl space-y-8 text-center"
+          >
+            <div className="w-20 h-20 bg-orange-50 text-orange-600 rounded-3xl flex items-center justify-center mx-auto">
+              <ShieldAlert className="w-10 h-10" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-gray-900 leading-tight">저장하지 않은<br />변경사항이 있습니다</h2>
+              <p className="text-gray-500 font-medium">저장하지 않고 나가시면 수정사항이 사라집니다</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button 
+                onClick={handleSaveSettings}
+                className="w-full h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
+              >
+                변경사항 저장하고 나가기
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={confirmExitWithoutSave}
+                className="w-full h-14 rounded-2xl font-bold text-red-500 hover:text-red-600 hover:bg-red-50"
+              >
+                저장하지 않고 나가기
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowExitConfirm(false)}
+                className="w-full h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+              >
+                계속 수정하기
               </Button>
             </div>
           </motion.div>
