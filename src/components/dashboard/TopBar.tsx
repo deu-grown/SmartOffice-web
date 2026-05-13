@@ -74,11 +74,10 @@ export function TopBar({ user, onLogout }: TopBarProps) {
     confirm: false
   });
 
-  // System settings
+  // 시스템 설정: 다크모드는 본 작업에서 비활성(토큰 구조만 유지, 토글 UI 미노출).
   const [system, setSystem] = useState({
     language: "ko",
     notifications: true,
-    darkMode: false
   });
 
   const handleNotificationClick = () => {
