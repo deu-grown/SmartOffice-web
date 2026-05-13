@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import App from "./App.tsx";
 import { LoginPage } from "./components/auth/LoginPage";
+import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { QueryProvider } from "./providers/QueryProvider";
 import { PrivateRoute, PublicOnlyRoute } from "./routes/guards";
 import { ROUTES } from "./routes/paths";
@@ -26,27 +27,29 @@ function LoginRoute() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path={ROUTES.LOGIN}
-            element={
-              <PublicOnlyRoute>
-                <LoginRoute />
-              </PublicOnlyRoute>
-            }
-          />
-          <Route
-            path="/*"
-            element={
-              <PrivateRoute>
-                <App />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </QueryProvider>
+    <ErrorBoundary>
+      <QueryProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path={ROUTES.LOGIN}
+              element={
+                <PublicOnlyRoute>
+                  <LoginRoute />
+                </PublicOnlyRoute>
+              }
+            />
+            <Route
+              path="/*"
+              element={
+                <PrivateRoute>
+                  <App />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </QueryProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );

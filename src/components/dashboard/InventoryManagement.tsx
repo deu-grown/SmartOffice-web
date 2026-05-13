@@ -222,7 +222,7 @@ export function InventoryManagement() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">카테고리</Label>
-                        <Select onValueChange={(val) => setNewAsset({ ...newAsset, category: val })}>
+                        <Select onValueChange={(val: string) => setNewAsset({ ...newAsset, category: val })}>
                           <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-bold">
                             <SelectValue placeholder="카테고리 선택" />
                           </SelectTrigger>

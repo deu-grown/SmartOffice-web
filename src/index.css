@@ -144,3 +144,29 @@
     background: rgba(0, 0, 0, 0.2);
   }
 }
+
+/*
+ * 페이지 공통 타이포 토큰.
+ * 기존 코드는 "text-5xl font-bold tracking-tight mb-2 text-gray-900" 같은 동일 패턴을
+ * 페이지마다 반복 작성해 일관성 유지가 어려웠다. 점진적으로 아래 클래스로 교체할 것.
+ */
+@layer components {
+  .heading-page {
+    @apply text-5xl font-bold tracking-tight mb-2 text-gray-900;
+  }
+  .heading-section {
+    @apply text-3xl font-bold tracking-tight text-gray-900;
+  }
+  .heading-card {
+    @apply text-xl font-bold tracking-tight text-gray-900;
+  }
+  .text-subtitle {
+    @apply text-gray-500 text-lg font-medium;
+  }
+  .text-body-sm {
+    @apply text-sm text-gray-600;
+  }
+  .text-caption {
+    @apply text-xs text-gray-400;
+  }
+}

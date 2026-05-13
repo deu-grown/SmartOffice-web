@@ -75,10 +75,15 @@ export function ParkingManagement() {
   });
 
   // New vehicle form state
-  const [newVehicle, setNewVehicle] = useState({
+  const [newVehicle, setNewVehicle] = useState<{
+    plateNumber: string;
+    ownerName: string;
+    type: "임직원" | "방문객";
+    purpose: string;
+  }>({
     plateNumber: "",
     ownerName: "",
-    type: "방문객" as const,
+    type: "방문객",
     purpose: ""
   });
 
