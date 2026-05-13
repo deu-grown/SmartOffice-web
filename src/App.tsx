@@ -8,9 +8,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
-import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 
+import { useLogoutMutation } from "./features/auth/hooks";
 import { Sidebar } from "./components/dashboard/Sidebar";
 import { TopBar } from "./components/dashboard/TopBar";
 import { PersonnelTable } from "./components/dashboard/PersonnelTable";
@@ -210,9 +210,9 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const logoutMutation = useLogoutMutation();
 
   // mock 상태 — 플랜 3 페이지 마이그레이션에서 도메인별 API 로 대체.
   const [, setGuests] = useState<Guest[]>(initialGuests);
@@ -247,9 +247,8 @@ export default function App() {
   const activeTab: TabType = PATH_TO_TAB[location.pathname] ?? "통합 관제";
 
   const handleLogout = () => {
-    logout();
-    toast.success("로그아웃되었습니다.");
-    navigate(ROUTES.LOGIN, { replace: true });
+    // 서버 호출은 fire-and-forget. onSettled 에서 클라이언트 상태 정리 + 토스트 + 라우팅 처리.
+    logoutMutation.mutate();
   };
 
   const navigateToTab = (tab: TabType) => {
@@ -452,7 +451,6 @@ export default function App() {
           </AnimatePresence>
         </div>
       </main>
-      <Toaster theme="light" position="bottom-right" />
     </div>
   );
 }
