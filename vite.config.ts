@@ -19,6 +19,13 @@ export default defineConfig(({mode}) => {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
+      // dev에서 백엔드 호출은 Vite proxy 로 처리. 백엔드는 로컬 8080에서 기동되어야 한다.
+      proxy: {
+        '/api/v1': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+        },
+      },
     },
   };
 });
