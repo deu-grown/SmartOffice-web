@@ -75,7 +75,53 @@ const accessLogs = [
 
 export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) => void }) {
   const [selectedZone, setSelectedZone] = React.useState("본관 전체");
-  const currentEnv = zoneEnvData[selectedZone] || zoneEnvData["본관 전체"];
+  const [summaryData, setSummaryData] = React.useState<any>(null);
+  const [accessRecords, setAccessRecords] = React.useState<any[]>([]);
+  const [attendance, setAttendance] = React.useState<any>(null);
+  const [sensors, setSensors] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchDashboardData() {
+      setIsLoading(true);
+      try {
+        const [sumRes, accRes, attRes, senRes] = await Promise.all([
+          fetch("/api/v1/dashboard/summary"),
+          fetch("/api/v1/dashboard/access/recent?limit=5"),
+          fetch("/api/v1/dashboard/attendance/today"),
+          fetch("/api/v1/dashboard/sensors/current")
+        ]);
+
+        const [sum, acc, att, sen] = await Promise.all([
+          sumRes.json(),
+          accRes.json(),
+          attRes.json(),
+          senRes.json()
+        ]);
+
+        if (sum.code === "success") setSummaryData(sum.data);
+        if (acc.code === "success") setAccessRecords(acc.data);
+        if (att.code === "success") setAttendance(att.data);
+        if (sen.code === "success") setSensors(sen.data);
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  // Map sensor data to zoneEnvData structure
+  const currentSensor = sensors.find(s => s.zoneName === selectedZone) || sensors[0];
+  
+  const getStatus = (val: number, type: 'temp' | 'humi' | 'co2') => {
+    if (type === 'temp') return val > 26 ? "더움" : val < 20 ? "추움" : "쾌적";
+    if (type === 'humi') return val > 60 ? "습함" : val < 30 ? "건조" : "적정";
+    if (type === 'co2') return val > 1000 ? "나쁨" : val > 700 ? "보통" : "좋음";
+    return "-";
+  };
 
   return (
     <div className="space-y-8 pb-12">
@@ -85,28 +131,32 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
       </header>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard 
           icon={Users} 
-          label="현재 건물 내 인원" 
-          value="542" 
-          trend="+12" 
-          trendType="up"
-        />
-        <StatCard 
-          icon={Zap} 
-          label="오늘의 전력 사용량" 
-          value="1,240" 
-          subValue="kWh"
-          trend="-5%" 
+          label="현재 출근 인원" 
+          value={attendance?.presentCount?.toLocaleString() || "0"} 
+          subValue={`/ ${attendance?.totalExpected || "0"}`}
+          trend={attendance?.lateCount > 0 ? `지각 ${attendance.lateCount}` : null} 
           trendType="down"
         />
         <StatCard 
           icon={DoorOpen} 
-          label="회의실 가동률" 
-          value="60" 
-          subValue="%"
-          trend="+8%" 
+          label="오늘의 예약" 
+          value={summaryData?.todayReservations?.toLocaleString() || "0"} 
+          trend={summaryData?.pendingApprovals > 0 ? `${summaryData.pendingApprovals}건 대기` : null}
+          trendType="up"
+        />
+        <StatCard 
+          icon={Zap} 
+          label="활성 장치" 
+          value={summaryData?.activeDevices?.toLocaleString() || "0"} 
+          trendType="up"
+        />
+        <StatCard 
+          icon={Monitor} 
+          label="전체 사용자" 
+          value={summaryData?.totalUsers?.toLocaleString() || "0"} 
           trendType="up"
         />
       </div>
@@ -176,73 +226,43 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
                 <SelectValue placeholder="구역 선택" />
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-100">
-                <SelectItem value="본관 전체">본관 전체</SelectItem>
-                <SelectItem value="개발본부">개발본부</SelectItem>
-                <SelectItem value="연구동">연구동</SelectItem>
-                <SelectItem value="데이터센터">데이터센터</SelectItem>
+                {sensors.map(s => (
+                  <SelectItem key={s.zoneId} value={s.zoneName}>{s.zoneName}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-6">
-            <EnvItem icon={Thermometer} label="온도" value={currentEnv.temp} unit="°C" status={currentEnv.status.temp} color="text-orange-500" bg="bg-orange-50" />
-            <EnvItem icon={Droplets} label="습도" value={currentEnv.humidity} unit="%" status={currentEnv.status.humidity} color="text-blue-500" bg="bg-blue-50" />
-            <EnvItem icon={Wind} label="CO2 농도" value={currentEnv.co2} unit="ppm" status={currentEnv.status.co2} color="text-green-500" bg="bg-green-50" />
+            {currentSensor ? (
+              <>
+                <EnvItem icon={Thermometer} label="온도" value={currentSensor.temp} unit="°C" status={getStatus(currentSensor.temp, 'temp')} color="text-orange-500" bg="bg-orange-50" />
+                <EnvItem icon={Droplets} label="습도" value={currentSensor.humi} unit="%" status={getStatus(currentSensor.humi, 'humi')} color="text-blue-500" bg="bg-blue-50" />
+                <EnvItem icon={Wind} label="CO2 농도" value={currentSensor.co2} unit="ppm" status={getStatus(currentSensor.co2, 'co2')} color="text-green-500" bg="bg-green-50" />
+              </>
+            ) : (
+              <p className="text-center text-gray-400 py-12">데이터를 불러오는 중...</p>
+            )}
           </div>
           <div className="pt-4 border-t border-gray-50">
             <p className="text-xs text-gray-400 leading-relaxed">
-              * 공조 시스템이 자동으로 최적의 업무 환경을 유지하고 있습니다.
+              * 센서 데이터 업데이트: {currentSensor?.updatedAt ? new Date(currentSensor.updatedAt).toLocaleTimeString() : "-"}
             </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Energy Usage */}
-        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-          <h3 className="text-xl font-bold text-gray-900 mb-8">주간 에너지 소비 (kWh)</h3>
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={energyData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis 
-                  dataKey="day" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#9ca3af', fontSize: 12 }}
-                />
-                <Tooltip 
-                  cursor={{ fill: '#f9fafb' }}
-                  contentStyle={{ 
-                    borderRadius: '16px', 
-                    border: 'none', 
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
-                  }}
-                  formatter={(value: number) => [`${value} kWh`, '에너지 소비']}
-                />
-                <Bar dataKey="usage" radius={[6, 6, 0, 0]}>
-                  {energyData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 3 ? "#000000" : "#e5e7eb"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Meeting Room Occupancy */}
+        {/* Attendance Summary */}
         <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center">
-          <h3 className="text-xl font-bold text-gray-900 mb-4 w-full text-left">회의실 현황</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-4 w-full text-left">근태 현황</h3>
           <div className="h-[200px] w-full relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={meetingRoomData}
+                  data={[
+                    { name: "출근", value: attendance?.presentCount || 0, color: "#000000" },
+                    { name: "미출근", value: attendance?.absentCount || 0, color: "#e5e7eb" },
+                  ]}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -250,32 +270,40 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {meetingRoomData.map((entry, index) => (
+                  {[
+                    { name: "출근", color: "#000000" },
+                    { name: "미출근", color: "#e5e7eb" },
+                  ].map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              <span className="text-2xl font-bold text-gray-900">12/20</span>
-              <p className="text-[10px] text-gray-400 font-bold uppercase">사용 중</p>
+              <span className="text-2xl font-bold text-gray-900">{attendance?.presentCount || 0}/{attendance?.totalExpected || 0}</span>
+              <p className="text-[10px] text-gray-400 font-bold uppercase">출근율</p>
             </div>
           </div>
           <div className="w-full space-y-3 mt-4">
-            {meetingRoomData.map((item) => (
-              <div key={item.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-sm font-medium text-gray-600">{item.name}</span>
-                </div>
-                <span className="text-sm font-bold text-gray-900">{item.value}개</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-black" />
+                <span className="text-sm font-medium text-gray-600">출근</span>
               </div>
-            ))}
+              <span className="text-sm font-bold text-gray-900">{attendance?.presentCount || 0}명</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-gray-200" />
+                <span className="text-sm font-medium text-gray-600">결근</span>
+              </div>
+              <span className="text-sm font-bold text-gray-900">{attendance?.absentCount || 0}명</span>
+            </div>
           </div>
         </div>
 
-        {/* Recent Access Logs */}
-        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+        {/* Weekly Access Logs (Simplified for Demo) */}
+        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-gray-900">최근 출입 기록</h3>
             <button 
@@ -285,25 +313,25 @@ export function IntegratedDashboard({ onTabChange }: { onTabChange: (tab: any) =
               전체보기
             </button>
           </div>
-          <div className="space-y-4">
-            {accessLogs.map((log) => (
-              <div key={log.id} className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-colors">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {accessRecords.map((log) => (
+              <div key={log.id} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-lg">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lg shadow-sm">
                     👤
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900">{log.name}</p>
-                    <p className="text-[10px] text-gray-400 font-medium">{log.location}</p>
+                    <p className="text-sm font-bold text-gray-900">{log.userName}</p>
+                    <p className="text-[10px] text-gray-400 font-medium">{log.zoneName}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-gray-900">{log.time}</p>
+                  <p className="text-[10px] font-bold text-gray-900">{new Date(log.accessTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                   <span className={cn(
                     "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                    log.type === "입장" ? "bg-green-50 text-green-600" : "bg-orange-50 text-orange-600"
+                    log.type === "IN" ? "bg-green-100 text-green-600" : "bg-orange-100 text-orange-600"
                   )}>
-                    {log.type}
+                    {log.type === "IN" ? "입장" : "퇴장"}
                   </span>
                 </div>
               </div>

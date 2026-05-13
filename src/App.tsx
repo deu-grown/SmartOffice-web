@@ -20,7 +20,7 @@ import { Briefcase, CheckCircle2, Hourglass, Clock, ShieldAlert } from "lucide-r
 import { motion, AnimatePresence } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
-import { Room, TabType } from "./types";
+import { User, Room, TabType } from "./types";
 import { toast } from "sonner";
 
 const initialRooms: Room[] = [
@@ -179,6 +179,7 @@ const initialGuests: Guest[] = [
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>("통합 관제");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [guests, setGuests] = useState<Guest[]>(initialGuests);
@@ -214,10 +215,23 @@ export default function App() {
   const [pendingTab, setPendingTab] = useState<TabType | null>(null);
   const [showNavGuard, setShowNavGuard] = useState(false);
 
+  const handleLogin = (user: User) => {
+    setCurrentUser(user);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    toast.success("로그아웃되었습니다.");
+  };
+
   if (!isLoggedIn) {
     return (
       <>
-        <LoginPage onLogin={() => setIsLoggedIn(true)} />
+        <LoginPage onLogin={handleLogin} />
         <Toaster theme="light" position="bottom-right" />
       </>
     );
@@ -397,7 +411,7 @@ export default function App() {
       />
       
       <main className="flex-1 flex flex-col overflow-hidden">
-        <TopBar />
+        <TopBar user={currentUser} onLogout={handleLogout} />
         
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           <AnimatePresence mode="wait">

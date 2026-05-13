@@ -1,30 +1,95 @@
 import React, { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { motion } from "motion/react";
+import { User, LoginResponse } from "../../types";
 
 interface LoginPageProps {
-  onLogin: () => void;
+  onLogin: (user: User) => void;
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("hgd123@gmail.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("admin@grown.com");
+  const [password, setPassword] = useState("EMP001");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      toast.success("로그인에 성공했습니다.", {
-        description: "환영합니다, 홍길동님!",
-      });
-      onLogin();
-    } else {
+    
+    if (!email || !password) {
       toast.error("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // 1. Try proxy first (current setup)
+      const response = await fetch("/api/v1/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const contentType = response.headers.get("content-type");
+      let result: LoginResponse;
+
+      if (contentType && contentType.includes("application/json")) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        console.error("Non-JSON Response Payload:", text);
+        
+        let errorMessage = "서버로부터 예상치 못한 응답을 받았습니다.";
+        let description = "JSON 형식이 아닌 데이터가 반환되었습니다.";
+
+        if (text.includes("403 Forbidden")) {
+          errorMessage = "접근 권한 없음 (403)";
+          description = "API 서버 주소가 정확한지, 혹은 서버에서 접근을 차단했는지 확인이 필요합니다.";
+        } else if (response.status === 404) {
+          errorMessage = "페이지를 찾을 수 없음 (404)";
+          description = "요청하신 로그인 경로가 서버에 존재하지 않습니다.";
+        } else if (response.status >= 500) {
+          errorMessage = "서버 내부 오류 (500)";
+          description = "서버 측에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+        }
+
+        toast.error(errorMessage, { description });
+        return;
+      }
+
+      if (response.ok && result.code === "success") {
+        const { accessToken, user } = result.data;
+        
+        // Store tokens for persistence
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", result.data.refreshToken);
+        
+        toast.success(result.message || "로그인에 성공했습니다.", {
+          description: `환영합니다, ${user.name}님!`,
+        });
+        
+        onLogin(user);
+      } else {
+        if (result.code === "ACCOUNT_INACTIVE") {
+          toast.error("계정 비활성화", {
+            description: result.message || "현재 휴면 상태인 계정입니다. 관리자에게 문의하세요."
+          });
+        } else {
+          toast.error(result.message || "로그인에 실패했습니다.");
+        }
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      toast.error("로그인 중 오류가 발생했습니다. 서버 연결을 확인해주세요.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,9 +164,15 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
             <Button 
               type="submit" 
+              disabled={isLoading}
               className="w-full h-15 bg-black text-white hover:bg-black/90 rounded-2xl text-lg font-bold shadow-xl shadow-black/10 transition-all active:scale-[0.98] mt-4"
             >
-              로그인하기
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  로그인 중...
+                </div>
+              ) : "로그인하기"}
             </Button>
           </form>
         </div>

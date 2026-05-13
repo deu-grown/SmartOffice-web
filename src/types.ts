@@ -1,4 +1,25 @@
 
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  department: string;
+  position: string;
+  role: string;
+}
+
+export interface LoginResponse {
+  code: string;
+  data: {
+    accessToken: string;
+    expiresIn: number;
+    refreshToken: string;
+    tokenType: string;
+    user: User;
+  };
+  message: string;
+}
+
 export interface PermissionSetting {
   id: string;
   name: string;

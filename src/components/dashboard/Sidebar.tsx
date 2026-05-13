@@ -47,7 +47,7 @@ export function Sidebar({ activeTab, onTabChange, isCollapsed, onToggle, onLogou
             animate={{ opacity: 1 }}
             className="text-black font-bold text-xl tracking-tight"
           >
-            Grown
+            스마트 오피스
           </motion.span>
         )}
       </div>

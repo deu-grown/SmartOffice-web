@@ -61,31 +61,34 @@ interface BuildingManagementProps {
 }
 
 export function BuildingManagement({ locks, setLocks, settings, setSettings, setHasUnsavedChanges }: BuildingManagementProps) {
-  const [selectedArea, setSelectedArea] = useState("제 1 연구소");
-  const [selectedRoom, setSelectedRoom] = useState("R101");
-  
-  // Per-area & per-room real-time data mapping
-  const roomDataConfig: Record<string, Record<string, { temp: number, hum: number }>> = {
-    "제 1 연구소": {
-      "R101": { temp: 23.5, hum: 42 },
-      "R102": { temp: 21.8, hum: 38 },
-      "R103": { temp: 25.2, hum: 55 },
-      "R201": { temp: 22.0, hum: 45 },
-    },
-    "제 2 연구소": {
-      "R101": { temp: 19.5, hum: 30 },
-      "R102": { temp: 20.2, hum: 35 },
-      "R103": { temp: 18.5, hum: 32 },
-      "R201": { temp: 21.0, hum: 40 },
-    },
-    "본관 로비": {
-      "R101": { temp: 24.5, hum: 50 },
-      "R102": { temp: 26.0, hum: 52 },
-      "R103": { temp: 23.2, hum: 48 },
-      "R201": { temp: 25.5, hum: 55 },
-    }
-  };
+  const [selectedArea, setSelectedArea] = useState("본관 전체");
+  const [sensors, setSensors] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  const fetchSensors = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/v1/dashboard/sensors/current");
+      const result = await res.json();
+      if (result.code === "success") {
+        setSensors(result.data);
+        // Default to first zone if current selectedArea is not in list
+        if (result.data.length > 0 && !result.data.find((s: any) => s.zoneName === selectedArea)) {
+          setSelectedArea(result.data[0].zoneName);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch sensors:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedArea]);
+
+  useEffect(() => {
+    fetchSensors();
+  }, []);
+
+  const currentSensor = sensors.find(s => s.zoneName === selectedArea) || sensors[0];
   const { targetTemp, targetHumidity, isLightOn, brightness } = settings;
 
   const setTargetTemp = (val: number) => {
@@ -127,20 +130,21 @@ export function BuildingManagement({ locks, setLocks, settings, setSettings, set
     setShowLockConfirm(true);
   };
 
-  // Sync current values when room or area changes
-  const currentTemp = roomDataConfig[selectedArea]?.[selectedRoom]?.temp || 20;
-  const currentHum = roomDataConfig[selectedArea]?.[selectedRoom]?.hum || 40;
+  // Sync current values when area changes
+  const currentTemp = currentSensor?.temp || 20;
+  const currentHum = currentSensor?.humi || 40;
 
-  const tempHistory = useMemo(() => generateHistoryData(24, currentTemp - 1.5, currentTemp + 1.5), [selectedArea, selectedRoom, currentTemp]);
-  const humidityHistory = useMemo(() => generateHistoryData(24, currentHum - 4, currentHum + 4), [selectedArea, selectedRoom, currentHum]);
+  const tempHistory = useMemo(() => generateHistoryData(24, currentTemp - 1.5, currentTemp + 1.5), [selectedArea, currentTemp]);
+  const humidityHistory = useMemo(() => generateHistoryData(24, currentHum - 4, currentHum + 4), [selectedArea, currentHum]);
 
   const handleSaveAll = () => {
     toast.success("건물 전체 설정이 중앙 제어실에 저장되었습니다.");
   };
 
   const handleRefreshAll = () => {
-    toast.info("실시간 센서 데이터를 동기화 중입니다...");
-    setTimeout(() => toast.success("데이터 동기화 완료"), 800);
+    fetchSensors().then(() => {
+      toast.success("데이터 동기화 완료");
+    });
   };
 
   return (
@@ -190,25 +194,13 @@ export function BuildingManagement({ locks, setLocks, settings, setSettings, set
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
             <Select value={selectedArea} onValueChange={setSelectedArea}>
-              <SelectTrigger className="w-[160px] border-none bg-transparent focus:ring-0 font-bold">
+              <SelectTrigger className="w-[200px] border-none bg-transparent focus:ring-0 font-bold">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-100 rounded-xl">
-                <SelectItem value="제 1 연구소">제 1 연구소</SelectItem>
-                <SelectItem value="제 2 연구소">제 2 연구소</SelectItem>
-                <SelectItem value="본관 로비">본관 로비</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="w-[1px] h-8 bg-gray-200 self-center mx-1" />
-            <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-              <SelectTrigger className="w-[100px] border-none bg-transparent focus:ring-0 font-bold">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-gray-100 rounded-xl">
-                <SelectItem value="R101">R101</SelectItem>
-                <SelectItem value="R102">R102</SelectItem>
-                <SelectItem value="R103">R103</SelectItem>
-                <SelectItem value="R201">R201</SelectItem>
+                {sensors.map(s => (
+                  <SelectItem key={s.zoneId} value={s.zoneName}>{s.zoneName}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

@@ -1,6 +1,6 @@
 {
-  "name": "Smart Office",
-  "description": "A polished productivity dashboard with AI insights, time tracking, and analytics.",
+  "name": "스마트 오피스 통합 관제 시스템",
+  "description": "인공지능 기반 분석, 근태 관리 및 건물 환경 모니터링을 실시간으로 제공하는 통합 스마트 오피스 대시보드입니다.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

@@ -25,7 +25,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
-export function TopBar() {
+import { User as UserType } from "../../types";
+
+interface TopBarProps {
+  user: UserType | null;
+  onLogout: () => void;
+}
+
+export function TopBar({ user, onLogout }: TopBarProps) {
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   
   // Modal states
@@ -35,12 +42,25 @@ export function TopBar() {
 
   // Profile data
   const [profile, setProfile] = useState({
-    name: "Alex Johnson",
-    email: "alex.j@smartoffice.com",
+    name: user?.name || "사용자",
+    email: user?.email || "",
     phone: "010-1234-5678",
-    department: "시스템 관리팀",
-    role: "관리자"
+    department: user?.department || "데이터 없음",
+    role: user?.role || "사용자"
   });
+
+  // 프로필 정보 업데이트
+  React.useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        name: user.name,
+        email: user.email,
+        department: user.department,
+        role: user.role
+      }));
+    }
+  }, [user]);
 
   // Password change state
   const [passwords, setPasswords] = useState({
@@ -165,8 +185,8 @@ export function TopBar() {
           <DropdownMenu>
             <DropdownMenuTrigger className="w-10 h-10 border-2 border-gray-100 cursor-pointer hover:border-gray-200 transition-all outline-none rounded-full overflow-hidden flex items-center justify-center">
               <Avatar className="w-full h-full border-none">
-                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" />
-                <AvatarFallback>AX</AvatarFallback>
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`} />
+                <AvatarFallback>{user?.name.substring(0, 2).toUpperCase() || "US"}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-white text-black border border-gray-100 shadow-2xl rounded-2xl p-2 z-50">
@@ -195,10 +215,7 @@ export function TopBar() {
               <DropdownMenuSeparator className="bg-gray-100 mx-2 my-1" />
               <DropdownMenuItem 
                 className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer outline-none focus:bg-red-50"
-                onClick={() => {
-                  toast.success("로그아웃 되었습니다.");
-                  window.location.reload(); 
-                }}
+                onClick={onLogout}
               >
                 <LogOut className="w-4 h-4" /> 로그아웃
               </DropdownMenuItem>
@@ -293,8 +310,8 @@ export function TopBar() {
           <div className="space-y-6 py-4">
             <div className="flex flex-col items-center gap-4 mb-4">
               <Avatar className="w-24 h-24 border-4 border-gray-50 shadow-sm">
-                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" />
-                <AvatarFallback>AX</AvatarFallback>
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`} />
+                <AvatarFallback>{user?.name.substring(0, 2).toUpperCase() || "US"}</AvatarFallback>
               </Avatar>
               <Button variant="outline" size="sm" className="rounded-full h-8 text-xs">사진 변경</Button>
             </div>
