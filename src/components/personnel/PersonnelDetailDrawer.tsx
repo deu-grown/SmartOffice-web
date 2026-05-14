@@ -21,6 +21,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+import { PersonnelNfcCardTab } from "@/src/components/personnel/PersonnelNfcCardTab";
 import { useUserAccessLogs } from "@/src/features/accesslog/hooks";
 import { useDepartments } from "@/src/features/department/hooks";
 import type { UserListItem, UserUpdateRequest } from "@/src/features/user/types";
@@ -40,7 +41,7 @@ export function PersonnelDetailDrawer({
   onClose,
   onSave,
 }: PersonnelDetailDrawerProps) {
-  const [tab, setTab] = useState<"info" | "access">("info");
+  const [tab, setTab] = useState<"info" | "access" | "nfc">("info");
   const { data: departmentsData } = useDepartments();
   const departments = departmentsData ?? [];
 
@@ -77,6 +78,9 @@ export function PersonnelDetailDrawer({
               </TabButton>
               <TabButton active={tab === "access"} onClick={() => setTab("access")}>
                 출입 이력
+              </TabButton>
+              <TabButton active={tab === "nfc"} onClick={() => setTab("nfc")}>
+                NFC 카드
               </TabButton>
             </div>
 
@@ -176,8 +180,12 @@ export function PersonnelDetailDrawer({
                   </Button>
                 </DialogFooter>
               </form>
-            ) : (
+            ) : tab === "access" ? (
               <AccessLogsSection userId={user.id} />
+            ) : (
+              <PersonnelNfcCardTab
+                user={{ id: user.id, name: user.name, employeeNumber: user.employeeNumber }}
+              />
             )}
           </>
         )}
