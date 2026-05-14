@@ -3,5 +3,10 @@ import type { HttpHandler } from "msw";
 
 import { authHandlers } from "./auth";
 import { dashboardHandlers } from "./dashboard";
+import { powerHandlers } from "./power";
 
-export const handlers: HttpHandler[] = [...authHandlers, ...dashboardHandlers];
+export const handlers: HttpHandler[] = [
+  ...authHandlers,
+  ...dashboardHandlers,
+  ...powerHandlers,
+];
