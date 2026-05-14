@@ -21,8 +21,10 @@ export function LoginPage() {
   const logout = useAuthStore((s) => s.logout);
 
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("admin@grown.com");
-  const [password, setPassword] = useState("EMP001");
+  // 개발 환경(import.meta.env.DEV)에서만 admin 계정 prefill (시연·QA 편의).
+  // 운영 빌드(npm run build)에서는 빈 값으로 출력 — 보안.
+  const [email, setEmail] = useState(import.meta.env.DEV ? "admin@grown.com" : "");
+  const [password, setPassword] = useState(import.meta.env.DEV ? "EMP001" : "");
 
   const isLoading = loginMutation.isPending;
 
