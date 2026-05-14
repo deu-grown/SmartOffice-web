@@ -73,8 +73,19 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+// zustand persist storage 키 — authStore.ts 의 persist({ name }) 와 일치해야 한다.
+// 본 식별자만 동기 의존 (zustand store 직접 import 시 순환 의존 우려가 있으므로 localStorage 키만 사용).
+const AUTH_STORE_KEY = "smartoffice-auth";
+
 function redirectToLogin(): void {
   if (typeof window === "undefined") return;
+  // user store 도 함께 정리한다. 그렇지 않으면 PublicOnlyRoute 가 user 만 보고 /dashboard 로 즉시 되돌리면서
+  // 무한 풀 리로드 점멸이 발생한다 (토큰 만료 + user persist 잔존 시).
+  try {
+    window.localStorage.removeItem(AUTH_STORE_KEY);
+  } catch {
+    /* localStorage 접근 불가 환경은 무시 */
+  }
   if (window.location.pathname === LOGIN_PATH) return;
   window.location.href = LOGIN_PATH;
 }

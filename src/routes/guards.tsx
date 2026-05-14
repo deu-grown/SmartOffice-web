@@ -5,14 +5,21 @@
 import type { PropsWithChildren } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
+import { getAccessToken } from "@/src/lib/api/tokenStorage";
 import { useAuthStore } from "@/src/stores/authStore";
 
 import { ROUTES } from "./paths";
 
+// user persist 와 토큰 저장소가 별도로 관리되므로 둘 다 살아있어야 인증된 것으로 본다.
+// 토큰이 없는데 user 만 살아있는 케이스는 PrivateRoute 단계에서 차단해 무한 풀 리로드 점멸을 막는다.
+function isAuthenticated(user: ReturnType<typeof useAuthStore.getState>["user"]): boolean {
+  return !!user && !!getAccessToken();
+}
+
 export function PrivateRoute({ children }: PropsWithChildren) {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
-  if (!user) {
+  if (!isAuthenticated(user)) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location.pathname }} replace />;
   }
   return <>{children}</>;
@@ -21,10 +28,10 @@ export function PrivateRoute({ children }: PropsWithChildren) {
 export function AdminRoute({ children }: PropsWithChildren) {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
-  if (!user) {
+  if (!isAuthenticated(user)) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location.pathname }} replace />;
   }
-  if (user.role !== "ADMIN") {
+  if (user!.role !== "ADMIN") {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
   return <>{children}</>;
@@ -32,7 +39,7 @@ export function AdminRoute({ children }: PropsWithChildren) {
 
 export function PublicOnlyRoute({ children }: PropsWithChildren) {
   const user = useAuthStore((s) => s.user);
-  if (user) {
+  if (isAuthenticated(user)) {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
   return <>{children}</>;
