@@ -9,13 +9,14 @@ export interface DashboardSummary {
   pendingApprovals: number;
 }
 
-/** GET /api/v1/dashboard/sensors/current 응답의 단건. BigDecimal 은 number 로 역직렬화된다. */
+/** GET /api/v1/dashboard/sensors/current 응답의 단건. BigDecimal 은 number 로 역직렬화되며,
+ *  해당 구역에 센서 데이터가 없을 때 temp/humi/co2 는 null 로 내려온다 (백엔드 curl 검증 결과). */
 export interface SensorCurrent {
   zoneId: number;
   zoneName: string;
-  temp: number;
-  humi: number;
-  co2: number;
+  temp: number | null;
+  humi: number | null;
+  co2: number | null;
   updatedAt: string;
 }
 

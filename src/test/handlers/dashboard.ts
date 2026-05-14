@@ -19,6 +19,7 @@ export const dashboardHandlers = [
     HttpResponse.json({
       code: "success",
       message: "정상 조회되었습니다.",
+      // 백엔드 curl 검증 결과 일부 구역은 temp/humi/co2 가 null 로 내려오므로 한 건을 부분 null 로 모방.
       data: [
         {
           zoneId: 1,
@@ -30,11 +31,11 @@ export const dashboardHandlers = [
         },
         {
           zoneId: 2,
-          zoneName: "개발본부",
-          temp: 23.8,
-          humi: 42,
-          co2: 710,
-          updatedAt: "2026-05-14T10:00:00",
+          zoneName: "서버실",
+          temp: 18.3,
+          humi: null,
+          co2: null,
+          updatedAt: "2026-05-14T09:30:00",
         },
       ],
     }),

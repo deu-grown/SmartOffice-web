@@ -423,12 +423,14 @@ function EnvItem({
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  value: number;
+  // 백엔드가 해당 구역의 센서 미존재 시 null 을 내려보내므로 null 허용.
+  value: number | null;
   unit: string;
-  status: string;
+  status: string | null;
   color: string;
   bg: string;
 }) {
+  const hasValue = value !== null && Number.isFinite(value);
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -438,20 +440,24 @@ function EnvItem({
         <div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</p>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-gray-900">{value}</span>
-            <span className="text-xs font-medium text-gray-400">{unit}</span>
+            <span className="text-xl font-bold text-gray-900">{hasValue ? value : "-"}</span>
+            {hasValue && <span className="text-xs font-medium text-gray-400">{unit}</span>}
           </div>
         </div>
       </div>
-      <span
-        className={cn(
-          "inline-flex items-center justify-center border-none px-3 py-1 rounded-full text-[10px] font-bold",
-          bg,
-          color,
-        )}
-      >
-        {status}
-      </span>
+      {status ? (
+        <span
+          className={cn(
+            "inline-flex items-center justify-center border-none px-3 py-1 rounded-full text-[10px] font-bold",
+            bg,
+            color,
+          )}
+        >
+          {status}
+        </span>
+      ) : (
+        <span className="text-xs text-gray-300 font-medium">측정 없음</span>
+      )}
     </div>
   );
 }
@@ -476,9 +482,11 @@ function LegendRow({
   );
 }
 
-function getEnvStatus(val: number, type: "temp" | "humi" | "co2"): string {
+function getEnvStatus(val: number | null, type: "temp" | "humi" | "co2"): string | null {
+  // 센서 데이터가 없는 zone 의 필드는 null 로 내려오므로 라벨을 표시하지 않는다.
+  if (val === null || !Number.isFinite(val)) return null;
   if (type === "temp") return val > 26 ? "더움" : val < 20 ? "추움" : "쾌적";
   if (type === "humi") return val > 60 ? "습함" : val < 30 ? "건조" : "적정";
   if (type === "co2") return val > 1000 ? "나쁨" : val > 700 ? "보통" : "좋음";
-  return "-";
+  return null;
 }
