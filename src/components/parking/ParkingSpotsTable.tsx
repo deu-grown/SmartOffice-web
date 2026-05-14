@@ -129,13 +129,16 @@ export function ParkingSpotsTable({ zoneId }: Props) {
   const [deleteTarget, setDeleteTarget] = useState<ParkingSpotResponse | null>(null);
 
   const zonesQuery = useZones();
+  // 등록/수정 모달 zone Select — FLOOR zoneType 만 노출 (AREA/ROOM 에 주차면 등록 도메인 의미 X).
   const zoneOptions = useMemo(
     () =>
-      (zonesQuery.data ?? []).map((z) => ({
-        id: z.id,
-        name: z.name,
-        suffix: `(${z.zoneType})`,
-      })),
+      (zonesQuery.data ?? [])
+        .filter((z) => z.zoneType === "FLOOR")
+        .map((z) => ({
+          id: z.id,
+          name: z.name,
+          suffix: `(${z.zoneType})`,
+        })),
     [zonesQuery.data],
   );
 

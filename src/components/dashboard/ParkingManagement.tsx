@@ -23,19 +23,23 @@ export function ParkingManagement() {
   const [selectedZoneId, setSelectedZoneId] = useState<number | undefined>(undefined);
 
   const zonesQuery = useZones();
-  const zoneOptions = useMemo(
-    () =>
-      (zonesQuery.data ?? []).map((z) => ({
-        id: z.id,
-        name: z.name,
-        suffix: `(${z.zoneType})`,
-      })),
-    [zonesQuery.data],
-  );
 
   // Stat 카드용 통계. zoneId 선택 시 zoneSummary, 아니면 전체 spots 집계.
   const allSpotsQuery = useParkingSpots(selectedZoneId === undefined ? {} : { zoneId: selectedZoneId });
   const zoneSummaryQuery = useParkingZoneSummary(selectedZoneId);
+
+  // 조회/필터 zone Select 후보 — 주차면 보유 zone 만 노출 (옵션 B 임시 web 우회).
+  // 백엔드 GET /api/v1/parking/zones 채택 시점에 본 hook 호출로 교체 (BACKEND_SUGGESTIONS #15).
+  const allSpotsForZonesQuery = useParkingSpots({});
+  const zoneOptions = useMemo(() => {
+    const spots = allSpotsForZonesQuery.data ?? [];
+    const distinctZoneIds = Array.from(new Set(spots.map((s) => s.zoneId)));
+    const zonesById = new Map((zonesQuery.data ?? []).map((z) => [z.id, z] as const));
+    return distinctZoneIds
+      .map((id) => zonesById.get(id))
+      .filter((z): z is NonNullable<typeof z> => z !== undefined)
+      .map((z) => ({ id: z.id, name: z.name, suffix: `(${z.zoneType})` }));
+  }, [allSpotsForZonesQuery.data, zonesQuery.data]);
 
   const stats = useMemo(() => {
     if (selectedZoneId !== undefined && zoneSummaryQuery.data) {
