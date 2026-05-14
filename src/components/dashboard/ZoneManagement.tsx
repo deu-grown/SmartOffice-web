@@ -262,7 +262,10 @@ export function ZoneManagement() {
                 <label className="text-sm font-bold text-gray-400 ml-1">구역 유형</label>
                 <Select value={editType} onValueChange={(v) => setEditType(v as ZoneType)}>
                   <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-base font-bold">
-                    <SelectValue />
+                    {/* SelectValue 가 SelectItem children 자동 매핑 안 되는 결함 회피 — 명시 텍스트 렌더. */}
+                    <span>
+                      {zoneTypeLabel(editType)} ({editType})
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     {ZONE_TYPES.map((t) => (

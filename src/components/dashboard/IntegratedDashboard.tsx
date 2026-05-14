@@ -16,15 +16,9 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { ZoneSelect } from "@/src/components/common/ZoneSelect";
 
 import {
   useDashboardAttendanceToday,
@@ -180,21 +174,13 @@ function EnvironmentCard({
     <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold text-gray-900">환경 모니터링</h3>
-        <Select
-          value={selectedZoneId !== undefined ? String(selectedZoneId) : undefined}
-          onValueChange={(v) => onSelectZone(Number(v))}
-        >
-          <SelectTrigger className="w-[140px] h-9 bg-gray-50 border-gray-100 rounded-xl text-xs font-bold">
-            <SelectValue placeholder="구역 선택" />
-          </SelectTrigger>
-          <SelectContent className="bg-white border-gray-100">
-            {sensors.map((s) => (
-              <SelectItem key={s.zoneId} value={String(s.zoneId)}>
-                {s.zoneName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ZoneSelect
+          options={sensors.map((s) => ({ id: s.zoneId, name: s.zoneName }))}
+          value={selectedZoneId}
+          onChange={onSelectZone}
+          triggerClassName="w-[140px] h-9 bg-gray-50 border-gray-100 rounded-xl text-xs font-bold"
+          placeholder="구역 선택"
+        />
       </div>
       {isLoading ? (
         <div className="space-y-3">

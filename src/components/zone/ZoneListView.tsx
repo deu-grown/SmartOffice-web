@@ -4,15 +4,9 @@
 import { useEffect, useMemo } from "react";
 import { Plus, Trash2, Layers, Map as MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { ZoneSelect } from "@/src/components/common/ZoneSelect";
 import { useZones } from "@/src/features/zone/hooks";
 import type { ZoneListItem } from "@/src/features/zone/types";
 import { zoneTypeLabel } from "./tabs/ZoneInfoTab";
@@ -70,25 +64,14 @@ export function ZoneListView({
           <p className="text-gray-500 text-lg font-medium">건물 내 구역 계층을 관리합니다 (FLOOR → AREA/ROOM)</p>
         </div>
         <div className="flex gap-2">
-          <Select
-            value={selectedFloorId !== null ? String(selectedFloorId) : ""}
-            onValueChange={(v) => setSelectedFloorId(v ? Number(v) : null)}
-          >
-            <SelectTrigger className="w-[180px] bg-white border-gray-100 rounded-xl h-12 font-bold">
-              <SelectValue placeholder="층 선택" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100">
-              {floors.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-400">FLOOR 구역 없음</div>
-              ) : (
-                floors.map((f) => (
-                  <SelectItem key={f.id} value={String(f.id)}>
-                    {f.name}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
+          <ZoneSelect
+            options={floors.map((f) => ({ id: f.id, name: f.name }))}
+            value={selectedFloorId ?? undefined}
+            onChange={(id) => setSelectedFloorId(id)}
+            triggerClassName="w-[180px] bg-white border-gray-100 rounded-xl h-12 font-bold"
+            placeholder="층 선택"
+            emptyText="FLOOR 구역 없음"
+          />
           <Button
             onClick={onAddZoneClick}
             className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2"

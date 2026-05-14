@@ -3,14 +3,8 @@
 import { useMemo, useState } from "react";
 import { Building2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
+import { ZoneSelect } from "@/src/components/common/ZoneSelect";
 import { useZones } from "@/src/features/zone/hooks";
 import { POWER_ZONES_TEMP } from "@/src/features/power/constants";
 
@@ -60,25 +54,13 @@ export function BuildingManagement() {
           <p className="text-gray-500 text-lg font-medium">구역별 환경 센서·장치 제어·전력 관리</p>
         </div>
         <div className="flex gap-2 items-center">
-          <Select
-            value={effectiveZoneId !== null ? String(effectiveZoneId) : ""}
-            onValueChange={(v) => setSelectedZoneId(v ? Number(v) : null)}
-          >
-            <SelectTrigger className="w-[220px] bg-white border-gray-100 rounded-xl h-12 font-bold">
-              <SelectValue placeholder="구역 선택" />
-            </SelectTrigger>
-            <SelectContent>
-              {operableZones.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-400">조회 가능한 구역이 없습니다.</div>
-              ) : (
-                operableZones.map((z) => (
-                  <SelectItem key={z.id} value={String(z.id)}>
-                    {z.name} ({z.zoneType})
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
+          <ZoneSelect
+            options={operableZones.map((z) => ({ id: z.id, name: z.name, suffix: `(${z.zoneType})` }))}
+            value={effectiveZoneId ?? undefined}
+            onChange={(id) => setSelectedZoneId(id)}
+            triggerClassName="w-[220px] bg-white border-gray-100 rounded-xl h-12 font-bold"
+            placeholder="구역 선택"
+          />
           <Button onClick={() => setCalcOpen(true)} className="bg-red-500 text-white hover:bg-red-600 rounded-xl h-12 px-6 font-bold flex items-center gap-2">
             <Zap className="w-4 h-4" />
             전력 요금 산출

@@ -1,15 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Zap } from "lucide-react";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/src/components/common/ErrorBoundary";
+import { ZoneSelect } from "@/src/components/common/ZoneSelect";
 import { POWER_ZONES_TEMP } from "@/src/features/power/constants";
 import { usePowerCurrent } from "@/src/features/power/hooks";
 
@@ -34,26 +28,22 @@ function PowerCurrentWidgetInner() {
   const totalWatt =
     data?.devices.reduce((acc, d) => acc + (d.avgWatt ?? 0), 0) ?? 0;
 
+  const zoneOptions = useMemo(
+    () => POWER_ZONES_TEMP.map((z) => ({ id: z.zoneId, name: z.zoneName })),
+    []
+  );
+
   return (
     <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
       <div className="flex items-center justify-between mb-2">
         <p className="text-gray-400 text-sm font-medium">실시간 전력</p>
         <div className="flex items-center gap-2">
-          <Select
-            value={String(selectedZoneId)}
-            onValueChange={(v) => setSelectedZoneId(Number(v))}
-          >
-            <SelectTrigger className="w-[120px] h-8 bg-gray-50 border-gray-100 rounded-xl text-[11px] font-bold">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100">
-              {POWER_ZONES_TEMP.map((z) => (
-                <SelectItem key={z.zoneId} value={String(z.zoneId)}>
-                  {z.zoneName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <ZoneSelect
+            options={zoneOptions}
+            value={selectedZoneId}
+            onChange={setSelectedZoneId}
+            triggerClassName="w-[120px] h-8 bg-gray-50 border-gray-100 rounded-xl text-[11px] font-bold"
+          />
           <Zap className="w-4 h-4 text-gray-300" />
         </div>
       </div>

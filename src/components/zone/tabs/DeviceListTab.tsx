@@ -200,7 +200,8 @@ export function DeviceListTab({ zoneId }: DeviceListTabProps) {
                 <label className="text-sm font-bold text-gray-400 ml-1">상태</label>
                 <Select value={editStatus} onValueChange={(v) => setEditStatus(v as DeviceStatus)}>
                   <SelectTrigger className="h-12 rounded-2xl">
-                    <SelectValue />
+                    {/* SelectValue 자동 매핑 결함 회피 — 명시 텍스트 렌더. */}
+                    <span>{editStatus}</span>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ACTIVE">ACTIVE</SelectItem>
