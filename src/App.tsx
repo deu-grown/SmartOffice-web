@@ -229,6 +229,19 @@ export default function App() {
                 />
                 {/* 게스트 페이지는 백엔드 도메인 미구현으로 임시 숨김. URL 직접 진입 시 대시보드로 리다이렉트. */}
                 <Route path="guest" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+                {/* G10/G11 페이지 컴포넌트는 묶음 3·4 에서 신설. 본 묶음(1)은 라우트·메뉴·타입만 도입. */}
+                <Route
+                  path="meeting-rooms"
+                  element={
+                    <ComingSoon title="회의실 관리" onBack={() => navigate(ROUTES.DASHBOARD)} />
+                  }
+                />
+                <Route
+                  path="nfc-cards"
+                  element={
+                    <ComingSoon title="NFC 카드 관리" onBack={() => navigate(ROUTES.DASHBOARD)} />
+                  }
+                />
                 <Route
                   path="settings"
                   element={

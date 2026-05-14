@@ -14,6 +14,8 @@ export const ROUTES = {
   INVENTORY: "/inventory",
   PARKING: "/parking",
   BUILDING: "/building",
+  MEETING_ROOMS: "/meeting-rooms",
+  NFC_CARDS: "/nfc-cards",
   SETTINGS: "/settings",
 } as const;
 
@@ -30,6 +32,8 @@ export const TAB_TO_PATH: Record<TabType, string> = {
   "게스트 관리": ROUTES.GUEST,
   "급여 관리": ROUTES.SALARY,
   "주차 관리": ROUTES.PARKING,
+  "회의실 관리": ROUTES.MEETING_ROOMS,
+  "NFC 카드 관리": ROUTES.NFC_CARDS,
   "시스템 설정": ROUTES.SETTINGS,
 };
 
