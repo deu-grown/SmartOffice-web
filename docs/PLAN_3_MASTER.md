@@ -375,26 +375,36 @@
 
 ### G8 — 재고/자산 (InventoryManagement, cat 2: asset 5)
 
-**엔드포인트**: POST/GET/GET-id/PUT/DELETE /api/v1/assets
+**엔드포인트**: POST/GET/GET-id/PUT/DELETE /api/v1/assets (필터: `category` / `status[ACTIVE|INACTIVE|LOST]` / `assignedUserId` / `keyword` / `page` / `size`, 응답 = `PageResponse<AssetResponse>`)
+
+**백엔드 모델 (플랜 3-3 0단계 검증, 2026-05-14)**:
+
+- `AssetResponse = { id, name, category, status, assignedUserId?, ... }` (정확 필드는 묶음 2 진입 시 DTO read-only 검증으로 확정).
+- `AssetStatus = "ACTIVE" | "INACTIVE" | "LOST"` (3종, 단순 자산 대장).
+- `category` 는 String free-form. 현재 web mock 의 7종 (`IT 기기 / 서버 장비 / 저장 매체 / 비품 / 중요 자산 / 장비 / 네트워크`) 을 `src/features/asset/constants.ts` 의 `ASSET_CATEGORIES` 상수로 보존 → Select 옵션. 백엔드 enum 도입 시 단일 지점 수정 용이.
+- **mock UI 제거 범위**: 기존 InventoryManagement mock 의 status 7종(`구역 내 위치 / 비인가 반출 시도 / 보안 위반 (차단) / 정상 위치 / 태그 미감지 / 점검 이동 (승인됨) / 반출 승인됨`) + `authorizedArea` · `lastGate` · `rfidTag` 필드 + RFID 입력 필드 + 보안 위반/태그 미감지 stat 카드 모두 제거. 백엔드 모델 부재 (G5 mock 제거 패턴 `gateActive/permissions/groups` 동일 적용). BACKEND_SUGGESTIONS 신규 등록 X (의도된 모델).
+- Stat 카드 재구성: `총 자산 / 사용 중 / 보관 / 분실` 4종 (백엔드 status 기반).
 
 **영향 파일**:
 
-- 신규: `src/features/asset/{...}`
+- 신규: `src/features/asset/{types.ts, api.ts, queryKeys.ts, hooks.ts, constants.ts}` + `src/test/handlers/asset.ts` (MSW)
 - 수정: `src/components/dashboard/InventoryManagement.tsx`
 
 **작업 순서**:
 
-1. features/asset 골격 + MSW 핸들러
-2. InventoryManagement mock 제거
+1. features/asset 골격 + ASSET_CATEGORIES 상수 + MSW 핸들러
+2. InventoryManagement mock 제거 + status 3종/카테고리 Select/stat 4종 재구성
 
 **커밋 단위**:
 
-- `feat(asset): asset features 골격 + CRUD + MSW 핸들러`
-- `refactor(inventory): InventoryManagement mock 제거`
+- `feat(asset): asset features 골격 + types/api/queryKeys/hooks + MSW 핸들러`
+- `refactor(inventory): InventoryManagement mock 제거 + asset features 연결 + 카테고리 Select`
 
 **사이드 이펙트/리스크**:
 
 - 자산(asset) ↔ 장치(device, G5) 도메인 혼동 가능 → 페이지 헤더에 구분 명시 ("자산=재고 품목, 장치=구역 설치 IoT").
+- category 시드 데이터에 7종 외 카테고리 존재 시 fallback 필요 (묶음 2 진입 시 확인. 7종 외 발견 시 "기타" 옵션 추가 또는 상수 확장).
+- Dropdown action z-50 ↔ Dialog z-[100] 충돌 가능 → 플랜 3-2 묶음 5 fix(Select z-[200]) 패턴을 Dropdown 도 동일 검토.
 
 **1순위 항목 적용**:
 
@@ -407,34 +417,43 @@
 
 **엔드포인트**:
 
-- cat 2 (ADMIN): POST/PUT/DELETE /parking/spots, GET /parking/spots
-- cat 5 (공용, 권한 없음): GET /parking/zones/{zoneId}/spots, GET /parking/zones/{zoneId}/map
-- (cat 4 IoT: POST /parking/spots/{id}/status — 범위 외)
+- cat 2 (ADMIN): `POST /parking/spots`, `PUT /parking/spots/{spotId}`, `DELETE /parking/spots/{spotId}`, `GET /parking/spots` (필터: `zoneId` / `spotType[REGULAR|DISABLED|EV]` / `status[ACTIVE|INACTIVE]`, 응답 = `List<ParkingSpotResponse>` 직반환)
+- cat 5 (공용, 권한 없음): `GET /parking/zones/{zoneId}/spots` (Summary), `GET /parking/zones/{zoneId}/map`
+- (cat 4 IoT: `POST /parking/spots/{spotId}/status` — 범위 외)
+
+**백엔드 모델 (플랜 3-3 0단계 검증, 2026-05-14)**:
+
+- 백엔드는 `ParkingSpot` (id, zone, spotType[REGULAR|DISABLED|EV], status[ACTIVE|INACTIVE], deviceId?, isOccupied, ...) 만 보유. **차량(Vehicle) · 차량 예약(Reservation) 모델 부재**.
+- **mock UI 차량 관리 제거 범위**: 기존 ParkingManagement mock 의 `vehicles` 모델(번호판/입출차/예약/방문목적/임직원·방문객 구분) + 등록 Dialog + 상세·수정 Dialog + 상태 변경 dropdown + filterStatus(주차중/예약/출차) + 차량 stats 카드 3종(실시간 사용/금일 예약/방문 차량) 모두 제거. 잔존 UI = ParkingSpot CRUD + zone summary + zone map(평면도 24면 부분).
+- Stat 카드 재구성: `총 주차면 / 점유 / 여유 / 비활성` 4종 (백엔드 spot 통계 기반).
+- 후속: `SmartOffice-server/BACKEND_SUGGESTIONS.md` #14 (저~중, 차량/예약 모델 신설 검토) 등록. 9절 추적표 #8 등록.
 
 **영향 파일**:
 
 - 신규:
-  - `src/features/parking/{...}`
+  - `src/features/parking/{types.ts, api.ts, queryKeys.ts, hooks.ts}` + `src/test/handlers/parking.ts` (MSW)
   - `src/components/parking/ParkingSpotsTable.tsx`
   - `src/components/parking/ParkingZoneSummary.tsx`
   - `src/components/parking/ParkingZoneMap.tsx`
-- 수정: `src/components/dashboard/ParkingManagement.tsx` — 컨테이너 ~150줄
+- 수정: `src/components/dashboard/ParkingManagement.tsx` — 컨테이너 ~150줄 (실측 722줄)
 
 **작업 순서**:
 
-1. **ParkingManagement 컴포넌트 분할** (빈 분할) — 1 커밋
-2. features/parking 골격 (cat 2 + cat 5 통합) + MSW 핸들러
-3. 분할된 컴포넌트 각각 hook 연결
+1. **ParkingManagement 컴포넌트 분할** (빈 분할, 코드 이동만, mock 차량 보존) — 1 커밋
+2. features/parking 골격 (cat 2 + cat 5 통합 6 함수) + MSW 핸들러 — 1 커밋
+3. ParkingManagement mock 차량 일괄 제거 + spot CRUD/요약/지도 연결 + ZoneSelect 재사용 — 1 커밋
 
 **커밋 단위**:
 
 - `refactor(parking): ParkingManagement 컴포넌트 분할`
 - `feat(parking): parking features 골격 + spots CRUD + zone summary/map + MSW 핸들러`
+- `refactor(parking): ParkingManagement mock 차량 관리 제거 + spot CRUD/요약/지도 연결`
 
 **사이드 이펙트/리스크**:
 
 - zone summary/map은 controller @PreAuthorize 없음 (SecurityConfig 확인 결과 인증만 요구) → 모바일도 동일 엔드포인트. 응답 DTO 안정성 유지.
-- 지도(map) 렌더 방식 (SVG/캔버스) 결정은 컴포넌트 내부로 격리.
+- 지도(map) 렌더 방식 (SVG/캔버스) 결정은 컴포넌트 내부로 격리. `ParkingZoneMapResponse` 좌표 부재 시 grid fallback (mock 24-spot 패턴 재활용).
+- zone 셀렉터는 `components/common/ZoneSelect.tsx` 재사용 (플랜 3-2 묶음 5 fix `d22b9ff`). circular dep 없음 (features 평면 구조).
 
 **1순위 항목 적용**:
 
@@ -628,6 +647,7 @@
 | 5 | 플랜 3-2 묶음 4 종료 (2026-05-14) | `GET /api/v1/power/zones/{zoneId}/hourly` HTTP 500 — POWER 미터 보유 zone (2/4/5/7) 모두 일관 실패. `startDate/endDate` 유무 무관. 동 컨트롤러의 `/billing` 은 정상 → `PowerService.getHourlyHistory` 만 결함 (HourlyPowerProjection mapping 또는 null 처리 추정) | `SmartOffice-server/BACKEND_SUGGESTIONS.md` #11 등록 (우선순위 **상**). web 측은 `usePowerHourly` isError + ErrorBoundary graceful handling 으로 동작 가능 (시각화만 비활성). 백엔드 수정 플랜에서 우선 처리 |
 | 6 | 플랜 3-2 시각 검증 (2026-05-14) | (가) shadcn Select(`@base-ui/react/select` 기반) 의 `SelectValue` 가 선택된 SelectItem children 자동 매핑 X — raw value(zoneId 문자열·enum value) 노출. /dashboard 환경·전력 셀렉터 + /zones FLOOR 셀렉터 + /building zone 셀렉터 모두 영향. (나) `components/ui/select.tsx` SelectContent z-50 ↔ modal z-[100] 충돌로 modal 내부 드롭다운 가시·클릭 불가 (ZoneInfoTab 구역 유형 + DeviceListTab status). (다) `ControlPanel.QUICK_COMMANDS` 가 V8 시드 history(`AC/LIGHT/FAN`) 와 어긋남. (라) `ControlCommand.command_type` 정의 부재 (varchar(15) 자유 string). (마) LoginPage admin 계정 prefill 운영 빌드 노출 위험 | (가) `src/components/common/ZoneSelect.tsx` 신설 + 4 사용처 일괄 교체 (`fix(ui): ZoneSelect ...`). ZoneType/DeviceStatus Select 는 명시 children 1회 fix. (나) `fix(ui): Select z-index z-50 → z-[200]`. (다) `fix(control): QUICK_COMMANDS V8 정합` (AC/LIGHT/FAN/DOOR_LOCK). (라) `SmartOffice-server/BACKEND_SUGGESTIONS.md` #12 등록 (우선순위 **중**, ControlCommandType enum 또는 `/controls/commands` 메타). (마) `chore(auth): LoginPage prefill 환경 변수화` (`import.meta.env.DEV`). 모두 즉시 처리 완료 |
 | 7 | 플랜 3-2 시각 재검증 (2026-05-14) | (Fix 4) `npm run start` 시연 환경 API 호출 실패 — `src/lib/api/client.ts` 의 `BASE_URL` 하드코딩(`"/api/v1"`) + `import.meta.env.VITE_API_URL` 사용 X + `.env.development`·`.env.production` 부재 + `server.ts` 가 정적 SPA 만 서빙(/api proxy 없음). (Fix 7) `PUT /api/v1/zones/{id}` body deserialize 결함 — 모든 body 변형이 "요청 본문을 읽을 수 없습니다" 응답. ZoneInfoTab 수정 모달이 모달은 정상이나 실제 저장 미반영 → 사용자 보고 "zone 이름 수정 후 사라짐". `ZoneUpdateRequest.clearParent` primitive boolean + setter 부재 추정. (Fix 8) Floor 전용 메타 필드 부재 (예: `floorNumber`, `totalArea`) — `Zone` entity 는 `zoneType=FLOOR` 라도 일반 zone 메타만 보유. (Fix 9) ControlPanel device Select trigger 가 SelectValue children 자동 매핑 결함으로 raw value(deviceId 문자열) 노출 (ZoneSelect 패턴 미적용 1곳 잔존) | (Fix 4) `fix(api): VITE_API_URL 환경변수 + server.ts http-proxy-middleware + ControlPanel device Select inline` (web `e759d56`) — (a)+(b) 동시 채택: `client.ts` `import.meta.env.VITE_API_URL` 분기, `.env.development`·`.env.production` 신설(`.gitignore` 예외 추가), `server.ts` 에 `http-proxy-middleware` 도입(`/api/v1 → API_TARGET`). (Fix 7) `SmartOffice-server/BACKEND_SUGGESTIONS.md` #13 등록 (우선순위 **상**, server `a12f497`). web 우회 불가, 백엔드 수정 플랜에서 처리. (Fix 8) 조치 X — 현재 모델(`zoneType=FLOOR` 자체가 층 표현)로 충분. UI 표시 필드 누락 없음. (Fix 9) ControlPanel device Select trigger inline 명시 (`e759d56` 동봉) — 사용처 1곳만이라 ZoneSelect 신설 X, inline 명시(옵션 b) 채택 |
+| 8 | 플랜 3-3 0단계 (2026-05-14) | 주차 차량(Vehicle)/예약(Reservation) 모델 백엔드 부재 — 현재 `ParkingController` 는 `ParkingSpot` CRUD + zone summary/map + IoT 점유 상태(cat 4)만 제공. mock UI 의 차량 등록/입출차/방문목적/예약 기능은 백엔드 미지원 | 즉시 처리: web `ParkingManagement` 의 차량 의존 코드(`vehicles` 모델 · 등록 Dialog · 상세 Dialog · 상태 변경 dropdown · filterStatus · 차량 stats 카드 3종) 모두 제거. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #14 등록 (저~중, "주차 차량/예약 모델 신설 검토" — 향후 확장 여지 기록). 백엔드 수정 플랜 또는 후속 sprint 에서 채택 시 features/parking 확장. mock UI 의 보안 추적 자산 모델(status 7종 / authorizedArea / lastGate / rfidTag)도 동시 제거(백엔드 `Asset` 단순 자산 대장 모델 ACTIVE/INACTIVE/LOST 만) — G5 mock 제거 패턴(`gateActive/permissions/groups`) 동일 적용, BACKEND_SUGGESTIONS 등록 X (의도된 모델) |
 
 (묶음 진행 중 추가 발견 시 본 표에 append.)
 
@@ -642,6 +662,6 @@
 | 마스터플랜 작성 | 완료 | 2026-05-14 | 2026-05-14 | 본 문서 |
 | 플랜 3-1 (G2/G3/G4) | 완료 | 2026-05-14 | 2026-05-14 | web 19 커밋(`bc9a718`~`4a02d68`) + server 3 커밋(`f6327a7`/`41c7797`/`4be13f0`). 자동 검증 5단계 ✅ + 시각 검증(A USER 차단 / B 전력 위젯 자체 셀렉터) ✅. push 0회. 잔존 결함 #1·#2 백엔드 수정 플랜 이관, #3 즉시 우회 처리 |
 | 플랜 3-2 (G5/G6/G7) | 완료 | 2026-05-14 | 2026-05-14 | web 28 + server 4 = 32 커밋. 자동 + 시각 검증 ✅ + Fix 라운드 2차(4·7·8·9). push 0회. 잔존 결함 추적표 #4·#5·#6·#7 추가 (백엔드 #10·#11·#12·#13 이관). |
-| 플랜 3-3 (G8/G9) | 대기 | — | — | — |
+| 플랜 3-3 (G8/G9) | 진행 중 | 2026-05-14 | — | — |
 | 플랜 3-4 (G10/G11) | 대기 | — | — | G3·G5 의존 |
 | 마지막 (md+push+PR) | 대기 | — | — | web/server 분리 PR |
