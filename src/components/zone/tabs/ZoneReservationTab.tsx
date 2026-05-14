@@ -1,23 +1,38 @@
-// 구역 상세 - 예약 탭.
-// 마스터플랜 G10 (회의실 신규) 진입 시 features/reservation 흡수 후 활성화 예정 (placeholder 단계).
-import { CalendarDays } from "lucide-react";
+// 구역 상세 - 예약 탭. 플랜 3-4 묶음 3.2 에서 placeholder → 활성화 (G10 캘린더 wrap).
+// 본 탭은 read-only — 수정/취소 액션은 회의실 관리 페이지(/meeting-rooms) 에서만 가능.
+import { Link } from "react-router-dom";
+import { ExternalLink } from "lucide-react";
+
+import { ZoneReservationCalendar } from "@/src/components/meetingroom/ZoneReservationCalendar";
+import { ROUTES } from "@/src/routes/paths";
 
 interface ZoneReservationTabProps {
   zoneId?: string;
 }
 
-export function ZoneReservationTab(_props: ZoneReservationTabProps) {
-  return (
-    <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-          <CalendarDays className="w-8 h-8 text-gray-300" />
-        </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-2">예약 현황</h3>
-        <p className="text-gray-400 text-sm max-w-[260px]">
-          본 구역의 예약 일정을 표시합니다. (플랜 3-4 G10 회의실 진입 시 활성화)
-        </p>
+export function ZoneReservationTab({ zoneId }: ZoneReservationTabProps) {
+  const numericZoneId = zoneId ? Number(zoneId) : undefined;
+
+  if (!numericZoneId || Number.isNaN(numericZoneId)) {
+    return (
+      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm text-center text-gray-400">
+        구역을 선택하면 예약 현황이 표시됩니다.
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-end">
+        <Link
+          to={ROUTES.MEETING_ROOMS}
+          className="inline-flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-black px-3 py-2 rounded-xl hover:bg-gray-50"
+        >
+          회의실 관리 페이지에서 편집
+          <ExternalLink className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+      <ZoneReservationCalendar readOnly fixedZoneId={numericZoneId} />
     </div>
   );
 }
