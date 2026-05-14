@@ -1,7 +1,8 @@
 // 제어 패널 — 출입문/조명/장치 제어 명령 발송 (묶음 4 커밋 4.2).
 // 명령 발송 + 이력 표시. useDevices() 와 연동하여 zone 의 장치 목록 셀렉터.
 import { useMemo, useState } from "react";
-import { Power, Lightbulb, Wind, DoorOpen, Loader2 } from "lucide-react";
+import { Power, Lightbulb, Wind, DoorOpen, Fan, Loader2 } from "lucide-react";
+// Power 아이콘은 헤더에서만 사용.
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,10 +21,13 @@ import { ErrorBoundary } from "@/src/components/common/ErrorBoundary";
 import { useSendControl, useControlHistory } from "@/src/features/control/hooks";
 import { useDevices } from "@/src/features/device/hooks";
 
+// V8 시드 history (AC 9건/LIGHT 4건/FAN 2건) 및 IoT 합의 가능 명령으로 정합.
+// 백엔드 control_commands.command_type = varchar(15) 자유 string pass-through 이므로 IoT 가 이해할 수 있는 값이어야 함.
+// 채택 시 BACKEND_SUGGESTIONS #12 (control commands 메타 엔드포인트) 후 hook 으로 전환.
 const QUICK_COMMANDS = [
-  { id: "LIGHT_ON", label: "조명 ON", icon: Lightbulb, color: "bg-yellow-50 text-yellow-600" },
-  { id: "LIGHT_OFF", label: "조명 OFF", icon: Power, color: "bg-gray-100 text-gray-500" },
-  { id: "SET_TEMPERATURE", label: "공조 가동", icon: Wind, color: "bg-blue-50 text-blue-600" },
+  { id: "AC", label: "공조 가동", icon: Wind, color: "bg-blue-50 text-blue-600" },
+  { id: "LIGHT", label: "조명 토글", icon: Lightbulb, color: "bg-yellow-50 text-yellow-600" },
+  { id: "FAN", label: "환기팬", icon: Fan, color: "bg-cyan-50 text-cyan-600" },
   { id: "DOOR_LOCK", label: "출입문 잠금", icon: DoorOpen, color: "bg-red-50 text-red-600" },
 ];
 
