@@ -582,6 +582,44 @@
    - Sidebar 메뉴 최종 목록 갱신
 2. 10-Capstone 상위 `CLAUDE.md` · `AGENTS.md` · `GEMINI.md` 3종 — 현황 일자만 갱신
 3. server·web 양쪽 `feature/web-integration` 브랜치 커밋 정리 확인
+
+### 3-1. [선택] git history 정리 — 인터랙티브 rebase
+
+본 통합 작업 push 직전 시점(마지막 플랜)에 Claude가 인터랙티브 rebase로 squash 수행 가능. 본 plan들은 검증 단계에서 자연 추가된 fix/docs 커밋이 누적되어 git log가 무거워진 상태. PR 가독성과 리뷰 효율을 위해 history 정리 절차를 명시한다.
+
+**[squash 대상 후보]**
+- 검증 단계 자연 추가 fix 커밋 (예: `1139814` sensor null, `0d630d8` z-index, `6566c3a` 카테고리 정합 등)
+- 잔존 결함 추적표 갱신 docs 커밋 (예: `5dcfc1b`, `9ed7516`, `4a02d68`, 추적표 #5·#6·#7·#8 갱신 등)
+- 작은 정정 커밋 (메시지 오타, lint warnings 정리 등)
+
+**[유지 대상]**
+- 마스터플랜 본문 정정 (PRE 커밋) — 메타 문서 변경, 코드 작업과 분리 의미
+- 거대 컴포넌트 분할 단독 커밋 (`b63358f` PersonnelTable / `1cac749` ParkingManagement / ZoneManagement 분할 등) — "빈 분할, 이동만" 원칙. 분할 회귀 검출 의미 보존
+- BACKEND_SUGGESTIONS 누적 (server 레포) — server PR 별도, squash 의미 적음
+
+**[제외 — squash 대상 아님]**
+- server 레포 전체 — 8 커밋 정도, 모두 분리된 항목 등록(#7~#14). squash 의미 적음. web 레포만 squash 수행.
+
+**[절차]**
+1. Claude가 현재 git log 기반으로 squash 그룹 후보 제시 (그룹별 메시지 초안 포함)
+   - 예: "플랜 3-1 G2 (4 커밋 → 1)", "플랜 3-2 G7 (5 커밋 → 1)", "플랜 3-2 시각 fix 1차 (5 커밋 → 1)" 등
+2. 사용자 그룹 확정 (그룹별 squash/유지 결정)
+3. Claude가 `git rebase -i HEAD~N` 수행 (web 레포만)
+4. 충돌 발생 시 즉시 멈추고 보고. 자율 해결 X. 사용자 결정 받음
+5. rebase 후 빌드/lint/test 게이트 재통과 확인 필수
+   - `npm run lint && npm run build && npm test` 통과
+   - 실패 시 `git reflog` 기반 복구 + 사용자 보고
+6. rebase 완료 후 마스터플랜 9절 트래커에 "history 정리 완료, web N → M 커밋" 갱신
+7. force push X — 본 통합 작업이 첫 push이므로 force 불필요. push 후 추가 commit/rebase는 별개 정책
+
+**[위험 관리]**
+- rebase는 마지막 플랜에서만 수행. 그 이전 plan들은 history 보존
+- 충돌 가능성 시나리오: 거대 컴포넌트 분할 + 그 후 분할 파일 수정 커밋이 같은 squash 그룹에 묶이면 충돌 가능. 분할 단독 커밋 유지 정책으로 회피
+- 사용자가 본 작업 거부 가능 — history 정리 없이 그대로 push해도 OK (정책은 선택적)
+
+**[결정 시점]**
+마지막 플랜 진입 후 첫 메시지에서 사용자 최종 확정 (squash 수행 또는 유지).
+
 4. **동시 push 1회** (web + server 각각)
 5. **분리 PR 2개 동시 생성**:
    - web PR: base `main`, head `feature/web-integration`
