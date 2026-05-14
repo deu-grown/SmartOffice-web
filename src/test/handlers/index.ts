@@ -11,6 +11,7 @@ import { departmentHandlers } from "./department";
 import { deviceHandlers } from "./device";
 import { parkingHandlers } from "./parking";
 import { powerHandlers } from "./power";
+import { reservationHandlers } from "./reservation";
 import { salaryHandlers } from "./salary";
 import { sensorHandlers } from "./sensor";
 import { userHandlers } from "./user";
@@ -31,4 +32,5 @@ export const handlers: HttpHandler[] = [
   ...controlHandlers,
   ...assetHandlers,
   ...parkingHandlers,
+  ...reservationHandlers,
 ];
