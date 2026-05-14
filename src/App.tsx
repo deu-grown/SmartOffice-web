@@ -74,30 +74,9 @@ export default function App() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const logoutMutation = useLogoutMutation();
 
-  // mock 상태 — buildingLocks/buildingSettings 는 G7 묶음 4 마이그레이션 대상.
-  // zone mock(rooms/roomsSnapshot/hasUnsavedZoneChanges) 는 묶음 2 커밋 2.2 에서 제거됨.
-
-  const [buildingLocks, setBuildingLocks] = useState({ temp: false, hum: false, light: false });
-  const [buildingLocksSnapshot, setBuildingLocksSnapshot] = useState({
-    temp: false,
-    hum: false,
-    light: false,
-  });
-
-  const [buildingSettings, setBuildingSettings] = useState({
-    targetTemp: 24,
-    targetHumidity: 45,
-    isLightOn: true,
-    brightness: 80,
-  });
-  const [buildingSettingsSnapshot, setBuildingSettingsSnapshot] = useState({
-    targetTemp: 24,
-    targetHumidity: 45,
-    isLightOn: true,
-    brightness: 80,
-  });
-
-  const [hasUnsavedBuildingChanges, setHasUnsavedBuildingChanges] = useState(false);
+  // 묶음 2 (zone) + 묶음 4 (building) 마이그레이션 완료 — mock 상태 모두 제거.
+  // navigation guard 자체는 모든 페이지가 즉시 mutation 반영 모델로 전환되어 사실상 불필요해졌으나,
+  // 페이지/탭 전환 confirm UI 인프라는 후속 페이지(예: 회의실 G10)에서 재사용 가능성 있어 유지.
   const [pendingTab, setPendingTab] = useState<TabType | null>(null);
   const [showNavGuard, setShowNavGuard] = useState(false);
 
@@ -114,33 +93,14 @@ export default function App() {
   };
 
   const handleTabChange = (tab: TabType) => {
-    if (activeTab === "건물 관리" && hasUnsavedBuildingChanges) {
-      setPendingTab(tab);
-      setShowNavGuard(true);
-    } else {
-      if (tab === "건물 관리") {
-        setBuildingLocksSnapshot({ ...buildingLocks });
-        setBuildingSettingsSnapshot({ ...buildingSettings });
-      }
-      navigateToTab(tab);
-    }
+    // unsaved changes 가드는 묶음 2/4 이후 사실상 비활성 — 모든 페이지가 mutation 즉시 반영.
+    // 후속 페이지(G10 회의실 등) 에서 unsaved 가드 재도입 시 본 함수에 분기 추가.
+    navigateToTab(tab);
   };
 
   const confirmNavigation = (save: boolean) => {
-    if (save) {
-      if (activeTab === "건물 관리") {
-        setBuildingLocksSnapshot({ ...buildingLocks });
-        setBuildingSettingsSnapshot({ ...buildingSettings });
-      }
-      toast.success("변경사항이 저장되었습니다.");
-    } else {
-      if (activeTab === "건물 관리") {
-        setBuildingLocks({ ...buildingLocksSnapshot });
-        setBuildingSettings({ ...buildingSettingsSnapshot });
-      }
-      toast.info("변경사항이 무시되었습니다.");
-    }
-    setHasUnsavedBuildingChanges(false);
+    if (save) toast.success("변경사항이 저장되었습니다.");
+    else toast.info("변경사항이 무시되었습니다.");
     const nextTab = pendingTab;
     setShowNavGuard(false);
     setPendingTab(null);
@@ -223,13 +183,7 @@ export default function App() {
                 <Route
                   path="building"
                   element={
-                    <BuildingManagement
-                      locks={buildingLocks}
-                      setLocks={setBuildingLocks}
-                      settings={buildingSettings}
-                      setSettings={setBuildingSettings}
-                      setHasUnsavedChanges={setHasUnsavedBuildingChanges}
-                    />
+                    <BuildingManagement />
                   }
                 />
                 <Route path="salary" element={<SalaryManagement />} />
