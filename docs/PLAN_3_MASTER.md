@@ -625,6 +625,8 @@
 | 3 | 플랜 3-1 시각 검증 (2026-05-14) | POWER 미터 보유 zone 목록 조회 엔드포인트 미존재. `GET /api/v1/dashboard/sensors/current` 는 환경 센서 보유 zone 만 반환하므로 web 의 G2 PowerCurrentWidget 이 회의실 A·B(POWER 만 보유) 를 표시할 수 없는 결함의 근본 원인이 됨 | 즉시 처리(web `fix(power): fc041b9`): `features/power/constants.ts` 의 `POWER_ZONES_TEMP` 임시 상수(V7 시드 기반 zone 2·4·5·7) + 자체 셀렉터로 우회. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #9 등록. 채택 시 `usePowerZones()` 훅으로 전환하여 하드코딩 제거 |
 | 4 | 플랜 3-2 0단계 (2026-05-14) | `GET /api/v1/zones/{id}` 부재 — `ZoneController` 에 `GET 목록 / GET /tree / POST / PUT / DELETE` 만 존재. `ZoneDetailResponse` DTO 자체 부재 | 즉시 우회: web `features/zone/hooks.ts:useZoneDetail(id)` 가 `useZones()` 응답을 `find(id)` 로 추출. `ZoneListItemResponse = { id, name, zoneType, parentId, description, createdAt }` 6 필드가 ZoneDetailView 표시 필드 100% 충족 검증 완료. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #10 등록 (저~중). 채택 시 hook 내부 `useQuery` swap, queryKey(`zoneKeys.detail(id)`) 그대로 유지. **묶음 2 종료(2026-05-14) curl 검증으로 web 우회 동작 검증 완료**: `GET /api/v1/zones` (V8 시드 ~14건, 6 필드 1:1 정합) · `GET /api/v1/zones/tree` (재귀 children, parentId 누락 확인) · `GET /api/v1/devices` (9 필드 1:1 정합) · `GET /api/v1/devices/1` (+updatedAt). 백엔드 수정 플랜 이관 |
 
+| 5 | 플랜 3-2 묶음 4 종료 (2026-05-14) | `GET /api/v1/power/zones/{zoneId}/hourly` HTTP 500 — POWER 미터 보유 zone (2/4/5/7) 모두 일관 실패. `startDate/endDate` 유무 무관. 동 컨트롤러의 `/billing` 은 정상 → `PowerService.getHourlyHistory` 만 결함 (HourlyPowerProjection mapping 또는 null 처리 추정) | `SmartOffice-server/BACKEND_SUGGESTIONS.md` #11 등록 (우선순위 **상**). web 측은 `usePowerHourly` isError + ErrorBoundary graceful handling 으로 동작 가능 (시각화만 비활성). 백엔드 수정 플랜에서 우선 처리 |
+
 (묶음 진행 중 추가 발견 시 본 표에 append.)
 
 ---
