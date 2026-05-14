@@ -1,12 +1,15 @@
 // 직원 도메인 React Query 훅. mutation 성공 시 목록·상세 캐시 invalidate.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { authKeys } from "@/src/features/auth/queryKeys";
+
 import { userApi } from "./api";
 import { userKeys } from "./queryKeys";
 import type {
   UserAccessLogsQuery,
   UserCreateRequest,
   UserListFilter,
+  UserMeUpdateRequest,
   UserUpdateRequest,
 } from "./types";
 
@@ -72,5 +75,17 @@ export function useUserAccessLogs(
     queryKey: userKeys.accessLogs(id ?? -1, query),
     queryFn: () => userApi.accessLogs(id as number, query),
     enabled: typeof id === "number" && id > 0,
+  });
+}
+
+/** cat 5 본인 정보 수정 (POST /users/me).
+ *  GET 본인 정보는 features/auth.useMe 재사용. 성공 시 authKeys.me() 캐시 invalidate. */
+export function useUpdateMyInfo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UserMeUpdateRequest) => userApi.updateMyInfo(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: authKeys.me() });
+    },
   });
 }

@@ -114,3 +114,17 @@ export interface UserAccessLogsQuery {
   page?: number;
   size?: number;
 }
+
+// cat 5 본인 정보 수정 (POST /api/v1/users/me) — GET 은 features/auth.useMe 재사용.
+/** UserMeUpdateRequest. 비밀번호 변경 시 currentPassword 필수. */
+export interface UserMeUpdateRequest {
+  phone?: string;
+  password?: string;
+  currentPassword?: string;
+}
+
+/** UserMeUpdateResponse. */
+export interface UserMeUpdateResponse {
+  phone: string | null;
+  updatedAt: string;
+}

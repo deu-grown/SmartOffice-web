@@ -232,6 +232,29 @@ export const userHandlers = [
     });
   }),
 
+  http.post("/api/v1/users/me", async ({ request }) => {
+    const body = (await request.json()) as {
+      phone?: string;
+      password?: string;
+      currentPassword?: string;
+    };
+    // 비밀번호 변경 시 currentPassword 필수 검증 (백엔드 정합).
+    if (body.password && !body.currentPassword) {
+      return HttpResponse.json(
+        { code: "error", message: "현재 비밀번호가 필요합니다.", data: null },
+        { status: 400 },
+      );
+    }
+    const me = users[0];
+    if (body.phone !== undefined) me.phone = body.phone || null;
+    me.updatedAt = new Date().toISOString();
+    return HttpResponse.json({
+      code: "success",
+      message: "정보가 수정되었습니다.",
+      data: { phone: me.phone, updatedAt: me.updatedAt },
+    });
+  }),
+
   http.get("/api/v1/users/:id/access-logs", ({ params, request }) => {
     const id = Number(params.id);
     const u = users.find((x) => x.id === id);

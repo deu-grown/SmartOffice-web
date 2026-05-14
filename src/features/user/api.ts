@@ -11,6 +11,8 @@ import type {
   UserDetail,
   UserListFilter,
   UserListItem,
+  UserMeUpdateRequest,
+  UserMeUpdateResponse,
   UserUpdateRequest,
   UserUpdateResponse,
 } from "./types";
@@ -32,4 +34,8 @@ export const userApi = {
   /** 특정 직원 출입 이력 — C9 이관 예정. */
   accessLogs: (id: number, query?: UserAccessLogsQuery) =>
     apiGet<UserAccessLogList>(`/users/${id}/access-logs`, { params: query }),
+  /** cat 5 본인 정보 수정. 비밀번호 변경 시 currentPassword 필수.
+   *  GET 은 features/auth.useMe 재사용 — 본 객체에 me 조회 함수 미정의. */
+  updateMyInfo: (body: UserMeUpdateRequest) =>
+    apiPost<UserMeUpdateResponse, UserMeUpdateRequest>("/users/me", body),
 };

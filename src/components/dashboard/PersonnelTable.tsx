@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { AttendanceTab } from "@/src/components/personnel/AttendanceTab";
 import { DepartmentSidebar } from "@/src/components/personnel/DepartmentSidebar";
+import { MyProfileSection } from "@/src/components/personnel/MyProfileSection";
 import {
   PERSONNEL_PAGE_SIZE,
   PersonnelListTable,
@@ -33,7 +34,9 @@ interface PersonnelTableProps {
 // 상단 탭(직원 목록 / 근태 관리) 전환 + 부서 사이드바 + 직원 목록(서버 페이지네이션)
 // + 상세/수정 드로어(출입 이력 탭 포함). 근태 관리 탭은 AttendanceTab 으로 위임.
 export function PersonnelTable(_props: PersonnelTableProps) {
-  const [activeView, setActiveView] = useState<"personnel" | "attendance">("personnel");
+  const [activeView, setActiveView] = useState<"personnel" | "attendance" | "myinfo">(
+    "personnel",
+  );
   const [filterDepartmentId, setFilterDepartmentId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("전체");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -96,10 +99,18 @@ export function PersonnelTable(_props: PersonnelTableProps) {
         >
           근태 관리
         </ViewTabButton>
+        <ViewTabButton
+          active={activeView === "myinfo"}
+          onClick={() => setActiveView("myinfo")}
+        >
+          내 정보
+        </ViewTabButton>
       </div>
 
       {activeView === "attendance" ? (
         <AttendanceTab />
+      ) : activeView === "myinfo" ? (
+        <MyProfileSection />
       ) : (
         <>
           <DepartmentSidebar
