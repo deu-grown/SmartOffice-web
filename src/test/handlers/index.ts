@@ -4,6 +4,7 @@ import type { HttpHandler } from "msw";
 import { accessLogHandlers } from "./accesslog";
 import { attendanceHandlers } from "./attendance";
 import { authHandlers } from "./auth";
+import { controlHandlers } from "./control";
 import { dashboardHandlers } from "./dashboard";
 import { departmentHandlers } from "./department";
 import { deviceHandlers } from "./device";
@@ -25,4 +26,5 @@ export const handlers: HttpHandler[] = [
   ...deviceHandlers,
   ...salaryHandlers,
   ...sensorHandlers,
+  ...controlHandlers,
 ];
