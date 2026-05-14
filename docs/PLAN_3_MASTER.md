@@ -62,6 +62,13 @@
 
 **페이지 컨테이너 라인 수 목표**: 분할 후 모두 ~150줄 이내 유지.
 
+**분할/신규 컴포넌트 디렉터리 컨벤션**:
+
+- 컨테이너(`PersonnelTable.tsx` · `ZoneManagement.tsx` 등 페이지 상위 컴포넌트)는 `src/components/dashboard/` 유지 (App.tsx import 경로 호환).
+- 분할된 자식 컴포넌트는 페이지 도메인별 신규 폴더에 배치:
+  - `src/components/personnel/` (G3) · `src/components/zone/` (G5) · `src/components/parking/` (G9) · `src/components/building/` (G7) · `src/components/meetingroom/` (G10) · `src/components/nfccard/` (G11)
+- 위젯·공용 시각화는 `src/components/dashboard/widgets/` (G2 전력 위젯 등).
+
 ---
 
 ## 2. cat 5 공용 컨벤션 (web 측)
@@ -105,7 +112,7 @@
   - `src/components/dashboard/widgets/PowerCurrentWidget.tsx`
   - `src/components/dashboard/widgets/PowerBillingWidget.tsx`
 - 수정:
-  - `src/pages/IntegratedDashboard.tsx` — mock 제거, 위젯 단위 조립
+  - `src/components/dashboard/IntegratedDashboard.tsx` — mock 제거, 위젯 단위 조립
   - 기존 dashboard 하위 컴포넌트들 — 분류표 기준 4 엔드포인트 응답 매핑
 
 **작업 순서**:
@@ -142,9 +149,9 @@
 **엔드포인트**:
 
 - user 6 (ADMIN): GET/POST/GET-id/PUT/DELETE /api/v1/users, GET /api/v1/users/{id}/access-logs
-- dept 4 (ADMIN): /api/v1/departments CRUD (정확 경로 진입 시 재확인)
-- att 3 (ADMIN): 근태 목록·통계·승인 3종
-- cat 5 user 2: GET/POST /api/v1/users/me
+- dept 4 (ADMIN): /api/v1/departments CRUD (GET 목록 / POST 등록 / PUT 수정 / DELETE 삭제)
+- att 3 (ADMIN): `GET /api/v1/attendance/daily`(임의 날짜 일별 목록) + `PUT /api/v1/attendance/{id}`(수동 보정) + `POST /api/v1/attendance/batch`(월간 일괄 산출 수동 트리거, **위험 액션** — 멱등 X, 기존 결과 덮어쓰기)
+- cat 5 user 2: **GET 은 `/api/v1/auth/me` 사용 (features/auth.useMe 재사용, web CLAUDE.md 13절 정합) / POST 만 `/api/v1/users/me` 사용 (features/user 신규 `useUpdateMyInfo`)**
 
 **영향 파일**:
 
@@ -158,7 +165,7 @@
   - `src/components/personnel/AttendanceTab.tsx`
   - `src/components/personnel/MyProfileSection.tsx`
 - 수정:
-  - `src/pages/PersonnelTable.tsx` — 컨테이너 ~150줄
+  - `src/components/dashboard/PersonnelTable.tsx` — 컨테이너 ~150줄
 
 **작업 순서**:
 
@@ -197,7 +204,7 @@
 **영향 파일**:
 
 - 신규: `src/features/accesslog/{types.ts, api.ts, queryKeys.ts, hooks.ts}`
-- 수정: `src/pages/AccessRecordTable.tsx`
+- 수정: `src/components/dashboard/AccessRecordTable.tsx`
 
 **작업 순서**:
 
@@ -241,7 +248,7 @@
   - `src/components/zone/tabs/ZoneReservationTab.tsx` (G10 진입 전까지 placeholder)
   - `src/components/zone/tabs/ZonePowerTab.tsx` (G7 진입 전까지 placeholder)
 - 수정:
-  - `src/pages/ZoneManagement.tsx` — 컨테이너 ~150줄
+  - `src/components/dashboard/ZoneManagement.tsx` — 컨테이너 ~150줄
 
 **작업 순서**:
 
@@ -279,7 +286,7 @@
 **영향 파일**:
 
 - 신규: `src/features/salary/{...}` (record + setting 통합 또는 분리는 백엔드 도메인 따라감)
-- 수정: `src/pages/SalaryManagement.tsx` (분할 결정 시 컨테이너 ~150줄)
+- 수정: `src/components/dashboard/SalaryManagement.tsx` (분할 결정 시 컨테이너 ~150줄)
 
 **작업 순서**:
 
@@ -326,7 +333,7 @@
   - `src/components/building/ControlPanel.tsx`
   - `src/components/building/SensorChart.tsx`
 - 수정:
-  - `src/pages/BuildingManagement.tsx`
+  - `src/components/dashboard/BuildingManagement.tsx`
   - `src/components/zone/tabs/ZonePowerTab.tsx` — G5 placeholder 활성화 (차트 wrap)
 
 **작업 순서**:
@@ -366,7 +373,7 @@
 **영향 파일**:
 
 - 신규: `src/features/asset/{...}`
-- 수정: `src/pages/InventoryManagement.tsx`
+- 수정: `src/components/dashboard/InventoryManagement.tsx`
 
 **작업 순서**:
 
@@ -404,7 +411,7 @@
   - `src/components/parking/ParkingSpotsTable.tsx`
   - `src/components/parking/ParkingZoneSummary.tsx`
   - `src/components/parking/ParkingZoneMap.tsx`
-- 수정: `src/pages/ParkingManagement.tsx` — 컨테이너 ~150줄
+- 수정: `src/components/dashboard/ParkingManagement.tsx` — 컨테이너 ~150줄
 
 **작업 순서**:
 
@@ -442,7 +449,7 @@
 
 - 신규:
   - `src/features/reservation/{...}`
-  - `src/pages/MeetingRoomManagement.tsx`
+  - `src/components/dashboard/MeetingRoomManagement.tsx`
   - `src/components/meetingroom/ReservationListTable.tsx`
   - `src/components/meetingroom/ZoneReservationCalendar.tsx`
   - `src/components/meetingroom/ReservationDetailDrawer.tsx`
@@ -488,7 +495,7 @@
 
 - 신규:
   - `src/features/nfccard/{...}`
-  - `src/pages/NfcCardManagement.tsx`
+  - `src/components/dashboard/NfcCardManagement.tsx`
   - `src/components/nfccard/NfcCardListTable.tsx`
   - `src/components/nfccard/NfcCardIssueModal.tsx`
   - `src/components/nfccard/NfcCardDetailDrawer.tsx`
