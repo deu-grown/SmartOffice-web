@@ -2,5 +2,6 @@
 import type { HttpHandler } from "msw";
 
 import { authHandlers } from "./auth";
+import { dashboardHandlers } from "./dashboard";
 
-export const handlers: HttpHandler[] = [...authHandlers];
+export const handlers: HttpHandler[] = [...authHandlers, ...dashboardHandlers];
