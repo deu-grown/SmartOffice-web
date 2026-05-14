@@ -236,6 +236,13 @@
 - zone 5: `GET 목록 / GET /tree / POST / PUT / DELETE` /api/v1/zones (**GET /{id} 없음** — `ZoneListItemResponse` 의 `find(id)` 클라이언트 우회. 9절 결함 #4 참조)
 - device 5: GET/POST/GET-id/PUT/DELETE /api/v1/devices
 
+**zone 도메인 모델 (백엔드 실제 — 마스터플랜 정정 1.1b)**:
+
+- `ZoneType` enum = `FLOOR | AREA | ROOM` (3종, 계층 표시용). **권한 카테고리 모델("보안구역/사무공간/공용공간/일반구역")은 백엔드에 존재하지 않음** — 기존 mock UI 의 매핑은 제거 대상.
+- **`floor` 컬럼·속성 부재** — `zoneType=FLOOR` 인 zone 자체가 "층", `parentId` 로 계층 표현. 평면도 UI 는 `zoneType=FLOOR` zone 선택 → 해당 zone 의 자식(`parentId === FLOOR.id`) 표시로 재구성.
+- 기존 mock UI 의 `gateActive` · `permissions` · `groups` 모델 모두 백엔드 부재 — mock 제거 시 함께 제거.
+- ZoneInfoTab 표시 필드 (`ZoneListItemResponse` 6 필드): `id` · `name` · `zoneType` (한국어 라벨: FLOOR=층, AREA=구역, ROOM=방) · `parentId` (부모 zone 이름 lookup 표시) · `description` · `createdAt`.
+
 **영향 파일**:
 
 - 신규:
