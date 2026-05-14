@@ -6,7 +6,6 @@ import { authKeys } from "@/src/features/auth/queryKeys";
 import { userApi } from "./api";
 import { userKeys } from "./queryKeys";
 import type {
-  UserAccessLogsQuery,
   UserCreateRequest,
   UserListFilter,
   UserMeUpdateRequest,
@@ -66,17 +65,7 @@ export function useDeactivateUser() {
   });
 }
 
-/** 특정 직원 출입 이력 — C9 에서 features/accesslog 로 이관 예정. */
-export function useUserAccessLogs(
-  id: number | undefined,
-  query?: UserAccessLogsQuery,
-) {
-  return useQuery({
-    queryKey: userKeys.accessLogs(id ?? -1, query),
-    queryFn: () => userApi.accessLogs(id as number, query),
-    enabled: typeof id === "number" && id > 0,
-  });
-}
+// useUserAccessLogs 는 C9 에서 features/accesslog/hooks.ts 로 이관 — 본 파일에 없음.
 
 /** cat 5 본인 정보 수정 (POST /users/me).
  *  GET 본인 정보는 features/auth.useMe 재사용. 성공 시 authKeys.me() 캐시 invalidate. */

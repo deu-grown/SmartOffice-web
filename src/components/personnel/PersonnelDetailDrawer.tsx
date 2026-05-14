@@ -21,8 +21,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+import { useUserAccessLogs } from "@/src/features/accesslog/hooks";
 import { useDepartments } from "@/src/features/department/hooks";
-import { useUserAccessLogs } from "@/src/features/user/hooks";
 import type { UserListItem, UserUpdateRequest } from "@/src/features/user/types";
 
 interface PersonnelDetailDrawerProps {

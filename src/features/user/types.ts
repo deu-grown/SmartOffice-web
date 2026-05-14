@@ -77,43 +77,8 @@ export interface UserUpdateResponse {
   updatedAt: string;
 }
 
-// 출입 이력 — C9 에서 features/accesslog 로 이관 예정 (임시 inline 정의).
-/** AccessLogResponse 단건. */
-export interface UserAccessLog {
-  id: number;
-  userId: number | null;
-  userName: string | null;
-  employeeNumber: string | null;
-  uid: string | null;
-  deviceId: number;
-  deviceName: string;
-  zoneId: number;
-  zoneName: string;
-  direction: string;
-  authResult: string;
-  denyReason: string | null;
-  taggedAt: string;
-}
-
-/** GET /api/v1/users/{id}/access-logs 응답 (UserAccessLogListResponse). */
-export interface UserAccessLogList {
-  userId: number;
-  userName: string;
-  totalElements: number;
-  totalPages: number;
-  currentPage: number;
-  logs: UserAccessLog[];
-}
-
-/** GET /api/v1/users/{id}/access-logs 쿼리 파라미터. */
-export interface UserAccessLogsQuery {
-  startDate?: string;
-  endDate?: string;
-  zoneId?: number;
-  direction?: string;
-  page?: number;
-  size?: number;
-}
+// 출입 이력 인터페이스(AccessLog / UserAccessLogList / UserAccessLogsQuery)는
+// C9 에서 features/accesslog 로 이관 완료. 본 features 는 더 이상 보유하지 않는다.
 
 // cat 5 본인 정보 수정 (POST /api/v1/users/me) — GET 은 features/auth.useMe 재사용.
 /** UserMeUpdateRequest. 비밀번호 변경 시 currentPassword 필수. */

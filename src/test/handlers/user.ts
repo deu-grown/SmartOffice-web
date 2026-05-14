@@ -255,61 +255,8 @@ export const userHandlers = [
     });
   }),
 
-  http.get("/api/v1/users/:id/access-logs", ({ params, request }) => {
-    const id = Number(params.id);
-    const u = users.find((x) => x.id === id);
-    if (!u) {
-      return HttpResponse.json(
-        { code: "error", message: "직원을 찾을 수 없습니다.", data: null },
-        { status: 404 },
-      );
-    }
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get("page") ?? 0);
-    const size = Number(url.searchParams.get("size") ?? 20);
-    const allLogs = [
-      {
-        id: 101,
-        userId: u.id,
-        userName: u.name,
-        employeeNumber: u.employeeNumber,
-        uid: "A1-B2-C3-D4",
-        deviceId: 1,
-        deviceName: "출입게이트 1F",
-        zoneId: 1,
-        zoneName: "1층",
-        direction: "IN",
-        authResult: "ALLOWED",
-        denyReason: null,
-        taggedAt: "2026-05-14T09:00:00",
-      },
-      {
-        id: 102,
-        userId: u.id,
-        userName: u.name,
-        employeeNumber: u.employeeNumber,
-        uid: "A1-B2-C3-D4",
-        deviceId: 1,
-        deviceName: "출입게이트 1F",
-        zoneId: 1,
-        zoneName: "1층",
-        direction: "OUT",
-        authResult: "ALLOWED",
-        denyReason: null,
-        taggedAt: "2026-05-13T18:30:00",
-      },
-    ];
-    return HttpResponse.json({
-      code: "success",
-      message: "정상 조회되었습니다.",
-      data: {
-        userId: u.id,
-        userName: u.name,
-        totalElements: allLogs.length,
-        totalPages: 1,
-        currentPage: page,
-        logs: allLogs.slice(page * size, (page + 1) * size),
-      },
-    });
-  }),
+  // GET /api/v1/users/{id}/access-logs 핸들러는 src/test/handlers/accesslog.ts 로 이관 (C9).
 ];
+
+// 다른 핸들러(accesslog 등) 에서 users 컬렉션을 참조할 수 있도록 export.
+export const __testUsersForAccessLog = users;
