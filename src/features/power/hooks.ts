@@ -1,10 +1,14 @@
-// 전력 도메인 React Query 훅. G2 단계 hook 2 종 (current / billing).
-// G7 진입 시 usePowerHourly / usePowerZoneBilling / useCalculatePowerBilling 등이 본 파일에 점진 추가될 예정.
-import { useQuery } from "@tanstack/react-query";
+// 전력 도메인 React Query 훅. G2(current/billing) + G7(hourly/zoneBilling/calculate) 확장.
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { powerApi } from "./api";
 import { powerKeys } from "./queryKeys";
-import type { PowerBillingQuery } from "./types";
+import type {
+  PowerBillingCalculateRequest,
+  PowerBillingQuery,
+  PowerBillingZoneQuery,
+  PowerHourlyQuery,
+} from "./types";
 
 /** 구역별 실시간 전력 현황. zoneId 미지정 시 비활성. */
 export function usePowerCurrent(zoneId: number | undefined) {
@@ -20,5 +24,37 @@ export function usePowerBilling(query?: PowerBillingQuery) {
   return useQuery({
     queryKey: powerKeys.billing(query),
     queryFn: () => powerApi.getAllBilling(query),
+  });
+}
+
+// ── G7 확장 ──────────────────────────────────────────────────
+
+/** 구역별 시간별 전력 이력. */
+export function usePowerHourly(zoneId: number | undefined, query?: PowerHourlyQuery) {
+  return useQuery({
+    queryKey: powerKeys.hourly(zoneId ?? -1, query),
+    queryFn: () => powerApi.getHourly(zoneId as number, query),
+    enabled: typeof zoneId === "number" && zoneId > 0,
+  });
+}
+
+/** 구역별 월 요금 내역. */
+export function usePowerZoneBilling(zoneId: number | undefined, query?: PowerBillingZoneQuery) {
+  return useQuery({
+    queryKey: powerKeys.zoneBilling(zoneId ?? -1, query),
+    queryFn: () => powerApi.getZoneBilling(zoneId as number, query),
+    enabled: typeof zoneId === "number" && zoneId > 0,
+  });
+}
+
+/** 전력 요금 산출 (위험 액션, 멱등 X). AttendanceBatchTriggerButton 패턴 적용 대상. */
+export function useCalculatePowerBilling() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: PowerBillingCalculateRequest) => powerApi.postCalculate(body),
+    onSuccess: () => {
+      // 산출 후 billing 캐시 전체 invalidate (현재 month, 모든 zone)
+      queryClient.invalidateQueries({ queryKey: powerKeys.all });
+    },
   });
 }

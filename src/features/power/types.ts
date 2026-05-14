@@ -38,3 +38,75 @@ export interface PowerBillingQuery {
   year?: number;
   month?: number;
 }
+
+// ── G7 확장 (묶음 4 커밋 4.3) ──────────────────────────────────────────
+
+/** GET /api/v1/power/zones/{zoneId}/hourly 응답 항목. BigDecimal → number|string 호환. */
+export interface PowerHourlyLog {
+  id: number;
+  deviceId: number;
+  deviceName: string;
+  hourAt: string;
+  kwh: number | string;
+  avgWatt: number | string;
+  peakWatt: number | string;
+}
+
+/** GET /api/v1/power/zones/{zoneId}/hourly 응답. */
+export interface PowerHourly {
+  zoneId: number;
+  zoneName: string;
+  logs: PowerHourlyLog[];
+}
+
+/** GET /api/v1/power/zones/{zoneId}/hourly 쿼리. */
+export interface PowerHourlyQuery {
+  startDate?: string;
+  endDate?: string;
+  deviceId?: number;
+}
+
+/** GET /api/v1/power/zones/{zoneId}/billing 응답의 단건. */
+export interface PowerBillingRecord {
+  id: number;
+  year: number;
+  month: number;
+  totalKwh: number | string;
+  unitPrice: number;
+  baseFee: number;
+  usageFee: number;
+  totalFee: number;
+  createdAt: string;
+}
+
+/** GET /api/v1/power/zones/{zoneId}/billing 응답. */
+export interface PowerBillingZone {
+  zoneId: number;
+  zoneName: string;
+  records: PowerBillingRecord[];
+}
+
+/** GET /api/v1/power/zones/{zoneId}/billing 쿼리. */
+export interface PowerBillingZoneQuery {
+  year?: number;
+  month?: number;
+}
+
+/** POST /api/v1/power/billing/calculate 요청 (위험 액션). */
+export interface PowerBillingCalculateRequest {
+  year: number;
+  month: number;
+  unitPrice: number;
+  baseFee: number;
+  zoneIds?: number[];
+}
+
+/** POST /api/v1/power/billing/calculate 응답. */
+export interface PowerBillingCalculateResponse {
+  year: number;
+  month: number;
+  totalCount: number;
+  successCount: number;
+  skipCount: number;
+  totalFee: number;
+}

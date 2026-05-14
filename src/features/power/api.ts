@@ -1,8 +1,17 @@
-// 전력 도메인 REST API 호출. G2 단계 2 함수(getCurrent / getAllBilling).
-// G7 에서 getHourly / getZoneBilling / postCalculate 가 본 객체에 추가될 예정 — 호출 시그니처 호환을 위해 객체 export 방식 유지.
-import { apiGet } from "@/src/lib/api/client";
+// 전력 도메인 REST API 호출. G2(current/billing) + G7(hourly/zoneBilling/calculate) 확장.
+import { apiGet, apiPost } from "@/src/lib/api/client";
 
-import type { PowerBillingAll, PowerBillingQuery, PowerCurrent } from "./types";
+import type {
+  PowerBillingAll,
+  PowerBillingCalculateRequest,
+  PowerBillingCalculateResponse,
+  PowerBillingQuery,
+  PowerBillingZone,
+  PowerBillingZoneQuery,
+  PowerCurrent,
+  PowerHourly,
+  PowerHourlyQuery,
+} from "./types";
 
 export const powerApi = {
   /** 구역별 실시간 전력 현황. */
@@ -11,4 +20,14 @@ export const powerApi = {
   /** 전체 구역 월 요금 현황. year/month 미지정 시 백엔드 기본(당월) 적용. */
   getAllBilling: (query?: PowerBillingQuery) =>
     apiGet<PowerBillingAll>("/power/billing", { params: query }),
+  // ── G7 확장 ────────────────────────────────────────────────
+  /** 구역별 시간별 전력 이력. */
+  getHourly: (zoneId: number, query?: PowerHourlyQuery) =>
+    apiGet<PowerHourly>(`/power/zones/${zoneId}/hourly`, { params: query }),
+  /** 구역별 월 요금 내역. */
+  getZoneBilling: (zoneId: number, query?: PowerBillingZoneQuery) =>
+    apiGet<PowerBillingZone>(`/power/zones/${zoneId}/billing`, { params: query }),
+  /** 전력 요금 산출 (위험 액션, 멱등 X). */
+  postCalculate: (body: PowerBillingCalculateRequest) =>
+    apiPost<PowerBillingCalculateResponse, PowerBillingCalculateRequest>("/power/billing/calculate", body),
 };
