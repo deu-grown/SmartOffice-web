@@ -8,6 +8,7 @@ import { dashboardHandlers } from "./dashboard";
 import { departmentHandlers } from "./department";
 import { powerHandlers } from "./power";
 import { userHandlers } from "./user";
+import { zoneHandlers } from "./zone";
 
 export const handlers: HttpHandler[] = [
   ...authHandlers,
@@ -17,4 +18,5 @@ export const handlers: HttpHandler[] = [
   ...userHandlers,
   ...attendanceHandlers,
   ...accessLogHandlers,
+  ...zoneHandlers,
 ];

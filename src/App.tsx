@@ -25,116 +25,11 @@ import { InventoryManagement } from "./components/dashboard/InventoryManagement"
 import { useAuthStore } from "./stores/authStore";
 import { useUIStore } from "./stores/uiStore";
 import { PATH_TO_TAB, ROUTES, TAB_TO_PATH } from "./routes/paths";
-import type { Room, TabType } from "./types";
+import type { TabType } from "./types";
 
-// 본 작업(플랜 2) 시점의 mock 데이터. 플랜 3에서 도메인별 API 연동으로 대체될 예정.
-const initialRooms: Room[] = [
-  {
-    id: "1",
-    name: "서버실",
-    type: "보안구역",
-    gateActive: true,
-    floor: "3F",
-    permissions: [
-      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
-      { id: "rank-2", name: "과장", type: "RANK", allowed: true },
-      { id: "staff-1", name: "김호탈", type: "STAFF", allowed: true },
-      { id: "dept-1", name: "보안팀", type: "DEPT", allowed: true },
-      { id: "dept-2", name: "IT개발부", type: "DEPT", allowed: false },
-    ],
-    groups: ["IT본부", "보안팀"],
-  },
-  {
-    id: "2",
-    name: "개발 1팀",
-    type: "사무공간",
-    gateActive: true,
-    floor: "3F",
-    permissions: [
-      { id: "rank-all", name: "전체 직급", type: "RANK", allowed: true },
-      { id: "dept-2", name: "IT개발부", type: "DEPT", allowed: true },
-    ],
-    groups: ["개발본부"],
-  },
-  {
-    id: "3",
-    name: "임원실",
-    type: "보안구역",
-    gateActive: true,
-    floor: "3F",
-    permissions: [
-      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
-      { id: "staff-2", name: "이대표", type: "STAFF", allowed: true },
-    ],
-    groups: ["경영지원"],
-  },
-  {
-    id: "4",
-    name: "회의실 A",
-    type: "공용공간",
-    gateActive: false,
-    floor: "3F",
-    permissions: [{ id: "rank-all", name: "전체 직급", type: "RANK", allowed: true }],
-    groups: ["전체"],
-  },
-  {
-    id: "5",
-    name: "R&D 센터",
-    type: "보안구역",
-    gateActive: true,
-    floor: "5F",
-    permissions: [
-      { id: "rank-1", name: "부장", type: "RANK", allowed: true },
-      { id: "dept-3", name: "연구소", type: "DEPT", allowed: true },
-    ],
-    groups: ["연구개발"],
-  },
-  {
-    id: "6",
-    name: "안내 데스크",
-    type: "일반구역",
-    gateActive: false,
-    floor: "1F",
-    permissions: [{ id: "rank-all", name: "전체 직급", type: "RANK", allowed: true }],
-    groups: ["운영지원"],
-  },
-  {
-    id: "7",
-    name: "물류 창고",
-    type: "보안구역",
-    gateActive: true,
-    floor: "1F",
-    permissions: [{ id: "dept-4", name: "물류팀", type: "DEPT", allowed: true }],
-    groups: ["물류팀"],
-  },
-  {
-    id: "8",
-    name: "마케팅실",
-    type: "사무공간",
-    gateActive: true,
-    floor: "2F",
-    permissions: [{ id: "dept-5", name: "마케팅팀", type: "DEPT", allowed: true }],
-    groups: ["마케팅팀"],
-  },
-  {
-    id: "9",
-    name: "인사팀",
-    type: "사무공간",
-    gateActive: true,
-    floor: "2F",
-    permissions: [{ id: "dept-6", name: "인사본부", type: "DEPT", allowed: true }],
-    groups: ["인사본부"],
-  },
-  {
-    id: "10",
-    name: "디자인 랩",
-    type: "보안구역",
-    gateActive: true,
-    floor: "4F",
-    permissions: [{ id: "dept-7", name: "디자인팀", type: "DEPT", allowed: true }],
-    groups: ["디자인팀"],
-  },
-];
+// 플랜 3-2 묶음 2 (커밋 2.2) 에서 zone 도메인이 features/zone 으로 마이그레이션됨에 따라
+// initialRooms / rooms / setRooms / roomsSnapshot / hasUnsavedZoneChanges 등 mock 상태는 본 파일에서 제거.
+// 잔존 mock 상태(buildingLocks/buildingSettings) 는 G7 묶음 4 에서 정리 예정.
 
 // GuestTable 컴포넌트가 import 하는 타입. 본 작업 범위 내에서는 시그니처 그대로 유지한다.
 export interface Guest {
@@ -179,9 +74,8 @@ export default function App() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const logoutMutation = useLogoutMutation();
 
-  // mock 상태 — 플랜 3 페이지 마이그레이션에서 도메인별 API 로 대체.
-  const [rooms, setRooms] = useState<Room[]>(initialRooms);
-  const [roomsSnapshot, setRoomsSnapshot] = useState<Room[]>(initialRooms);
+  // mock 상태 — buildingLocks/buildingSettings 는 G7 묶음 4 마이그레이션 대상.
+  // zone mock(rooms/roomsSnapshot/hasUnsavedZoneChanges) 는 묶음 2 커밋 2.2 에서 제거됨.
 
   const [buildingLocks, setBuildingLocks] = useState({ temp: false, hum: false, light: false });
   const [buildingLocksSnapshot, setBuildingLocksSnapshot] = useState({
@@ -203,7 +97,6 @@ export default function App() {
     brightness: 80,
   });
 
-  const [hasUnsavedZoneChanges, setHasUnsavedZoneChanges] = useState(false);
   const [hasUnsavedBuildingChanges, setHasUnsavedBuildingChanges] = useState(false);
   const [pendingTab, setPendingTab] = useState<TabType | null>(null);
   const [showNavGuard, setShowNavGuard] = useState(false);
@@ -221,16 +114,10 @@ export default function App() {
   };
 
   const handleTabChange = (tab: TabType) => {
-    if (
-      (activeTab === "구역 관리" && hasUnsavedZoneChanges) ||
-      (activeTab === "건물 관리" && hasUnsavedBuildingChanges)
-    ) {
+    if (activeTab === "건물 관리" && hasUnsavedBuildingChanges) {
       setPendingTab(tab);
       setShowNavGuard(true);
     } else {
-      if (tab === "구역 관리") {
-        setRoomsSnapshot(JSON.parse(JSON.stringify(rooms)));
-      }
       if (tab === "건물 관리") {
         setBuildingLocksSnapshot({ ...buildingLocks });
         setBuildingSettingsSnapshot({ ...buildingSettings });
@@ -241,25 +128,18 @@ export default function App() {
 
   const confirmNavigation = (save: boolean) => {
     if (save) {
-      if (activeTab === "구역 관리") {
-        setRoomsSnapshot(JSON.parse(JSON.stringify(rooms)));
-      }
       if (activeTab === "건물 관리") {
         setBuildingLocksSnapshot({ ...buildingLocks });
         setBuildingSettingsSnapshot({ ...buildingSettings });
       }
       toast.success("변경사항이 저장되었습니다.");
     } else {
-      if (activeTab === "구역 관리") {
-        setRooms(JSON.parse(JSON.stringify(roomsSnapshot)));
-      }
       if (activeTab === "건물 관리") {
         setBuildingLocks({ ...buildingLocksSnapshot });
         setBuildingSettings({ ...buildingSettingsSnapshot });
       }
       toast.info("변경사항이 무시되었습니다.");
     }
-    setHasUnsavedZoneChanges(false);
     setHasUnsavedBuildingChanges(false);
     const nextTab = pendingTab;
     setShowNavGuard(false);
@@ -356,12 +236,7 @@ export default function App() {
                 <Route
                   path="zones"
                   element={
-                    <ZoneManagement
-                      rooms={rooms}
-                      setRooms={setRooms}
-                      setHasUnsavedChanges={setHasUnsavedZoneChanges}
-                      onSave={() => setRoomsSnapshot(JSON.parse(JSON.stringify(rooms)))}
-                    />
+                    <ZoneManagement />
                   }
                 />
                 <Route path="inventory" element={<InventoryManagement />} />
