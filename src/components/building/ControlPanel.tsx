@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { Power, Lightbulb, Wind, DoorOpen, Fan, Loader2 } from "lucide-react";
 // Power 아이콘은 헤더에서만 사용.
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -88,7 +87,17 @@ function ControlPanelInner({ zoneId }: ControlPanelProps) {
             disabled={zoneDevices.length === 0}
           >
             <SelectTrigger className="h-11 rounded-2xl">
-              <SelectValue placeholder={zoneDevices.length === 0 ? "장치 없음" : "장치 선택"} />
+              {/* SelectValue children 자동 매핑 결함 회피 — 명시 텍스트 렌더 (옵션 b, 사용처 1곳). */}
+              {(() => {
+                const sel = selectedDeviceId !== null ? zoneDevices.find((d) => d.id === selectedDeviceId) : undefined;
+                return sel ? (
+                  <span className="truncate">
+                    {sel.name} ({sel.deviceType})
+                  </span>
+                ) : (
+                  <SelectValue placeholder={zoneDevices.length === 0 ? "장치 없음" : "장치 선택"} />
+                );
+              })()}
             </SelectTrigger>
             <SelectContent>
               {zoneDevices.map((d) => (

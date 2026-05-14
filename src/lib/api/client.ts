@@ -1,5 +1,5 @@
 // 공통 axios 클라이언트.
-// - baseURL "/api/v1" 를 통과 (dev: vite proxy → localhost:8080, prod: 인프라 reverse-proxy 또는 same-origin)
+// - baseURL: VITE_API_URL 환경변수 우선 (운영). 미정의 시 "/api/v1" same-origin (dev vite proxy / prod server.ts proxy 또는 인프라 reverse-proxy).
 // - 요청 인터셉터: tokenStorage 에서 Access Token 을 읽어 Authorization Bearer 첨부
 // - 응답 인터셉터: ApiResponse<T> 래퍼 자동 언래핑. code !== "success" 이거나 HTTP 에러면 ApiError throw.
 // - 401 발생 시: /auth/refresh 1회 시도 → 성공 시 원요청 재시도, 실패 시 토큰 정리 + /login 이동.
@@ -20,7 +20,9 @@ import {
 } from "./tokenStorage";
 import { ApiError, type ApiResponse } from "./types";
 
-const BASE_URL = "/api/v1";
+// VITE_API_URL: prod 빌드에서 절대 URL 사용 시 정의 (.env.production). 비어있거나 미정의면 same-origin "/api/v1".
+const API_URL = import.meta.env.VITE_API_URL?.trim();
+const BASE_URL = API_URL ? `${API_URL.replace(/\/$/, "")}/api/v1` : "/api/v1";
 const REFRESH_PATH = "/auth/refresh";
 const LOGIN_PATH = "/login";
 
