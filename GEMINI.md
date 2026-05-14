@@ -1,6 +1,6 @@
 # CLAUDE.md — SmartOffice Frontend
 
-> 본 파일과 `AGENTS.md`, `GEMINI.md` 는 **동일 내용**을 유지한다. 갱신 시 세 파일을 같은 PR에 함께 반영하라. 백엔드 md 3종(`SmartOffice-server/CLAUDE.md` 등)과는 별개로 동기화한다.
+> 본 파일과 `AGENTS.md`, `GEMINI.md` 는 **동일 내용**을 유지한다. 갱신 시 세 파일을 같은 변경에 함께 반영하라. 백엔드 md 3종(`SmartOffice-server/CLAUDE.md` 등)과는 별개로 동기화한다.
 
 ---
 
@@ -50,18 +50,19 @@ src/
     paths.ts                    # ROUTES 상수 + TAB_TO_PATH / PATH_TO_TAB 매핑
     guards.tsx                  # PrivateRoute / AdminRoute / PublicOnlyRoute
 
-  features/
-    {domain}/                   # 도메인별 폴더 (auth 가 시범. 플랜 3 에서 확장)
-      types.ts                  # 백엔드 DTO 1:1 매핑 타입
-      api.ts                    # apiClient 호출 함수 집합
-      queryKeys.ts              # queryKey factory
-      hooks.ts                  # useXxxQuery / useXxxMutation
+  features/                       # 도메인 16종: auth · user · department · attendance · accesslog · zone · device · dashboard · power · sensor · control · salary · asset · parking · reservation · nfccard
+    {domain}/
+      types.ts                    # 백엔드 DTO 1:1 영문 필드 매핑 (web+모바일 공용 응답도 DTO 1:1)
+      api.ts                      # apiClient 호출 함수 집합 (한 함수 = 한 엔드포인트)
+      queryKeys.ts                # queryKey factory
+      hooks.ts                    # useXxxQuery / useXxxMutation
       __tests__/
 
   components/
-    common/ErrorBoundary.tsx
+    common/{ErrorBoundary, ZoneSelect, ...}.tsx
     auth/LoginPage.tsx
-    dashboard/{Sidebar,TopBar,...}.tsx
+    dashboard/                    # 페이지 컨테이너 (Sidebar, TopBar, 페이지 상위 컴포넌트 ~150줄)
+    personnel/ zone/ parking/ building/ meetingroom/ nfccard/   # 분할된 자식 컴포넌트 (G3·G5·G7·G9·G10·G11)
 
   hooks/usePaginatedTable.ts
 
@@ -153,6 +154,7 @@ export const authKeys = {
 - 경로 상수는 `src/routes/paths.ts` 의 `ROUTES` 만 사용. 문자열 하드코딩 금지.
 - 가드: `PrivateRoute` / `AdminRoute` / `PublicOnlyRoute` (`src/routes/guards.tsx`)
 - 사이드바 메뉴 ↔ 경로 매핑은 `TAB_TO_PATH` 한 곳에서 관리.
+- 운영 메뉴(10종): 통합 관제 · 인사 관리 · 출입 기록 관리 · 구역 관리 · 회의실 관리 · NFC 카드 관리 · 급여 관리 · 건물 관리 · 재고 관리 · 주차 관리.
 
 ## 12. 테스트 가이드
 
@@ -178,6 +180,14 @@ export const authKeys = {
 - JWT 만료: Access 30분 / Refresh 7일 — refresh 인터셉터 동작 보장 (timeout 8s)
 - API 성능 SLO: 95% 500ms 이내 (실측은 백엔드 책임. 프론트는 timeout 8s + 401 자동 refresh)
 
+### 14-1. cat 5 공용 컨벤션 (web + 모바일 공용 엔드포인트)
+
+- 공용 엔드포인트(web 호출 + 모바일 호환) 의 DTO 는 `features/{domain}/types.ts` 에서 백엔드 응답과 **1:1 영문 필드 매핑**.
+- 모바일(Flutter)과 코드 공유 X. **계약(요청/응답 타입) 호환만 보장** (OpenAPI 스키마 단일 진실 공급원).
+- 추상 hook 인프라 도입 X — 일반 `useQuery` / `useMutation` 직접 호출.
+- `api.ts` 는 thin wrapper. 한 함수 = 한 엔드포인트.
+- 상세는 `docs/PLAN_3_MASTER.md` 2절 참조.
+
 ## 15. 커밋 컨벤션
 
 `feat:` `fix:` `refactor:` `test:` `docs:` `chore:` `style:` `perf:`
@@ -189,7 +199,7 @@ export const authKeys = {
 
 ## 16. 브랜치 / push 정책
 
-- 본 통합 작업 브랜치: `feature/web-integration` (PR base: `main`)
+- 본 통합 작업 브랜치: `feature/web-integration` → **로컬 `main` 머지 후 origin/main push** (PR 절차 폐기)
 - 본 작업 전체에서 **push 는 마지막 1회만** (모든 커밋·문서 동기화 완료 후)
 
 ## 17. dev 워크플로우
@@ -209,5 +219,5 @@ export const authKeys = {
 ## 19. md 3종 동기화 규칙
 
 - `CLAUDE.md` · `AGENTS.md` · `GEMINI.md` 세 파일은 **본문 동일**.
-- 갱신 시 한 번의 PR 에 세 파일을 함께 반영. 차이가 발생하면 즉시 정합 PR.
+- 갱신 시 같은 변경에 세 파일을 함께 반영. 차이가 발생하면 즉시 정합 커밋.
 - 백엔드 md 3종(`../SmartOffice-server/CLAUDE.md` 등)과는 별개의 동기화 그룹이다.
