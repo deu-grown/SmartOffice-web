@@ -1,0 +1,95 @@
+// 백엔드 com.grown.smartoffice.domain.user.dto / accesslog.dto 패키지와 1:1 매핑.
+// 인터셉터에서 ApiResponse<T> 의 data 만 언래핑되어 내려오므로 unwrapped 모양만 정의.
+
+/** GET /api/v1/users 페이지 단건 (UserListItemResponse). */
+export interface UserListItem {
+  id: number;
+  employeeNumber: string;
+  name: string;
+  email: string;
+  role: string;
+  position: string;
+  department: string | null;
+  phone: string | null;
+  status: string;
+  hiredAt: string;
+}
+
+/** GET /api/v1/users/{id} 응답 (UserDetailResponse). */
+export interface UserDetail extends UserListItem {
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** GET /api/v1/users 쿼리 파라미터. */
+export interface UserListFilter {
+  departmentId?: number;
+  status?: string;
+  keyword?: string;
+  page?: number;
+  size?: number;
+}
+
+/** POST /api/v1/users 요청 (UserCreateRequest). */
+export interface UserCreateRequest {
+  employeeNumber: string;
+  name: string;
+  email: string;
+  role: string;
+  position: string;
+  departmentId: number;
+  phone?: string;
+  hiredAt: string;
+}
+
+/** POST /api/v1/users 응답 (UserCreateResponse). */
+export interface UserCreateResponse {
+  id: number;
+  employeeNumber: string;
+  name: string;
+  email: string;
+  role: string;
+  position: string;
+  department: string | null;
+  status: string;
+  hiredAt: string;
+  createdAt: string;
+}
+
+/** PUT /api/v1/users/{id} 요청 (UserUpdateRequest). */
+export interface UserUpdateRequest {
+  name?: string;
+  role?: string;
+  position?: string;
+  departmentId?: number;
+  phone?: string;
+  hiredAt?: string;
+}
+
+/** PUT /api/v1/users/{id} 응답 (UserUpdateResponse). */
+export interface UserUpdateResponse {
+  id: number;
+  name: string;
+  role: string;
+  position: string;
+  department: string | null;
+  phone: string | null;
+  updatedAt: string;
+}
+
+// 출입 이력 인터페이스(AccessLog / UserAccessLogList / UserAccessLogsQuery)는
+// C9 에서 features/accesslog 로 이관 완료. 본 features 는 더 이상 보유하지 않는다.
+
+// cat 5 본인 정보 수정 (POST /api/v1/users/me) — GET 은 features/auth.useMe 재사용.
+/** UserMeUpdateRequest. 비밀번호 변경 시 currentPassword 필수. */
+export interface UserMeUpdateRequest {
+  phone?: string;
+  password?: string;
+  currentPassword?: string;
+}
+
+/** UserMeUpdateResponse. */
+export interface UserMeUpdateResponse {
+  phone: string | null;
+  updatedAt: string;
+}

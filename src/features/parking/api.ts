@@ -1,0 +1,31 @@
+// 주차(parking) 도메인 REST API 호출 — cat 2 ADMIN 4종 + cat 5 공용 2종 통합 6 함수.
+// GET /spots 응답은 List<ParkingSpotResponse> 직반환 (PageResponse 아님).
+import { apiDelete, apiGet, apiPost, apiPut } from "@/src/lib/api/client";
+
+import type {
+  ParkingSpotCreateRequest,
+  ParkingSpotResponse,
+  ParkingSpotUpdateRequest,
+  ParkingSpotsFilter,
+  ParkingZoneMapResponse,
+  ParkingZoneSummaryResponse,
+} from "./types";
+
+export const parkingApi = {
+  /** 주차면 목록 (zoneId · spotType · status 필터). */
+  list: (filter?: ParkingSpotsFilter) =>
+    apiGet<ParkingSpotResponse[]>("/parking/spots", { params: filter }),
+  /** 주차면 등록. */
+  create: (body: ParkingSpotCreateRequest) =>
+    apiPost<ParkingSpotResponse, ParkingSpotCreateRequest>("/parking/spots", body),
+  /** 주차면 수정. */
+  update: (id: number, body: ParkingSpotUpdateRequest) =>
+    apiPut<ParkingSpotResponse, ParkingSpotUpdateRequest>(`/parking/spots/${id}`, body),
+  /** 주차면 삭제. */
+  remove: (id: number) => apiDelete<void>(`/parking/spots/${id}`),
+  /** 구역별 주차장 요약 (총/점유/여유 + spot 리스트). 인증만 요구 (cat 5). */
+  zoneSummary: (zoneId: number) =>
+    apiGet<ParkingZoneSummaryResponse>(`/parking/zones/${zoneId}/spots`),
+  /** 구역별 주차장 지도 (좌표 기반 평면도). 인증만 요구 (cat 5). */
+  zoneMap: (zoneId: number) => apiGet<ParkingZoneMapResponse>(`/parking/zones/${zoneId}/map`),
+};
