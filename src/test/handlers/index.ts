@@ -6,6 +6,7 @@ import { attendanceHandlers } from "./attendance";
 import { authHandlers } from "./auth";
 import { dashboardHandlers } from "./dashboard";
 import { departmentHandlers } from "./department";
+import { deviceHandlers } from "./device";
 import { powerHandlers } from "./power";
 import { userHandlers } from "./user";
 import { zoneHandlers } from "./zone";
@@ -19,4 +20,5 @@ export const handlers: HttpHandler[] = [
   ...attendanceHandlers,
   ...accessLogHandlers,
   ...zoneHandlers,
+  ...deviceHandlers,
 ];
