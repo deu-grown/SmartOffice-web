@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 
+import { DepartmentSidebar } from "@/src/components/personnel/DepartmentSidebar";
 import { PersonnelListTable } from "@/src/components/personnel/PersonnelListTable";
 import { PersonnelDetailDrawer } from "@/src/components/personnel/PersonnelDetailDrawer";
 
@@ -58,6 +59,7 @@ interface PersonnelTableProps {
 export function PersonnelTable(_props: PersonnelTableProps) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [filterDepartment, setFilterDepartment] = useState<string>("전체");
 
   const handleAddEmployee = (employee: Employee) => {
     setEmployees((prev) => [...prev, employee]);
@@ -95,9 +97,15 @@ export function PersonnelTable(_props: PersonnelTableProps) {
   };
 
   return (
-    <>
+    <div className="space-y-8">
+      <DepartmentSidebar
+        selectedDepartment={filterDepartment}
+        onSelect={setFilterDepartment}
+      />
       <PersonnelListTable
         employees={employees}
+        filterDepartment={filterDepartment}
+        onResetDepartmentFilter={() => setFilterDepartment("전체")}
         onAddEmployee={handleAddEmployee}
         onDeleteEmployee={handleDeleteEmployee}
         onEditEmployee={setEditingEmployee}
@@ -107,6 +115,6 @@ export function PersonnelTable(_props: PersonnelTableProps) {
         onClose={() => setEditingEmployee(null)}
         onSave={handleSaveEdited}
       />
-    </>
+    </div>
   );
 }

@@ -37,22 +37,25 @@ const ITEMS_PER_PAGE = 10;
 
 interface PersonnelListTableProps {
   employees: Employee[];
+  filterDepartment: string;
+  onResetDepartmentFilter: () => void;
   onAddEmployee: (employee: Employee) => void;
   onDeleteEmployee: (id: string, name: string) => void;
   onEditEmployee: (employee: Employee) => void;
 }
 
 // PersonnelTable 의 목록/필터/페이지네이션/등록 모달/통계 카드 영역.
-// C0 빈 분할 단계에서는 기존 동작을 그대로 보존한다.
+// 부서 필터(filterDepartment)는 DepartmentSidebar 가 상위에서 제어하므로 props 로 받는다.
 export function PersonnelListTable({
   employees,
+  filterDepartment,
+  onResetDepartmentFilter,
   onAddEmployee,
   onDeleteEmployee,
   onEditEmployee,
 }: PersonnelListTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("전체");
-  const [filterDepartment, setFilterDepartment] = useState<string>("전체");
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -67,10 +70,6 @@ export function PersonnelListTable({
     0,
   );
 
-  const departments = useMemo(
-    () => ["전체", ...Array.from(new Set(employees.map((e) => e.department)))],
-    [employees],
-  );
   const statuses = ["전체", "재직", "휴직", "퇴사"];
 
   const filteredEmployees = useMemo(() => {
@@ -167,18 +166,6 @@ export function PersonnelListTable({
             />
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <Select value={filterDepartment} onValueChange={setFilterDepartment}>
-              <SelectTrigger className="w-full md:w-32 h-12 bg-white border-gray-100 rounded-xl shadow-sm">
-                <SelectValue placeholder="부서" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-gray-100 text-black">
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-full md:w-32 h-12 bg-white border-gray-100 rounded-xl shadow-sm">
                 <SelectValue placeholder="상태" />
@@ -199,7 +186,7 @@ export function PersonnelListTable({
                 size="icon"
                 onClick={() => {
                   setSearchTerm("");
-                  setFilterDepartment("전체");
+                  onResetDepartmentFilter();
                   setFilterStatus("전체");
                 }}
                 className="h-12 w-12 rounded-xl text-gray-400 hover:text-black hover:bg-gray-100"
