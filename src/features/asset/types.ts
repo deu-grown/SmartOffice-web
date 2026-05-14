@@ -1,6 +1,6 @@
 // 자산(asset) 도메인 타입 — 백엔드 com.grown.smartoffice.domain.asset.dto 와 1:1 매핑.
 // AssetStatus enum: ACTIVE | INACTIVE | LOST (단순 자산 대장).
-// category 는 String free-form — 입력 일관성을 위해 features/asset/constants.ts 의 ASSET_CATEGORIES 7종을 Select 옵션으로 사용.
+// category 는 String free-form — features/asset/constants.ts 의 ASSET_CATEGORIES 6종(백엔드 시드 5종 + "기타")을 Select 옵션으로 사용.
 
 /** 백엔드 AssetStatus enum 정합. */
 export type AssetStatus = "ACTIVE" | "INACTIVE" | "LOST";

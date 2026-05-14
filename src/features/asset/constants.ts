@@ -1,16 +1,15 @@
 // 자산(asset) 도메인 상수.
-// 백엔드 category 는 String free-form. 입력 일관성 + UX 통일 위해 7종 카테고리를 Select 옵션으로 사용.
-// 백엔드 enum 도입 시 본 상수만 갱신 (단일 지점 수정).
+// 백엔드 category 는 String free-form. 백엔드 시드 5종(IT기기/가구/소모품/사무기기/가전)에 정합 + "기타" 옵션 1종.
+// 향후 운영 카테고리 정책 변경 시 본 상수만 갱신 (단일 지점 수정).
 import type { AssetStatus } from "./types";
 
 export const ASSET_CATEGORIES = [
-  "IT 기기",
-  "서버 장비",
-  "저장 매체",
-  "비품",
-  "중요 자산",
-  "장비",
-  "네트워크",
+  "IT기기",
+  "가구",
+  "소모품",
+  "사무기기",
+  "가전",
+  "기타",
 ] as const;
 
 export type AssetCategory = (typeof ASSET_CATEGORIES)[number];

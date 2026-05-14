@@ -1,5 +1,5 @@
 // 재고/자산 관리 페이지 (G8). 플랜 3-3 묶음 2 에서 mock 제거 후 features/asset 으로 마이그레이션.
-// 백엔드 모델은 단순 자산 대장 — status 3종(ACTIVE/INACTIVE/LOST) + category(String free-form, ASSET_CATEGORIES 7종 Select).
+// 백엔드 모델은 단순 자산 대장 — status 3종(ACTIVE/INACTIVE/LOST) + category(String free-form, ASSET_CATEGORIES 6종 Select: 백엔드 시드 5종 + "기타").
 // mock 의 보안 추적 모델(authorizedArea/lastGate/rfidTag/보안 위반 상태)은 백엔드 부재로 모두 제거.
 import { useMemo, useState } from "react";
 import {
