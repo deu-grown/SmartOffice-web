@@ -1,5 +1,6 @@
 // 주차면(ParkingSpot) CRUD 표 — useParkingSpots(filter) + 등록/수정/삭제 모달.
 // 필터: zone(ZoneSelect) + spotType(REGULAR/DISABLED/EV) + status(ACTIVE/INACTIVE).
+// 좌표 충돌·null XOR 사전 검증 임시 구현 — 백엔드 #16 채택 시 validateCoordinates 함수 제거.
 import { useMemo, useState } from "react";
 import { MoreHorizontal, Plus, AlertTriangle, LayoutGrid } from "lucide-react";
 import { motion } from "motion/react";
@@ -148,11 +149,37 @@ export function ParkingSpotsTable({ zoneId }: Props) {
     status: filterStatus !== "ALL" ? filterStatus : undefined,
   });
 
+  // 좌표 충돌 검증용 전체 spot 캐시 — ParkingManagement 의 useParkingSpots({}) 와 queryKey 공유.
+  // 백엔드 #16 (좌표 UNIQUE 제약 + null XOR) 채택 시 본 hook + validateCoordinates 제거.
+  const allSpotsQuery = useParkingSpots({});
+
   const createMutation = useCreateSpot();
   const updateMutation = useUpdateSpot();
   const deleteMutation = useDeleteSpot();
 
   const items = listQuery.data ?? [];
+
+  // 좌표 사전 검증 (null XOR + 동일 zone 좌표 충돌). excludeSpotId 는 수정 시 자기 자신 제외용.
+  const validateCoordinates = (form: SpotFormState, excludeSpotId?: number): string | null => {
+    const x = form.positionX.trim() ? Number(form.positionX) : null;
+    const y = form.positionY.trim() ? Number(form.positionY) : null;
+    if ((x === null) !== (y === null)) {
+      return "좌표 X·Y 는 둘 다 입력하거나 둘 다 비워주세요.";
+    }
+    if (x === null && y === null) return null;
+    if (form.zoneId === undefined) return null;
+    const conflict = (allSpotsQuery.data ?? []).find(
+      (s) =>
+        s.zoneId === form.zoneId &&
+        s.positionX === x &&
+        s.positionY === y &&
+        s.spotId !== excludeSpotId,
+    );
+    if (conflict) {
+      return `좌표 (${x}, ${y}) 는 이미 ${conflict.spotNumber} 가 사용 중입니다.`;
+    }
+    return null;
+  };
 
   const handleOpenRegister = () => {
     setNewForm({ ...emptyForm(), zoneId });
@@ -166,6 +193,11 @@ export function ParkingSpotsTable({ zoneId }: Props) {
     }
     if (!newForm.spotNumber) {
       toast.error("주차면 번호는 필수입니다.");
+      return;
+    }
+    const coordError = validateCoordinates(newForm);
+    if (coordError) {
+      toast.error(coordError);
       return;
     }
     createMutation.mutate(toCreate(newForm), {
@@ -188,6 +220,11 @@ export function ParkingSpotsTable({ zoneId }: Props) {
     if (!editTarget) return;
     if (!editForm.spotNumber) {
       toast.error("주차면 번호는 필수입니다.");
+      return;
+    }
+    const coordError = validateCoordinates(editForm, editTarget.spotId);
+    if (coordError) {
+      toast.error(coordError);
       return;
     }
     updateMutation.mutate(
