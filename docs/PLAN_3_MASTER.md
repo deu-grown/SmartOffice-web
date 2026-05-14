@@ -614,6 +614,7 @@
 | # | 발견 시점 | 결함 | 처리 위치 |
 |---|-----------|------|-----------|
 | 1 | 묶음 2 검증 (2026-05-14) | `GET /api/v1/dashboard/summary` HTTP 500 (DashboardService 내부 예외 추정) | `SmartOffice-server/BACKEND_SUGGESTIONS.md` #7. 백엔드 수정 플랜에서 처리 |
+| 2 | 묶음 3 검증 (2026-05-14) | `GET /users/{id}/access-logs` 응답의 `authResult` 값 혼재 가능성 — 시드 데이터에서 `"APPROVED"` / `"DENIED"` / `"ALLOW"` 동시 관찰 | 묶음 4(C9 features/accesslog) 진입 시 백엔드 enum 정의 코드 read-only 확인 + 실제 응답 정합성 재검증. 불일치 시 `BACKEND_SUGGESTIONS.md` 신규 항목으로 등록 |
 
 (묶음 진행 중 추가 발견 시 본 표에 append.)
 
