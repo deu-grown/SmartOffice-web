@@ -615,6 +615,7 @@
 |---|-----------|------|-----------|
 | 1 | 묶음 2 검증 (2026-05-14) | `GET /api/v1/dashboard/summary` HTTP 500 (DashboardService 내부 예외 추정) | `SmartOffice-server/BACKEND_SUGGESTIONS.md` #7. 백엔드 수정 플랜에서 처리 |
 | 2 | 묶음 3 검증 (2026-05-14) | `access_logs.authResult` 값 혼재 — V5 시드 잔존 `"ALLOW"` 8건 vs 코드 표준 `"APPROVED"` 53건 (`"DENIED"` / `"BLOCKED"` 도 함께 사용) | 묶음 4 검증에서 확인 완료. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #8 등록. 백엔드 수정 플랜에서 V9 마이그레이션(`UPDATE access_logs SET auth_result='APPROVED' WHERE auth_result='ALLOW'`). 클라이언트는 `features/accesslog/types.ts` 의 literal union 에 `"ALLOW"` 호환 유지 |
+| 3 | 플랜 3-1 시각 검증 (2026-05-14) | POWER 미터 보유 zone 목록 조회 엔드포인트 미존재. `GET /api/v1/dashboard/sensors/current` 는 환경 센서 보유 zone 만 반환하므로 web 의 G2 PowerCurrentWidget 이 회의실 A·B(POWER 만 보유) 를 표시할 수 없는 결함의 근본 원인이 됨 | 즉시 처리(web `fix(power): fc041b9`): `features/power/constants.ts` 의 `POWER_ZONES_TEMP` 임시 상수(V7 시드 기반 zone 2·4·5·7) + 자체 셀렉터로 우회. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #9 등록. 채택 시 `usePowerZones()` 훅으로 전환하여 하드코딩 제거 |
 
 (묶음 진행 중 추가 발견 시 본 표에 append.)
 
