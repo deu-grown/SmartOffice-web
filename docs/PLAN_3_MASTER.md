@@ -569,6 +569,13 @@
 - server: `./gradlew build` 통과
 - MSW 핸들러 환경 격리 확인 (운영 빌드 침투 X)
 
+**9. 후속 작업 예고 — 백엔드 수정 플랜 (별도)**
+
+- 본 플랜 종료 후 별도 plan mode 세션에서 진행.
+- 대상: `SmartOffice-server/BACKEND_SUGGESTIONS.md` 누적 제안 (본 플랜 종료 시점의 모든 항목).
+- 작업 순서: 본 플랜 web/server PR 머지 → 백엔드 수정 마스터플랜 수립 → 우선순위 상 항목부터 처리 (#7 dashboard summary 500 최우선).
+- 본 플랜 잔존 게이트(예: dashboard summary 500 재검증)는 백엔드 수정 후 web 측에서 재호출 검증으로 마감.
+
 ---
 
 ## 7. 전체 리스크/사이드 이펙트 통합
@@ -600,6 +607,15 @@
 - **PR**: web·server 분리 PR 2개, 상호 링크.
 - **cat 3/4 (10개) 흡수는 모바일/IoT 작업 영역** — 본 플랜 범위 외.
 - **백엔드 100% 활용 검증**: 본 플랜 + 모바일/IoT 작업 종료 후 unused 엔드포인트 0건 확인.
+- **본 플랜은 `BACKEND_SUGGESTIONS.md` 누적까지. 실제 백엔드 코드 수정은 별도 플랜 (본 플랜 PR 머지 후).**
+
+### 본 플랜 잔존 결함 추적 (마지막 플랜에서 PR 본문에 포함)
+
+| # | 발견 시점 | 결함 | 처리 위치 |
+|---|-----------|------|-----------|
+| 1 | 묶음 2 검증 (2026-05-14) | `GET /api/v1/dashboard/summary` HTTP 500 (DashboardService 내부 예외 추정) | `SmartOffice-server/BACKEND_SUGGESTIONS.md` #7. 백엔드 수정 플랜에서 처리 |
+
+(묶음 진행 중 추가 발견 시 본 표에 append.)
 
 ---
 
