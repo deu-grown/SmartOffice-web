@@ -233,7 +233,7 @@
 
 **엔드포인트**:
 
-- zone 5: POST/GET/GET-id/PUT/DELETE /api/v1/zones
+- zone 5: `GET 목록 / GET /tree / POST / PUT / DELETE` /api/v1/zones (**GET /{id} 없음** — `ZoneListItemResponse` 의 `find(id)` 클라이언트 우회. 9절 결함 #4 참조)
 - device 5: GET/POST/GET-id/PUT/DELETE /api/v1/devices
 
 **영향 파일**:
@@ -253,7 +253,7 @@
 **작업 순서**:
 
 1. **ZoneManagement 컴포넌트 분할** (빈 분할) — 1 커밋
-2. features/zone 골격 + MSW 핸들러 + 목록/상세/CRUD
+2. features/zone 골격 + MSW 핸들러 + 목록/CRUD (5 함수, GET /{id} 미포함). hook 설계: `useZones()` / `useZoneTree()` / `useZoneDetail(id)` [`useZones()` 응답 `find(z => z.id === id)` 클라이언트 우회, `// TODO[BACKEND_SUGGESTIONS #10]: GET /{id} 도입 시 useQuery swap + queryKey(zoneKeys.detail(id)) 유지` 마커] / `useCreateZone` / `useUpdateZone` / `useDeleteZone`
 3. features/device 골격 + MSW 핸들러 + DeviceListTab 흡수
 4. ZoneReservationTab placeholder (G10에서 활성화)
 5. ZonePowerTab placeholder (G7에서 활성화)
@@ -281,7 +281,10 @@
 
 **엔드포인트**: salary record 4 + salary setting 3 − cat 3 모바일 1 = 6개
 
-**선행 결정 (3-2 진입 시)**: SalaryManagement.tsx 라인 수 1회 측정. 거대 컴포넌트 임계(~500줄+) 초과 시 분할, 미만이면 분할 생략.
+- record: `POST /salary/records/calculate` (위험 액션 — DRAFT 산출, CONFIRMED 는 스킵) · `PUT /salary/records/{id}/confirm` · `GET /salary/records` (목록, ADMIN) · `GET /salary/records/me` (모바일, 본 플랜 범위 외)
+- setting: `POST /salary/settings` · `GET /salary/settings` · `PUT /salary/settings/{id}` — **`DELETE` 미지원, UI 미노출. 직급별 기준 데이터의 급여 산출 이력 invariant 보호 의도로 추정. `BACKEND_SUGGESTIONS` 등록 X**
+
+**분할 결정 (3-2 진입 시 확정)**: 실측 232줄 (분할 임계 미만). 그러나 흡수 항목 (record list / 산출 모달(위험 액션) / 확정 액션 / setting list / 등록 / 수정 + mock 제거) 후 ~550~700줄 예상 (임계 초과 거의 확정). **β 옵션 (처음부터 분리) 확정** — `SalaryRecordsTable.tsx` + `SalarySettingsTable.tsx` + `SalaryCalculateModal.tsx` + 컨테이너 ~150줄. record 산출 모달 위험 액션 격리는 G7 `PowerBillingCalculateModal.tsx` 와도 패턴 통일 (`AttendanceBatchTriggerButton` 재사용, `personnel/AttendanceTab.tsx:254`).
 
 **영향 파일**:
 
@@ -290,16 +293,13 @@
 
 **작업 순서**:
 
-1. **SalaryManagement 라인 수 측정 → 분할 여부 결정** (1회)
-2. (필요 시) 분할 커밋 — 빈 분할
-3. features/salary 골격 + MSW 핸들러
-4. SalaryManagement mock 제거 + record/setting 탭
+1. **SalaryManagement β 분할** (빈 분할, 코드 이동 + record/setting 2-탭 도입, mock 유지) — 1 커밋
+2. features/salary 골격 + MSW 핸들러 + record/setting hook + `SalaryCalculateModal.tsx` 위험 액션 4단계 패턴 + mock 제거 + 빈 상태 UI — 1 커밋
 
 **커밋 단위**:
 
-- (조건부) `refactor(salary): SalaryManagement 컴포넌트 분할`
-- `feat(salary): salary features 골격 + record/setting + MSW 핸들러`
-- `refactor(salary): SalaryManagement mock 제거`
+- `refactor(salary): SalaryManagement 컴포넌트 분할 (β)`
+- `feat(salary): salary features 골격 + record/setting + calculate 위험 액션 + MSW 핸들러`
 
 **사이드 이펙트/리스크**:
 
@@ -616,6 +616,7 @@
 | 1 | 묶음 2 검증 (2026-05-14) | `GET /api/v1/dashboard/summary` HTTP 500 (DashboardService 내부 예외 추정) | `SmartOffice-server/BACKEND_SUGGESTIONS.md` #7. 백엔드 수정 플랜에서 처리 |
 | 2 | 묶음 3 검증 (2026-05-14) | `access_logs.authResult` 값 혼재 — V5 시드 잔존 `"ALLOW"` 8건 vs 코드 표준 `"APPROVED"` 53건 (`"DENIED"` / `"BLOCKED"` 도 함께 사용) | 묶음 4 검증에서 확인 완료. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #8 등록. 백엔드 수정 플랜에서 V9 마이그레이션(`UPDATE access_logs SET auth_result='APPROVED' WHERE auth_result='ALLOW'`). 클라이언트는 `features/accesslog/types.ts` 의 literal union 에 `"ALLOW"` 호환 유지 |
 | 3 | 플랜 3-1 시각 검증 (2026-05-14) | POWER 미터 보유 zone 목록 조회 엔드포인트 미존재. `GET /api/v1/dashboard/sensors/current` 는 환경 센서 보유 zone 만 반환하므로 web 의 G2 PowerCurrentWidget 이 회의실 A·B(POWER 만 보유) 를 표시할 수 없는 결함의 근본 원인이 됨 | 즉시 처리(web `fix(power): fc041b9`): `features/power/constants.ts` 의 `POWER_ZONES_TEMP` 임시 상수(V7 시드 기반 zone 2·4·5·7) + 자체 셀렉터로 우회. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #9 등록. 채택 시 `usePowerZones()` 훅으로 전환하여 하드코딩 제거 |
+| 4 | 플랜 3-2 0단계 (2026-05-14) | `GET /api/v1/zones/{id}` 부재 — `ZoneController` 에 `GET 목록 / GET /tree / POST / PUT / DELETE` 만 존재. `ZoneDetailResponse` DTO 자체 부재 | 즉시 우회: web `features/zone/hooks.ts:useZoneDetail(id)` 가 `useZones()` 응답을 `find(id)` 로 추출. `ZoneListItemResponse = { id, name, zoneType, parentId, description, createdAt }` 6 필드가 ZoneDetailView 표시 필드 100% 충족 검증 완료. `SmartOffice-server/BACKEND_SUGGESTIONS.md` #10 등록 (저~중). 채택 시 hook 내부 `useQuery` swap, queryKey(`zoneKeys.detail(id)`) 그대로 유지 |
 
 (묶음 진행 중 추가 발견 시 본 표에 append.)
 
