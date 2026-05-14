@@ -5,10 +5,12 @@ import { authHandlers } from "./auth";
 import { dashboardHandlers } from "./dashboard";
 import { departmentHandlers } from "./department";
 import { powerHandlers } from "./power";
+import { userHandlers } from "./user";
 
 export const handlers: HttpHandler[] = [
   ...authHandlers,
   ...dashboardHandlers,
   ...departmentHandlers,
   ...powerHandlers,
+  ...userHandlers,
 ];

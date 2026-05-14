@@ -5,14 +5,13 @@ import { cn } from "@/lib/utils";
 import { useDepartments } from "@/src/features/department/hooks";
 
 interface DepartmentSidebarProps {
-  selectedDepartment: string;
-  onSelect: (deptName: string) => void;
+  selectedDepartmentId: number | null;
+  onSelect: (id: number | null) => void;
 }
 
-// 부서 필터 — chip row 형태로 PersonnelTable 컨테이너 상단에 배치한다.
-// PersonnelListTable 내부 부서 Select 를 대체하는 컴포넌트.
-// "전체" 칩 + 부서별 칩(인원수 포함). C6 user features 도입 시 부서 ID 기반으로 정합.
-export function DepartmentSidebar({ selectedDepartment, onSelect }: DepartmentSidebarProps) {
+// 부서 필터 — chip row 형태. 백엔드 부서 ID 기준.
+// C5 에서 placeholder → 실 컴포넌트로 활성화. C6 에서 부서 ID 기반으로 정합 (백엔드 useUsers 의 departmentId 필터와 매칭).
+export function DepartmentSidebar({ selectedDepartmentId, onSelect }: DepartmentSidebarProps) {
   const { data, isLoading, isError, error } = useDepartments();
 
   if (isLoading) {
@@ -40,16 +39,16 @@ export function DepartmentSidebar({ selectedDepartment, onSelect }: DepartmentSi
       <div className="flex items-center flex-wrap gap-2">
         <DepartmentChip
           label="전체"
-          isSelected={selectedDepartment === "전체"}
-          onClick={() => onSelect("전체")}
+          isSelected={selectedDepartmentId === null}
+          onClick={() => onSelect(null)}
         />
         {departments.map((dept) => (
           <DepartmentChip
             key={dept.id}
             label={dept.name}
             count={dept.userCount}
-            isSelected={selectedDepartment === dept.name}
-            onClick={() => onSelect(dept.name)}
+            isSelected={selectedDepartmentId === dept.id}
+            onClick={() => onSelect(dept.id)}
           />
         ))}
       </div>

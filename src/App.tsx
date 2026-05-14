@@ -149,42 +149,7 @@ export interface Guest {
   date: string;
 }
 
-// 게스트 페이지는 현재 사이드바에서 임시 숨김. mock 데이터는 PersonnelTable 의 게스트 추가 콜백 등에서만 참조되어 유지.
-const initialGuests: Guest[] = [
-  {
-    id: "1",
-    name: "김호탈",
-    company: "삼성전자",
-    host: "강경석",
-    details: "회의",
-    status: "방문중",
-    entryTime: "10:50",
-    exitTime: "-",
-    date: "26.12.25",
-  },
-  {
-    id: "2",
-    name: "강덕순",
-    company: "LG",
-    host: "임한석",
-    details: "결재",
-    status: "출입 전",
-    entryTime: "13:30",
-    exitTime: "-",
-    date: "26.08.17",
-  },
-  {
-    id: "3",
-    name: "임호탈",
-    company: "현대자동차",
-    host: "이문영",
-    details: "사장접견",
-    status: "방문완료",
-    entryTime: "10:00",
-    exitTime: "12:30",
-    date: "26.02.20",
-  },
-];
+// 게스트 페이지는 현재 사이드바에서 임시 숨김. Guest 인터페이스는 GuestTable.tsx 가 참조.
 
 function ComingSoon({ title, onBack }: { title: string; onBack: () => void }) {
   return (
@@ -215,7 +180,6 @@ export default function App() {
   const logoutMutation = useLogoutMutation();
 
   // mock 상태 — 플랜 3 페이지 마이그레이션에서 도메인별 API 로 대체.
-  const [, setGuests] = useState<Guest[]>(initialGuests);
   const [rooms, setRooms] = useState<Room[]>(initialRooms);
   const [roomsSnapshot, setRoomsSnapshot] = useState<Room[]>(initialRooms);
 
@@ -430,10 +394,7 @@ export default function App() {
                           직원 명부 및 근태 현황을 관리합니다
                         </p>
                       </header>
-                      <PersonnelTable
-                        onTabChange={handleTabChange}
-                        onAddGuest={(newGuest) => setGuests((prev) => [...prev, newGuest])}
-                      />
+                      <PersonnelTable onTabChange={handleTabChange} />
                     </div>
                   }
                 />
