@@ -71,6 +71,7 @@ export function LoginPage() {
       >
         <div className="space-y-10">
           <header className="space-y-3">
+            <p className="text-sm font-bold tracking-wider text-gray-400 uppercase">스마트 오피스</p>
             <h1 className="text-5xl font-bold tracking-tight text-gray-900">로그인</h1>
             <p className="text-gray-500 text-lg font-medium">서비스를 이용하려면 계정에 로그인하세요</p>
           </header>
