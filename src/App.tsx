@@ -22,6 +22,7 @@ import { BuildingManagement } from "./components/dashboard/BuildingManagement";
 import { ParkingManagement } from "./components/dashboard/ParkingManagement";
 import { InventoryManagement } from "./components/dashboard/InventoryManagement";
 import { MeetingRoomManagement } from "./components/dashboard/MeetingRoomManagement";
+import { NfcCardManagement } from "./components/dashboard/NfcCardManagement";
 
 import { useAuthStore } from "./stores/authStore";
 import { useUIStore } from "./stores/uiStore";
@@ -231,12 +232,7 @@ export default function App() {
                 {/* 게스트 페이지는 백엔드 도메인 미구현으로 임시 숨김. URL 직접 진입 시 대시보드로 리다이렉트. */}
                 <Route path="guest" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
                 <Route path="meeting-rooms" element={<MeetingRoomManagement />} />
-                <Route
-                  path="nfc-cards"
-                  element={
-                    <ComingSoon title="NFC 카드 관리" onBack={() => navigate(ROUTES.DASHBOARD)} />
-                  }
-                />
+                <Route path="nfc-cards" element={<NfcCardManagement />} />
                 <Route
                   path="settings"
                   element={
