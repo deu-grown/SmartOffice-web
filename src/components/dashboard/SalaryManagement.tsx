@@ -1,8 +1,15 @@
-// 직원별 급여 관리 페이지 컨테이너.
-// 묶음 3 커밋 3.1 β 분할: record/setting 2-탭 + calculate 모달 슬롯. mock 유지 (커밋 3.2 에서 features/salary 흡수).
+// 직원별 급여 관리 페이지 컨테이너 — features/salary 흡수 (묶음 3 커밋 3.2).
+// year/month 셀렉터 + record/setting 2-탭 + calculate 위험 액션 모달.
 import { useState } from "react";
 import { Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 import { SalaryRecordsTable } from "../salary/SalaryRecordsTable";
@@ -16,8 +23,14 @@ const TABS: { id: SalaryTabId; label: string }[] = [
   { id: "settings", label: "급여 기준" },
 ];
 
+const now = new Date();
+const CURRENT_YEAR = now.getFullYear();
+const CURRENT_MONTH = now.getMonth() + 1;
+
 export function SalaryManagement() {
   const [activeTab, setActiveTab] = useState<SalaryTabId>("records");
+  const [year, setYear] = useState<number>(CURRENT_YEAR);
+  const [month, setMonth] = useState<number>(CURRENT_MONTH);
   const [calcOpen, setCalcOpen] = useState(false);
 
   return (
@@ -25,15 +38,38 @@ export function SalaryManagement() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-5xl font-bold tracking-tight mb-2 text-gray-900">직원별 급여 관리</h1>
-          <p className="text-gray-500 text-lg font-medium">출퇴근 시간 조회 및 수당을 포함한 상세 급여를 계산합니다</p>
+          <p className="text-gray-500 text-lg font-medium">출퇴근 집계 기반 급여 산출 · 직급별 기준 관리</p>
         </div>
-        <Button
-          onClick={() => setCalcOpen(true)}
-          className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2"
-        >
-          <Calculator className="w-4 h-4" />
-          급여 산출
-        </Button>
+        <div className="flex gap-2 items-center">
+          <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+            <SelectTrigger className="w-[100px] bg-white border-gray-100 rounded-xl h-12 font-bold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[CURRENT_YEAR, CURRENT_YEAR - 1, CURRENT_YEAR - 2].map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}년
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
+            <SelectTrigger className="w-[80px] bg-white border-gray-100 rounded-xl h-12 font-bold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <SelectItem key={m} value={String(m)}>
+                  {m}월
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={() => setCalcOpen(true)} className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2">
+            <Calculator className="w-4 h-4" />
+            급여 산출
+          </Button>
+        </div>
       </header>
 
       <div className="flex bg-gray-50 p-1 rounded-2xl gap-1 w-fit">
@@ -51,10 +87,10 @@ export function SalaryManagement() {
         ))}
       </div>
 
-      {activeTab === "records" && <SalaryRecordsTable />}
+      {activeTab === "records" && <SalaryRecordsTable year={year} month={month} />}
       {activeTab === "settings" && <SalarySettingsTable />}
 
-      <SalaryCalculateModal open={calcOpen} onClose={() => setCalcOpen(false)} />
+      <SalaryCalculateModal open={calcOpen} onClose={() => setCalcOpen(false)} defaultYear={year} defaultMonth={month} />
     </div>
   );
 }
