@@ -608,25 +608,29 @@ function SpotFormFields({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
-            좌표 X (선택)
+            좌표 X (선택, 정수 grid)
           </Label>
           <Input
             type="number"
+            min={1}
+            step={1}
             value={form.positionX}
             onChange={(e) => onChange({ ...form, positionX: e.target.value })}
-            placeholder="100"
+            placeholder="예: 1~10"
             className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
           />
         </div>
         <div className="space-y-2">
           <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
-            좌표 Y (선택)
+            좌표 Y (선택, 정수 grid)
           </Label>
           <Input
             type="number"
+            min={1}
+            step={1}
             value={form.positionY}
             onChange={(e) => onChange({ ...form, positionY: e.target.value })}
-            placeholder="200"
+            placeholder="예: 1~2"
             className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
           />
         </div>
