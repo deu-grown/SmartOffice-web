@@ -46,8 +46,10 @@ export function ReservationDetailDrawer({
   const updateMutation = useUpdateReservation();
   const cancelMutation = useCancelReservation();
   const [confirmCancel, setConfirmCancel] = useState(false);
+  // 수정 위험 액션 확인 모달 — 본인 예약 아닐 수 있음. DELETE 와 동일 confirm state 패턴.
+  const [pendingUpdate, setPendingUpdate] = useState<ReservationUpdateRequest | null>(null);
 
-  const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitUpdate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!data) return;
     const form = new FormData(e.currentTarget);
@@ -56,11 +58,17 @@ export function ReservationDetailDrawer({
       endTime: ((form.get("endTime") as string) || "").trim() || undefined,
       purpose: ((form.get("purpose") as string) || "").trim() || undefined,
     };
+    setPendingUpdate(body);
+  };
+
+  const handleConfirmUpdate = () => {
+    if (!data || !pendingUpdate) return;
     updateMutation.mutate(
-      { id: data.reservationId, body },
+      { id: data.reservationId, body: pendingUpdate },
       {
         onSuccess: () => {
           toast.success("예약이 수정되었습니다.");
+          setPendingUpdate(null);
         },
         onError: (err) => toast.error(err?.message ?? "예약 수정에 실패했습니다."),
       },
@@ -100,7 +108,7 @@ export function ReservationDetailDrawer({
             예약 정보를 불러오지 못했습니다: {error?.message ?? ""}
           </p>
         ) : data ? (
-          <form onSubmit={handleUpdate} className="space-y-4 py-4">
+          <form onSubmit={handleSubmitUpdate} className="space-y-4 py-4">
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs text-amber-700 font-medium">
               본인 예약이 아닐 수 있습니다. ADMIN 권한으로 강제 변경됩니다.
             </div>
@@ -186,6 +194,61 @@ export function ReservationDetailDrawer({
             </DialogFooter>
           </form>
         ) : null}
+
+        {pendingUpdate && data && (
+          <Dialog open={pendingUpdate !== null} onOpenChange={(open) => !open && setPendingUpdate(null)}>
+            <DialogContent className="bg-white border-gray-100 text-black max-w-md rounded-3xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold">예약 수정 확인</DialogTitle>
+                <DialogDescription className="text-gray-500">
+                  본인 예약이 아닐 수 있습니다. ADMIN 권한으로 강제 변경됩니다.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs text-amber-700 font-medium space-y-1">
+                <p>
+                  <span className="font-bold">대상</span>: {data.userName} · {data.zoneName}
+                </p>
+                {pendingUpdate.startTime && (
+                  <p>
+                    <span className="font-bold">시작</span>:{" "}
+                    {new Date(data.startTime).toLocaleString("ko-KR")} →{" "}
+                    {new Date(pendingUpdate.startTime).toLocaleString("ko-KR")}
+                  </p>
+                )}
+                {pendingUpdate.endTime && (
+                  <p>
+                    <span className="font-bold">종료</span>:{" "}
+                    {new Date(data.endTime).toLocaleString("ko-KR")} →{" "}
+                    {new Date(pendingUpdate.endTime).toLocaleString("ko-KR")}
+                  </p>
+                )}
+                {pendingUpdate.purpose !== undefined &&
+                  pendingUpdate.purpose !== data.purpose && (
+                    <p>
+                      <span className="font-bold">목적</span>: {data.purpose || "-"} →{" "}
+                      {pendingUpdate.purpose || "-"}
+                    </p>
+                  )}
+              </div>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setPendingUpdate(null)}
+                  className="text-gray-400"
+                >
+                  돌아가기
+                </Button>
+                <Button
+                  onClick={handleConfirmUpdate}
+                  disabled={updateMutation.isPending}
+                  className="bg-amber-500 hover:bg-amber-600 text-white"
+                >
+                  {updateMutation.isPending ? "수정 중..." : "강제 적용"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {confirmCancel && data && (
           <Dialog open={confirmCancel} onOpenChange={setConfirmCancel}>
