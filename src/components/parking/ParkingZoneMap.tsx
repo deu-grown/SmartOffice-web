@@ -109,26 +109,34 @@ function GridMap({ spots }: { spots: ParkingSpotMapResponse[] }) {
 }
 
 function CoordsMap({ spots }: { spots: ParkingSpotMapResponse[] }) {
-  const xs = spots.map((s) => s.positionX ?? 0);
-  const ys = spots.map((s) => s.positionY ?? 0);
-  const maxX = Math.max(...xs, 100);
-  const maxY = Math.max(...ys, 100);
-  // 그리드 1단위 = 50px 가정. 너비/높이 결정.
+  // 백엔드 positionX/Y 는 1-based 정수 grid 좌표. tile + gap 으로 스케일링하여 cell 격자 배치.
+  const xs = spots.map((s) => s.positionX ?? 1);
+  const ys = spots.map((s) => s.positionY ?? 1);
+  const maxX = Math.max(...xs, 1);
+  const maxY = Math.max(...ys, 1);
   const tile = 60;
+  const tileH = tile * 1.3;
+  const gap = 8;
+  const cellW = tile + gap;
+  const cellH = tileH + gap;
   return (
     <div
-      className="relative inline-block min-w-[800px]"
-      style={{ width: `${maxX + tile}px`, height: `${maxY + tile}px` }}
+      className="relative inline-block"
+      style={{
+        width: `${maxX * cellW}px`,
+        height: `${maxY * cellH}px`,
+        minWidth: "600px",
+      }}
     >
       {spots.map((spot) => (
         <div
           key={spot.spotId}
           className="absolute"
           style={{
-            left: `${spot.positionX ?? 0}px`,
-            top: `${spot.positionY ?? 0}px`,
+            left: `${((spot.positionX ?? 1) - 1) * cellW}px`,
+            top: `${((spot.positionY ?? 1) - 1) * cellH}px`,
             width: `${tile}px`,
-            height: `${tile * 1.3}px`,
+            height: `${tileH}px`,
           }}
         >
           <SpotTile spot={spot} />

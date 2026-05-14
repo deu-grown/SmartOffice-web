@@ -1,4 +1,4 @@
-// 주차장 구역별 요약 카드 (총/점유/여유) + spot 리스트.
+// 주차장 구역별 요약 카드 (총/점유/여유/비활성). spot 상세 리스트는 SpotsTable 이 담당하므로 본 컴포넌트는 stat 카드 역할에 집중.
 // useParkingZoneSummary(zoneId) hook 연결. zoneId 미지정 시 안내 텍스트.
 import { Car, Activity, ParkingMeter, ParkingCircle } from "lucide-react";
 import { motion } from "motion/react";
@@ -6,12 +6,6 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 import { useParkingZoneSummary } from "@/src/features/parking/hooks";
-
-const SPOT_TYPE_LABEL: Record<string, string> = {
-  REGULAR: "일반",
-  DISABLED: "장애인",
-  EV: "EV 충전",
-};
 
 interface Props {
   zoneId: number | undefined;
@@ -23,7 +17,7 @@ export function ParkingZoneSummary({ zoneId }: Props) {
   if (zoneId === undefined) {
     return (
       <div className="bg-white p-10 rounded-[50px] border border-gray-100 shadow-sm text-center text-sm text-gray-400">
-        구역을 선택하면 점유 요약과 주차면 리스트가 표시됩니다.
+        구역을 선택하면 점유 요약이 표시됩니다.
       </div>
     );
   }
@@ -113,33 +107,6 @@ export function ParkingZoneSummary({ zoneId }: Props) {
         })}
       </div>
 
-      {spots.length > 0 && (
-        <div className="space-y-2">
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
-            주차면 리스트
-          </span>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {spots.map((s) => (
-              <div
-                key={s.spotId}
-                className={cn(
-                  "p-3 rounded-2xl border flex items-center justify-between text-xs font-bold",
-                  s.spotStatus === "INACTIVE"
-                    ? "bg-gray-50 border-gray-200 text-gray-400"
-                    : s.occupied
-                      ? "bg-emerald-50/40 border-emerald-100 text-emerald-700"
-                      : "bg-white border-gray-100 text-gray-700",
-                )}
-              >
-                <span className="font-mono">{s.spotNumber}</span>
-                <span className="text-[10px] uppercase tracking-widest text-gray-400">
-                  {SPOT_TYPE_LABEL[s.spotType] ?? s.spotType}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
