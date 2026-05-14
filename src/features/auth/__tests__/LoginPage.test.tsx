@@ -92,4 +92,41 @@ describe("LoginPage", () => {
     });
     expect(screen.queryByText("Dashboard Page")).not.toBeInTheDocument();
   });
+
+  // 웹은 관리자 전용 클라이언트(10-Capstone CLAUDE.md 3절). USER 토큰은 로그인 직후 차단된다.
+  it("USER 역할로 로그인 성공 응답을 받아도 즉시 세션을 비우고 진입을 차단한다", async () => {
+    server.use(
+      http.post("/api/v1/auth/login", () =>
+        HttpResponse.json({
+          code: "success",
+          message: "로그인에 성공했습니다.",
+          data: {
+            accessToken: "mock-user-access-token",
+            refreshToken: "mock-user-refresh-token",
+            tokenType: "Bearer",
+            expiresIn: 1800,
+            user: {
+              id: 3,
+              email: "jang.bo@grown.com",
+              name: "장보고",
+              role: "USER",
+              position: "개발자",
+              department: "개발팀",
+            },
+          },
+        }),
+      ),
+    );
+
+    const user = userEvent.setup();
+    renderLoginPage();
+    await user.click(screen.getByRole("button", { name: "로그인하기" }));
+
+    // 로그인 응답은 200 이지만 LoginPage onSuccess 에서 차단되어 store/token 모두 비어 있어야 한다.
+    await waitFor(() => {
+      expect(getAccessToken()).toBeNull();
+    });
+    expect(useAuthStore.getState().user).toBeNull();
+    expect(screen.queryByText("Dashboard Page")).not.toBeInTheDocument();
+  });
 });

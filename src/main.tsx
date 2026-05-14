@@ -9,7 +9,7 @@ import App from "./App.tsx";
 import { LoginPage } from "./components/auth/LoginPage";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { QueryProvider } from "./providers/QueryProvider";
-import { PrivateRoute, PublicOnlyRoute } from "./routes/guards";
+import { AdminRoute, PublicOnlyRoute } from "./routes/guards";
 import { ROUTES } from "./routes/paths";
 
 import "./index.css";
@@ -31,9 +31,9 @@ createRoot(document.getElementById("root")!).render(
             <Route
               path="/*"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <App />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
           </Routes>

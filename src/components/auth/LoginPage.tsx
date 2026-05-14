@@ -13,10 +13,12 @@ import { useLoginMutation } from "@/src/features/auth/hooks";
 import { getErrorMessage } from "@/src/lib/api/errors";
 import { ApiError } from "@/src/lib/api/types";
 import { ROUTES } from "@/src/routes/paths";
+import { useAuthStore } from "@/src/stores/authStore";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const loginMutation = useLoginMutation();
+  const logout = useAuthStore((s) => s.logout);
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("admin@grown.com");
@@ -34,6 +36,14 @@ export function LoginPage() {
       { email, password },
       {
         onSuccess: (data) => {
+          // 웹은 관리자 전용 클라이언트(10-Capstone CLAUDE.md 3절). 비-ADMIN 토큰은 즉시 세션을 비우고 차단한다.
+          if (data.user.role !== "ADMIN") {
+            logout();
+            toast.error(
+              "이 시스템은 관리자 전용입니다. 직원용 모바일 앱(SmartOffice-app)을 이용해주세요.",
+            );
+            return;
+          }
           toast.success("로그인에 성공했습니다.", {
             description: `환영합니다, ${data.user.name}님!`,
           });

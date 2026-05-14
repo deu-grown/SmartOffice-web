@@ -1,8 +1,8 @@
 // 라우트 가드 컴포넌트.
 // PrivateRoute : 인증 필요. 미인증 시 로그인으로 리다이렉트.
-// AdminRoute   : ADMIN 역할만 허용. 비-ADMIN 은 대시보드로.
+// AdminRoute   : ADMIN 역할만 허용. 비-ADMIN 토큰은 즉시 로그아웃 후 /login 으로.
 // PublicOnlyRoute : 이미 인증된 사용자가 /login 등에 접근하면 대시보드로.
-import type { PropsWithChildren } from "react";
+import { useEffect, type PropsWithChildren } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 import { getAccessToken } from "@/src/lib/api/tokenStorage";
@@ -27,12 +27,24 @@ export function PrivateRoute({ children }: PropsWithChildren) {
 
 export function AdminRoute({ children }: PropsWithChildren) {
   const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const location = useLocation();
-  if (!isAuthenticated(user)) {
+  const isAuthed = isAuthenticated(user);
+  const isAdmin = isAuthed && user!.role === "ADMIN";
+
+  // 인증 토큰은 있으나 ADMIN 이 아니면 정책상(웹은 관리자 전용) 세션을 정리한다.
+  // 정리는 부수효과이므로 렌더 사이클이 아닌 effect 에서 수행. 동기 Navigate 는 그대로 즉시 차단.
+  useEffect(() => {
+    if (isAuthed && !isAdmin) {
+      logout();
+    }
+  }, [isAuthed, isAdmin, logout]);
+
+  if (!isAuthed) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location.pathname }} replace />;
   }
-  if (user!.role !== "ADMIN") {
-    return <Navigate to={ROUTES.DASHBOARD} replace />;
+  if (!isAdmin) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
   }
   return <>{children}</>;
 }
