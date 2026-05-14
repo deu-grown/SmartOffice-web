@@ -572,20 +572,28 @@
 
 ---
 
-## 6. 마지막 플랜 (md 동기화 + push + PR)
+## 6. 마지막 플랜 (md 동기화 + 머지 + push + 브랜치 정리)
+
+> 2026-05-15 사용자 정정 — **PR 절차 폐기**. GitHub PR 2개 분리 생성 대신 로컬 `main` 머지 + 직접 push 정책으로 전환. 잔존 결함 추적표 #1~#10 + BACKEND_SUGGESTIONS #7~#16 은 마스터플랜 9절 + `SmartOffice-server/BACKEND_SUGGESTIONS.md` 본문에 이미 영구 보존됨 — PR 본문 명시 불필요.
 
 **작업**:
 
-1. `SmartOffice-web/CLAUDE.md` · `AGENTS.md` · `GEMINI.md` 3종 동기화
-   - cat 5 공용 컨벤션 한 줄 추가
-   - features/{domain}/ 패턴에 G10/G11 신규 도메인 반영
-   - Sidebar 메뉴 최종 목록 갱신
-2. 10-Capstone 상위 `CLAUDE.md` · `AGENTS.md` · `GEMINI.md` 3종 — 현황 일자만 갱신
-3. server·web 양쪽 `feature/web-integration` 브랜치 커밋 정리 확인
+1. **md 동기화**
+   - `SmartOffice-web/CLAUDE.md` · `AGENTS.md` · `GEMINI.md` 3종 — cat 5 공용 컨벤션(14-1절) + features 도메인 16종 + components 디렉터리 + 사이드바 메뉴 최종 목록
+   - `SmartOffice-server/CLAUDE.md` · `AGENTS.md` 2종 — 일자(2026-05-15) + 통합 작업 종료 본문
+   - `10-Capstone/CLAUDE.md` · `AGENTS.md` · `GEMINI.md` 상위 3종 — 일자 + 플랜 3 완료 본문 + PR 폐기 본문
+2. **외주 단계 잔존 정정 (web)**
+   - `index.html` `<title>` → `SmartOffice Admin` + favicon link 추가 + `lang="ko"`
+   - `package.json` `name` → `smartoffice-web` + `@google/genai` dependencies 제거 (`npm install` 자동)
+   - `public/favicon.svg` 신규 (Sidebar 로고 패턴)
+   - `src/App.tsx` 외주 라이선스 헤더 4줄 제거
+   - `src/components/auth/LoginPage.tsx` h1 위 브랜드 라벨 추가
+   - `README.md` 전면 갱신 (AI Studio 잔존 제거)
+3. **마스터플랜 본문/트래커 마감** — 본 6절·9절 갱신
 
-### 3-1. [선택] git history 정리 — 인터랙티브 rebase
+### 6-1. [선택] git history 정리 — 인터랙티브 rebase
 
-본 통합 작업 push 직전 시점(마지막 플랜)에 Claude가 인터랙티브 rebase로 squash 수행 가능. 본 plan들은 검증 단계에서 자연 추가된 fix/docs 커밋이 누적되어 git log가 무거워진 상태. PR 가독성과 리뷰 효율을 위해 history 정리 절차를 명시한다.
+본 통합 작업 push 직전 시점(마지막 플랜)에 Claude가 인터랙티브 rebase로 squash 수행 가능. 본 plan들은 검증 단계에서 자연 추가된 fix/docs 커밋이 누적되어 git log가 무거워진 상태. 머지 후 main history 가독성을 위해 정리 절차를 명시한다.
 
 **[squash 대상 후보]**
 - 검증 단계 자연 추가 fix 커밋 (예: `1139814` sensor null, `0d630d8` z-index, `6566c3a` 카테고리 정합 등)
@@ -595,50 +603,54 @@
 **[유지 대상]**
 - 마스터플랜 본문 정정 (PRE 커밋) — 메타 문서 변경, 코드 작업과 분리 의미
 - 거대 컴포넌트 분할 단독 커밋 (`b63358f` PersonnelTable / `1cac749` ParkingManagement / ZoneManagement 분할 등) — "빈 분할, 이동만" 원칙. 분할 회귀 검출 의미 보존
-- BACKEND_SUGGESTIONS 누적 (server 레포) — server PR 별도, squash 의미 적음
+- BACKEND_SUGGESTIONS 누적 (server 레포) — squash 의미 적음
 
 **[제외 — squash 대상 아님]**
-- server 레포 전체 — 8 커밋 정도, 모두 분리된 항목 등록(#7~#14). squash 의미 적음. web 레포만 squash 수행.
+- server 레포 전체 — 13 커밋, 모두 분리된 항목 등록(#7~#16). squash 의미 적음. web 레포만 squash 수행.
 
 **[절차]**
 1. Claude가 현재 git log 기반으로 squash 그룹 후보 제시 (그룹별 메시지 초안 포함)
-   - 예: "플랜 3-1 G2 (4 커밋 → 1)", "플랜 3-2 G7 (5 커밋 → 1)", "플랜 3-2 시각 fix 1차 (5 커밋 → 1)" 등
 2. 사용자 그룹 확정 (그룹별 squash/유지 결정)
 3. Claude가 `git rebase -i HEAD~N` 수행 (web 레포만)
 4. 충돌 발생 시 즉시 멈추고 보고. 자율 해결 X. 사용자 결정 받음
 5. rebase 후 빌드/lint/test 게이트 재통과 확인 필수
    - `npm run lint && npm run build && npm test` 통과
    - 실패 시 `git reflog` 기반 복구 + 사용자 보고
-6. rebase 완료 후 마스터플랜 9절 트래커에 "history 정리 완료, web N → M 커밋" 갱신
-7. force push X — 본 통합 작업이 첫 push이므로 force 불필요. push 후 추가 commit/rebase는 별개 정책
+6. rebase 완료 후 본 9절 트래커에 "history 정리 완료, web N → M 커밋" 갱신
+7. force push X — 본 통합 작업이 첫 push이므로 force 불필요
 
 **[위험 관리]**
 - rebase는 마지막 플랜에서만 수행. 그 이전 plan들은 history 보존
-- 충돌 가능성 시나리오: 거대 컴포넌트 분할 + 그 후 분할 파일 수정 커밋이 같은 squash 그룹에 묶이면 충돌 가능. 분할 단독 커밋 유지 정책으로 회피
-- 사용자가 본 작업 거부 가능 — history 정리 없이 그대로 push해도 OK (정책은 선택적)
+- 충돌 가능성: 거대 컴포넌트 분할 + 그 후 분할 파일 수정 커밋이 같은 squash 그룹에 묶이면 충돌 가능 → 분할 단독 커밋 유지 정책으로 회피
+- 사용자가 본 작업 거부 가능 — history 정리 없이 그대로 머지해도 OK (정책은 선택적)
 
 **[결정 시점]**
-마지막 플랜 진입 후 첫 메시지에서 사용자 최종 확정 (squash 수행 또는 유지).
+마지막 플랜 진입 시 사용자 최종 확정 (squash 수행 또는 유지).
 
-4. **동시 push 1회** (web + server 각각)
-5. **분리 PR 2개 동시 생성**:
-   - web PR: base `main`, head `feature/web-integration`
-   - server PR: base `main`, head `feature/web-integration` (BACKEND_SUGGESTIONS.md 변경만 가능)
-   - 본문 상호 링크 (web PR ↔ server PR)
-6. PR 본문에 플랜 3-1~3-4 요약 + 분류표 + cat 5 컨벤션 명시
+### 6-2. 머지 + push 절차
 
-**검증 게이트** (각 커밋 직전 + push 전):
+1. **로컬 main 머지** (web · server 양쪽 동일)
+   - rebase 수행 시: `git checkout main && git merge --ff-only feature/web-integration`
+   - rebase 미수행 시: `git checkout main && git merge --no-ff feature/web-integration -m "merge: feature/web-integration → main (통합 작업 종료)"`
+2. **origin/main 사전 점검**: `git fetch origin && git log origin/main..main --oneline` — fast-forward 가능 여부 확인. 비-FF 시 즉시 멈추고 보고
+3. **origin/main push** (web · server 동시)
+4. **feature/web-integration 브랜치 처리** (사용자 결정):
+   - 삭제: `git branch -d feature/web-integration` + `git push origin --delete feature/web-integration` (양쪽 레포)
+   - 보존: 그대로 유지 (로컬·원격, 롤백 대비)
+
+### 6-3. 검증 게이트 (각 커밋 직전 + push 전)
 
 - web: `npm run lint && npm run build && npm test` 전부 통과
 - server: `./gradlew build` 통과
 - MSW 핸들러 환경 격리 확인 (운영 빌드 침투 X)
+- 커밋 메시지에 `Co-Authored-By: Claude` / `🤖 Generated with` 푸터 0건
 
-**9. 후속 작업 예고 — 백엔드 수정 플랜 (별도)**
+### 6-4. 후속 작업 예고 — 백엔드 수정 플랜 (별도)
 
 - 본 플랜 종료 후 별도 plan mode 세션에서 진행.
-- 대상: `SmartOffice-server/BACKEND_SUGGESTIONS.md` 누적 제안 (본 플랜 종료 시점의 모든 항목).
-- 작업 순서: 본 플랜 web/server PR 머지 → 백엔드 수정 마스터플랜 수립 → 우선순위 상 항목부터 처리 (#7 dashboard summary 500 최우선).
-- 본 플랜 잔존 게이트(예: dashboard summary 500 재검증)는 백엔드 수정 후 web 측에서 재호출 검증으로 마감.
+- 입력: `SmartOffice-server/BACKEND_SUGGESTIONS.md` 누적 16 항목 + 본 9절 잔존 결함 추적표 #1~#10.
+- 작업 순서: 본 플랜 web/server 머지·push 완료 → 백엔드 수정 마스터플랜 수립 → 우선순위 상 항목부터 처리 (#7 dashboard summary 500 / #11 power hourly 500 / #13 zone PUT body deserialize 최우선).
+- 본 플랜 잔존 게이트는 백엔드 수정 후 web 측에서 재호출 검증으로 마감.
 
 ---
 
@@ -668,12 +680,12 @@
 - **커밋**: Conventional Commits. `Co-Authored-By: Claude ...` 금지. `🤖 Generated with` 금지. 한국어 본문 OK.
 - **검증 게이트**: `npm run lint && npm run build && npm test` 전부 통과 후 커밋.
 - **push**: 중간 push 0. 마지막 플랜에서 1회만 (web + server 동시).
-- **PR**: web·server 분리 PR 2개, 상호 링크.
+- **머지/push**: 로컬 `main` 머지 후 origin/main push 1회 (web·server 동시). **PR 절차 폐기** (2026-05-15 사용자 정정).
 - **cat 3/4 (10개) 흡수는 모바일/IoT 작업 영역** — 본 플랜 범위 외.
 - **백엔드 100% 활용 검증**: 본 플랜 + 모바일/IoT 작업 종료 후 unused 엔드포인트 0건 확인.
-- **본 플랜은 `BACKEND_SUGGESTIONS.md` 누적까지. 실제 백엔드 코드 수정은 별도 플랜 (본 플랜 PR 머지 후).**
+- **본 플랜은 `BACKEND_SUGGESTIONS.md` 누적까지. 실제 백엔드 코드 수정은 별도 플랜 (PR 절차로 진행, 본 플랜 머지·push 완료 후 진입).**
 
-### 본 플랜 잔존 결함 추적 (마지막 플랜에서 PR 본문에 포함)
+### 본 플랜 잔존 결함 추적 (마스터플랜 9절 + BACKEND_SUGGESTIONS.md 본문에 영구 보존, 백엔드 수정 플랜 입력)
 
 | # | 발견 시점 | 결함 | 처리 위치 |
 |---|-----------|------|-----------|
@@ -704,4 +716,4 @@
 | 플랜 3-2 (G5/G6/G7) | 완료 | 2026-05-14 | 2026-05-14 | web 28 + server 4 = 32 커밋. 자동 + 시각 검증 ✅ + Fix 라운드 2차(4·7·8·9). push 0회. 잔존 결함 추적표 #4·#5·#6·#7 추가 (백엔드 #10·#11·#12·#13 이관). |
 | 플랜 3-3 (G8/G9) | 완료 | 2026-05-14 | 2026-05-14 | web 14 + server 3 = 17 커밋. 자동 + 시각 검증 ✅ + 백엔드 curl 검증 ✅ + 좌표 충돌 5 시나리오 ✅. push 0회. 잔존 결함 추적표 #8·#9·#10 추가 (백엔드 #14·#15·#16 이관). |
 | 플랜 3-4 (G10/G11) | 완료 | 2026-05-15 | 2026-05-15 | web 10 + server 0 = 10 커밋. 자동 + 시각 검증 ✅ + 백엔드 curl 검증 ✅ + 후속 fix 라운드 (결함 13/14). push 0회. 잔존 결함 신규 등록 0 (백엔드 #7~#16 그대로 이관). |
-| 마지막 (md+push+PR) | 대기 | — | — | web/server 분리 PR |
+| 마지막 (md + 머지 + push) | 진행 중 | 2026-05-15 | — | 외주 단계 잔존 정정(title/name/favicon/라이선스/브랜드 라벨/@google/genai) + README 전면 갱신 + md 6종 동기화(web 3 + server 2 + 상위 3) + 마스터플랜 6절·9절 갱신. PR 절차 폐기(사용자 정정). push 직전 단계 — A·B·C 결정 대기 |
