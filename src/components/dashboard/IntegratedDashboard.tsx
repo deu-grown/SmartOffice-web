@@ -89,7 +89,7 @@ export function IntegratedDashboard({ onTabChange }: IntegratedDashboardProps) {
           onSelectZone={setSelectedZoneId}
           currentSensor={currentSensor}
         />
-        <PowerCurrentWidget zoneId={selectedZoneId} />
+        <PowerCurrentWidget />
         <PowerBillingWidget />
       </div>
 
