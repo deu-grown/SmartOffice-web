@@ -9,6 +9,7 @@ import { controlHandlers } from "./control";
 import { dashboardHandlers } from "./dashboard";
 import { departmentHandlers } from "./department";
 import { deviceHandlers } from "./device";
+import { parkingHandlers } from "./parking";
 import { powerHandlers } from "./power";
 import { salaryHandlers } from "./salary";
 import { sensorHandlers } from "./sensor";
@@ -29,4 +30,5 @@ export const handlers: HttpHandler[] = [
   ...sensorHandlers,
   ...controlHandlers,
   ...assetHandlers,
+  ...parkingHandlers,
 ];
