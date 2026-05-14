@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -33,10 +34,31 @@ interface PersonnelTableProps {
 // 인사 페이지 컨테이너.
 // 상단 탭(직원 목록 / 근태 관리) 전환 + 부서 사이드바 + 직원 목록(서버 페이지네이션)
 // + 상세/수정 드로어(출입 이력 탭 포함). 근태 관리 탭은 AttendanceTab 으로 위임.
+type PersonnelView = "personnel" | "attendance" | "myinfo";
+
+// URL 쿼리 ?view=myinfo 등으로 진입 시 해당 탭 자동 선택 — TopBar "내 정보" 메뉴 등 외부 진입점이
+// 직접 myinfo 탭으로 navigate 할 수 있도록 동기화.
+function viewFromQuery(value: string | null): PersonnelView {
+  return value === "myinfo" || value === "attendance" ? value : "personnel";
+}
+
 export function PersonnelTable(_props: PersonnelTableProps) {
-  const [activeView, setActiveView] = useState<"personnel" | "attendance" | "myinfo">(
-    "personnel",
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeView, setActiveView] = useState<PersonnelView>(() =>
+    viewFromQuery(searchParams.get("view")),
   );
+  // 쿼리 변경(브라우저 back/forward, 외부 link) 시 탭 동기화.
+  useEffect(() => {
+    const next = viewFromQuery(searchParams.get("view"));
+    setActiveView((prev) => (prev === next ? prev : next));
+  }, [searchParams]);
+  const handleViewChange = (next: PersonnelView) => {
+    setActiveView(next);
+    const params = new URLSearchParams(searchParams);
+    if (next === "personnel") params.delete("view");
+    else params.set("view", next);
+    setSearchParams(params, { replace: true });
+  };
   const [filterDepartmentId, setFilterDepartmentId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("전체");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -89,19 +111,19 @@ export function PersonnelTable(_props: PersonnelTableProps) {
       <div className="flex items-center gap-2 border-b border-gray-100">
         <ViewTabButton
           active={activeView === "personnel"}
-          onClick={() => setActiveView("personnel")}
+          onClick={() => handleViewChange("personnel")}
         >
           직원 목록
         </ViewTabButton>
         <ViewTabButton
           active={activeView === "attendance"}
-          onClick={() => setActiveView("attendance")}
+          onClick={() => handleViewChange("attendance")}
         >
           근태 관리
         </ViewTabButton>
         <ViewTabButton
           active={activeView === "myinfo"}
-          onClick={() => setActiveView("myinfo")}
+          onClick={() => handleViewChange("myinfo")}
         >
           내 정보
         </ViewTabButton>
