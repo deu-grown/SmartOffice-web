@@ -47,3 +47,20 @@
 
 - 우선순위: 중 (시연 가능 + 데이터 정확성 보존, UX 품질 결함 + 사용자 혼란 위험)
 - 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 2 (2026-05-15)
+
+---
+
+## [2026-05-15] 3. (중) 백엔드 신설 엔드포인트 채택 시 web 측 우회 코드 제거
+
+- 발생 맥락: SmartOffice-server 백엔드 수정 sprint 묶음 3 (#9·#10·#15 신설 엔드포인트) 완료 (2026-05-15)
+- 배경: 본 통합 작업(플랜 3) 당시 백엔드 엔드포인트 부재로 web 측에 임시 우회 코드를 두었음. 백엔드 sprint 묶음 3 에서 해당 엔드포인트가 신설되어, web 측 우회 코드를 정식 hook 으로 전환 가능.
+
+- 권장 전환 (3건):
+  · **#9 채택** (`GET /api/v1/power/zones`): `features/power/constants.ts` 의 `POWER_ZONES_TEMP` 임시 상수 (V7 시드 기반 zone 2·4·5·7 하드코딩) 제거 → `usePowerZones()` 훅 신설. `PowerCurrentWidget` 의 Select 옵션 소스를 hook 응답으로 전환. 응답 필드: `{ zoneId, zoneName, meterCount }`
+  · **#10 채택** (`GET /api/v1/zones/{id}`): `features/zone/hooks.ts:useZoneDetail(id)` 의 `useZones()` + `find(id)` 우회 제거 → `useQuery({ queryKey: zoneKeys.detail(id), queryFn: () => zoneApi.getZoneDetail(id) })` 전환. queryKey 그대로 유지하므로 컴포넌트 변경 없음. `features/zone/api.ts` 에 `getZoneDetail(id)` 추가
+  · **#15 채택** (`GET /api/v1/parking/zones`): `ParkingManagement` 의 `useParkingSpots({})` distinct + `useZones()` name 매핑 우회 제거 → `useParkingZones()` 훅 신설. 응답 필드: `{ zoneId, zoneName, zoneType, totalSpots, occupiedSpots }` — Select trigger label 에 보조 정보 노출 가능 ("지하1층 (15면)" 등)
+
+- 비고: #12 (ControlCommandType enum) 는 web `ControlPanel.QUICK_COMMANDS` (AC/LIGHT/FAN/DOOR_LOCK) 가 백엔드 enum value 와 이미 정합 — web 변경 불필요.
+
+- 우선순위: 중 (현재 우회 코드로 동작 가능. 정식 엔드포인트 전환은 시드 ↔ 하드코딩 동기화 부담 해소 + 운영 환경 정합)
+- 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 3 (2026-05-15)
