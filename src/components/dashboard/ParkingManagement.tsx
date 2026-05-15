@@ -1,6 +1,4 @@
-// 주차 관리 페이지 (G9). 플랜 3-3 묶음 4 흡수 — mock 차량 관리 일괄 제거, features/parking 으로 마이그레이션.
-// 백엔드는 ParkingSpot CRUD + zone summary/map 만 보유 — 차량(Vehicle)/예약(Reservation) 모델 부재.
-// 차량 관리는 BACKEND_SUGGESTIONS #14 (저~중) 채택 시점에 features 확장.
+// 주차 관리 페이지 (G9). 묶음 6a: vehicle + parking-reservation UI 신설.
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import {
@@ -8,6 +6,7 @@ import {
   Car,
   ParkingMeter,
   Activity,
+  CalendarClock,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -16,16 +15,24 @@ import { ZoneSelect } from "@/src/components/common/ZoneSelect";
 import { ParkingSpotsTable } from "@/src/components/parking/ParkingSpotsTable";
 import { ParkingZoneSummary } from "@/src/components/parking/ParkingZoneSummary";
 import { ParkingZoneMap } from "@/src/components/parking/ParkingZoneMap";
-import { useParkingSpots, useParkingZoneSummary, useParkingZones } from "@/src/features/parking/hooks";
+import { VehicleSection } from "@/src/components/parking/VehicleSection";
+import { ReservationSection } from "@/src/components/parking/ReservationSection";
+import { useParkingReservations, useParkingSpots, useParkingZoneSummary, useParkingZones } from "@/src/features/parking/hooks";
+import { useVehicles } from "@/src/features/vehicle/hooks";
 
 export function ParkingManagement() {
   const [selectedZoneId, setSelectedZoneId] = useState<number | undefined>(undefined);
 
   const { data: parkingZones } = useParkingZones();
 
-  // Stat 카드용 통계. zoneId 선택 시 zoneSummary, 아니면 전체 spots 집계.
+  // Spot 통계 — zoneId 선택 시 zoneSummary, 아니면 전체 spots 집계.
   const allSpotsQuery = useParkingSpots(selectedZoneId === undefined ? {} : { zoneId: selectedZoneId });
   const zoneSummaryQuery = useParkingZoneSummary(selectedZoneId);
+
+  // 차량 · 예약 통계 (전체 기준).
+  const vehiclesQuery = useVehicles({});
+  const reservedQuery = useParkingReservations({ status: "RESERVED" });
+  const parkedQuery = useParkingReservations({ status: "PARKED" });
 
   // 주차면 보유 구역 목록 (GET /parking/zones).
   const zoneOptions = useMemo(
@@ -130,9 +137,64 @@ export function ParkingManagement() {
         })}
       </div>
 
+      {/* 차량 통계 3종 */}
+      <div className="grid grid-cols-3 gap-6">
+        {[
+          {
+            label: "등록 차량",
+            value: vehiclesQuery.data?.totalElements ?? 0,
+            icon: Car,
+            color: "text-indigo-600",
+            bg: "bg-white",
+          },
+          {
+            label: "입차 중",
+            value: parkedQuery.data?.totalElements ?? 0,
+            icon: ParkingCircle,
+            color: "text-green-600",
+            bg: "bg-green-50/40 border-green-100",
+          },
+          {
+            label: "예약 대기",
+            value: reservedQuery.data?.totalElements ?? 0,
+            icon: CalendarClock,
+            color: "text-orange-600",
+            bg: "bg-orange-50/40 border-orange-100",
+          },
+        ].map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.06 + 0.32 }}
+              className={cn(
+                "p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col justify-between h-36",
+                stat.bg,
+              )}
+            >
+              <div className={cn("w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center", stat.color)}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-gray-400 block mb-1">{stat.label}</span>
+                <span className={cn("text-2xl font-black tracking-tighter", stat.color)}>{stat.value}</span>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
       <ParkingZoneSummary zoneId={selectedZoneId} />
       <ParkingZoneMap zoneId={selectedZoneId} />
       <ParkingSpotsTable zoneId={selectedZoneId} />
+
+      {/* 구분선 */}
+      <div className="border-t border-gray-100 pt-2" />
+
+      <VehicleSection />
+      <ReservationSection zoneId={selectedZoneId} />
     </div>
   );
 }

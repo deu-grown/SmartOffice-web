@@ -1,9 +1,11 @@
-// 주차(parking) 도메인 MSW 핸들러. cat 2 ADMIN 4 + cat 5 공용 2 통합.
+// 주차(parking) 도메인 MSW 핸들러. cat 2 ADMIN 4 + cat 5 공용 2 + 예약 CRUD 통합.
 // GET /spots 는 List 직반환 (PageResponse 아님).
 import { http, HttpResponse } from "msw";
 
 import type {
+  ParkingReservationResponse,
   ParkingSpotResponse,
+  ReservationStatus,
   SpotStatus,
   SpotType,
 } from "@/src/features/parking/types";
@@ -205,6 +207,101 @@ export const parkingHandlers = [
       },
     });
   }),
+
+  // ── 주차 예약 ──────────────────────────────────────────────────────────
+
+  ...(() => {
+    let nextResId = 3;
+    const reservations: ParkingReservationResponse[] = [
+      {
+        reservationId: 1,
+        vehicleId: 1,
+        vehiclePlateNumber: "12가 3456",
+        zoneId: 8,
+        zoneName: "지하 1층 주차장",
+        spotId: 1,
+        spotNumber: "B1-001",
+        reservedAt: "2026-05-15T09:00:00",
+        entryAt: "2026-05-15T09:05:00",
+        exitAt: null,
+        status: "PARKED",
+      },
+      {
+        reservationId: 2,
+        vehicleId: 3,
+        vehiclePlateNumber: "56다 7890",
+        zoneId: 8,
+        zoneName: "지하 1층 주차장",
+        spotId: null,
+        spotNumber: null,
+        reservedAt: "2026-05-15T14:00:00",
+        entryAt: null,
+        exitAt: null,
+        status: "RESERVED",
+      },
+    ];
+
+    const PAGE_SIZE = 10;
+
+    return [
+      http.get("/api/v1/parking/reservations", ({ request }) => {
+        const url = new URL(request.url);
+        const status = url.searchParams.get("status") as ReservationStatus | null;
+        const zoneId = url.searchParams.get("zoneId");
+        const page = Number(url.searchParams.get("page") ?? 0);
+
+        let filtered = reservations;
+        if (status) filtered = filtered.filter((r) => r.status === status);
+        if (zoneId) filtered = filtered.filter((r) => r.zoneId === Number(zoneId));
+
+        const totalElements = filtered.length;
+        const totalPages = Math.max(Math.ceil(totalElements / PAGE_SIZE), 1);
+        const sliced = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+        return HttpResponse.json({
+          code: "success", errorCode: null, message: "정상 조회되었습니다.",
+          data: { totalElements, totalPages, currentPage: page, reservations: sliced },
+        });
+      }),
+
+      http.post("/api/v1/parking/reservations", async ({ request }) => {
+        const body = (await request.json()) as {
+          vehicleId: number; zoneId: number; spotId?: number | null; reservedAt: string;
+        };
+        const created: ParkingReservationResponse = {
+          reservationId: nextResId++,
+          vehicleId: body.vehicleId,
+          vehiclePlateNumber: `Vehicle ${body.vehicleId}`,
+          zoneId: body.zoneId,
+          zoneName: `Zone ${body.zoneId}`,
+          spotId: body.spotId ?? null,
+          spotNumber: body.spotId ? `Spot ${body.spotId}` : null,
+          reservedAt: body.reservedAt,
+          entryAt: null,
+          exitAt: null,
+          status: "RESERVED",
+        };
+        reservations.push(created);
+        return HttpResponse.json(
+          { code: "success", errorCode: null, message: "예약이 등록되었습니다.", data: created },
+          { status: 201 },
+        );
+      }),
+
+      http.delete("/api/v1/parking/reservations/:id", ({ params }) => {
+        const id = Number(params.id);
+        const idx = reservations.findIndex((r) => r.reservationId === id);
+        if (idx === -1) {
+          return HttpResponse.json(
+            { code: "error", errorCode: "RESERVATION_NOT_FOUND", message: "예약을 찾을 수 없습니다.", data: null },
+            { status: 404 },
+          );
+        }
+        reservations.splice(idx, 1);
+        return HttpResponse.json({ code: "success", errorCode: null, message: "예약이 취소되었습니다.", data: null });
+      }),
+    ];
+  })(),
 
   http.get("/api/v1/parking/zones/:zoneId/map", ({ params }) => {
     const zid = Number(params.zoneId);

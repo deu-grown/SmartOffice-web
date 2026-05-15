@@ -1,6 +1,6 @@
 // 주차(parking) 도메인 타입 — 백엔드 com.grown.smartoffice.domain.parking.dto 와 1:1 매핑.
 // SpotType: REGULAR|DISABLED|EV / SpotStatus: ACTIVE|INACTIVE.
-// 차량(Vehicle)/예약(Reservation) 모델은 백엔드 부재 — BACKEND_SUGGESTIONS #14 (저~중).
+// ParkingReservation 모델: 묶음 6a (백엔드 sprint #14 채택) 에서 추가.
 
 import type { ZoneType } from "@/src/features/zone/types";
 
@@ -87,4 +87,48 @@ export interface ParkingZoneMapResponse {
   zoneId: number;
   zoneName: string;
   spots: ParkingSpotMapResponse[];
+}
+
+// ── 주차 예약 (ParkingReservation) ─────────────────────────────────────
+
+export type ReservationStatus = "RESERVED" | "PARKED" | "EXITED";
+
+/** GET /api/v1/parking/reservations 목록 응답 항목 / 단건 응답. */
+export interface ParkingReservationResponse {
+  reservationId: number;
+  vehicleId: number;
+  vehiclePlateNumber: string;
+  zoneId: number;
+  zoneName: string;
+  spotId: number | null;
+  spotNumber: string | null;
+  reservedAt: string; // ISO LocalDateTime
+  entryAt: string | null;
+  exitAt: string | null;
+  status: ReservationStatus;
+}
+
+/** GET /api/v1/parking/reservations 목록 페이지 응답. */
+export interface ParkingReservationListResponse {
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  reservations: ParkingReservationResponse[];
+}
+
+/** POST /api/v1/parking/reservations 요청. */
+export interface ParkingReservationCreateRequest {
+  vehicleId: number;
+  zoneId: number;
+  spotId?: number | null;
+  reservedAt: string; // ISO LocalDateTime
+}
+
+/** GET /api/v1/parking/reservations 쿼리 파라미터. */
+export interface ParkingReservationFilter {
+  vehicleId?: number;
+  zoneId?: number;
+  status?: ReservationStatus;
+  page?: number;
+  size?: number;
 }

@@ -1,15 +1,15 @@
-import { LayoutDashboard, FolderKanban, Calendar, Sparkles, Timer, BarChart3, CalendarClock, KeyRound, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Calendar, Sparkles, Timer, BarChart3, CalendarClock, KeyRound, LogOut, ChevronLeft, ChevronRight, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { TabType } from "../../types";
 
-// 게스트 메뉴: 백엔드에 guest 도메인 미구현 — 임시 숨김(BACKEND_SUGGESTIONS.md 참조).
 const menuItems = [
   { icon: LayoutDashboard, label: "통합 관제" },
   { icon: FolderKanban, label: "건물 관리" },
   { icon: Calendar, label: "구역 관리" },
   { icon: Sparkles, label: "출입 기록 관리" },
+  { icon: UserCheck, label: "게스트 관리" },
   { icon: Timer, label: "재고 관리" },
   { icon: BarChart3, label: "인사 관리" },
   { icon: LayoutDashboard, label: "급여 관리" },

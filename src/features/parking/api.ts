@@ -2,6 +2,10 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/src/lib/api/client";
 
 import type {
+  ParkingReservationCreateRequest,
+  ParkingReservationFilter,
+  ParkingReservationListResponse,
+  ParkingReservationResponse,
   ParkingSpotCreateRequest,
   ParkingSpotResponse,
   ParkingSpotUpdateRequest,
@@ -30,4 +34,12 @@ export const parkingApi = {
     apiGet<ParkingZoneSummaryResponse>(`/parking/zones/${zoneId}/spots`),
   /** 구역별 주차장 지도 (좌표 기반 평면도). 인증만 요구 (cat 5). */
   zoneMap: (zoneId: number) => apiGet<ParkingZoneMapResponse>(`/parking/zones/${zoneId}/map`),
+  /** 주차 예약 목록. */
+  reservations: (filter?: ParkingReservationFilter) =>
+    apiGet<ParkingReservationListResponse>("/parking/reservations", { params: filter }),
+  /** 주차 예약 등록. */
+  createReservation: (body: ParkingReservationCreateRequest) =>
+    apiPost<ParkingReservationResponse, ParkingReservationCreateRequest>("/parking/reservations", body),
+  /** 주차 예약 삭제. */
+  removeReservation: (id: number) => apiDelete<void>(`/parking/reservations/${id}`),
 };
