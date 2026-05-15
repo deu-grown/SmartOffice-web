@@ -24,6 +24,7 @@ import { ApiError, type ApiResponse } from "./types";
 const API_URL = import.meta.env.VITE_API_URL?.trim();
 const BASE_URL = API_URL ? `${API_URL.replace(/\/$/, "")}/api/v1` : "/api/v1";
 const REFRESH_PATH = "/auth/refresh";
+const LOGIN_API_PATH = "/auth/login";
 const LOGIN_PATH = "/login";
 
 interface RetryableConfig extends InternalAxiosRequestConfig {
@@ -34,6 +35,8 @@ export const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 8000,
   headers: { "Content-Type": "application/json" },
+  // httpOnly 쿠키(refreshToken) 자동 전송을 위해 withCredentials 활성화.
+  withCredentials: true,
 });
 
 // ── 요청: Authorization Bearer 자동 첨부 ─────────────────────────────
@@ -49,11 +52,33 @@ apiClient.interceptors.request.use((config) => {
 let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
+  // 쿠키 우선: body 없이 POST (백엔드 PR #28 — httpOnly 쿠키에서 refreshToken 추출).
+  // refresh 호출 자체는 인터셉터를 거치지 않도록 raw axios 로 호출.
+  try {
+    const response = await axios.post<
+      ApiResponse<{ accessToken: string; refreshToken?: string }>
+    >(
+      `${BASE_URL}${REFRESH_PATH}`,
+      null,
+      { headers: { "Content-Type": "application/json" }, withCredentials: true },
+    );
+    const payload = response.data;
+    if (payload?.code === "success" && payload.data?.accessToken) {
+      setAccessToken(payload.data.accessToken);
+      if (payload.data.refreshToken) {
+        setRefreshToken(payload.data.refreshToken);
+      }
+      return payload.data.accessToken;
+    }
+  } catch {
+    // 쿠키 방식 실패 — localStorage refreshToken 으로 폴백.
+  }
+
+  // body 폴백: localStorage 에 refreshToken 이 있으면 body 에 포함하여 재시도.
   const refreshToken = getRefreshToken();
   if (!refreshToken) return null;
 
   try {
-    // refresh 호출 자체는 인터셉터를 거치지 않도록 raw axios 로 호출.
     const response = await axios.post<
       ApiResponse<{ accessToken: string; refreshToken?: string }>
     >(
@@ -114,8 +139,10 @@ apiClient.interceptors.response.use(
     const serverMessage = error.response?.data?.message;
     const original = error.config as RetryableConfig | undefined;
     const isRefreshCall = original?.url?.endsWith(REFRESH_PATH) ?? false;
+    // 로그인 요청 자체가 401을 반환한 경우(자격증명 오류) refresh 대상에서 제외.
+    const isLoginCall = original?.url?.endsWith(LOGIN_API_PATH) ?? false;
 
-    if (status === 401 && original && !original._retried && !isRefreshCall) {
+    if (status === 401 && original && !original._retried && !isRefreshCall && !isLoginCall) {
       original._retried = true;
       if (!refreshPromise) {
         refreshPromise = refreshAccessToken().finally(() => {

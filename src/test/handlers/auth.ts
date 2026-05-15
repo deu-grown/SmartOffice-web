@@ -59,12 +59,12 @@ export const authHandlers = [
   ),
 
   http.post("/api/v1/auth/refresh", async ({ request }) => {
-    const body = (await request.json()) as { refreshToken?: string };
-    if (!body.refreshToken) {
-      return HttpResponse.json(
-        { code: "error", errorCode: "MISSING_REQUIRED_FIELD", message: "refreshToken은 필수입니다.", data: null },
-        { status: 400 },
-      );
+    // 쿠키 우선·body 폴백 정책(백엔드 PR #28) 반영: body 없는 요청(쿠키 방식)도 수용.
+    // MSW 테스트 환경에서는 httpOnly 쿠키를 시뮬레이션하지 않으므로 body 유무와 무관하게 성공 응답.
+    try {
+      await request.json();
+    } catch {
+      // body 없음 — 쿠키 방식 요청, 정상
     }
     return HttpResponse.json({
       code: "success",
