@@ -89,6 +89,7 @@ export const parkingHandlers = [
 
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: filtered,
     });
@@ -121,7 +122,7 @@ export const parkingHandlers = [
     };
     spots.push(created);
     return HttpResponse.json(
-      { code: "success", message: "주차면이 등록되었습니다.", data: created },
+      { code: "success", errorCode: null, message: "주차면이 등록되었습니다.", data: created },
       { status: 201 },
     );
   }),
@@ -131,7 +132,7 @@ export const parkingHandlers = [
     const target = spots.find((s) => s.spotId === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "주차면을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "PARKING_SPOT_NOT_FOUND", message: "주차면을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -148,6 +149,7 @@ export const parkingHandlers = [
     target.updatedAt = new Date().toISOString();
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "주차면 정보가 수정되었습니다.",
       data: target,
     });
@@ -158,12 +160,12 @@ export const parkingHandlers = [
     const idx = spots.findIndex((s) => s.spotId === id);
     if (idx === -1) {
       return HttpResponse.json(
-        { code: "error", message: "주차면을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "PARKING_SPOT_NOT_FOUND", message: "주차면을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
     spots.splice(idx, 1);
-    return HttpResponse.json({ code: "success", message: "주차면이 삭제되었습니다.", data: null });
+    return HttpResponse.json({ code: "success", errorCode: null, message: "주차면이 삭제되었습니다.", data: null });
   }),
 
   http.get("/api/v1/parking/zones/:zoneId/spots", ({ params }) => {
@@ -173,6 +175,7 @@ export const parkingHandlers = [
     const occupied = zoneSpots.filter((s) => s.occupied).length;
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         zoneId: zid,
@@ -190,6 +193,7 @@ export const parkingHandlers = [
     const zoneSpots = spots.filter((s) => s.zoneId === zid);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         zoneId: zid,

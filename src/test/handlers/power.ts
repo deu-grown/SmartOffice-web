@@ -14,6 +14,7 @@ export const powerHandlers = [
     const zoneId = Number(params.zoneId);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         zoneId,
@@ -42,6 +43,7 @@ export const powerHandlers = [
     const month = Number(url.searchParams.get("month") ?? 5);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         year,
@@ -71,6 +73,7 @@ export const powerHandlers = [
     }));
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         zoneId,
@@ -87,6 +90,7 @@ export const powerHandlers = [
     const month = Number(url.searchParams.get("month") ?? 5);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         zoneId,
@@ -114,6 +118,7 @@ export const powerHandlers = [
     const successCount = targetZones.length;
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "전력 요금 산출이 완료되었습니다.",
       data: {
         year: body.year,

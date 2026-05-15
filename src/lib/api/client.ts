@@ -103,7 +103,11 @@ apiClient.interceptors.response.use(
     if (payload.code === "success") {
       return { ...response, data: payload.data } as AxiosResponse;
     }
-    throw new ApiError(response.status, payload.message ?? "요청에 실패했습니다.");
+    throw new ApiError(
+      response.status,
+      payload.message ?? "요청에 실패했습니다.",
+      payload.errorCode ?? null,
+    );
   },
   async (error: AxiosError<ApiResponse<unknown>>) => {
     const status = error.response?.status ?? 0;
@@ -127,7 +131,11 @@ apiClient.interceptors.response.use(
       redirectToLogin();
     }
 
-    throw new ApiError(status, serverMessage ?? error.message ?? "네트워크 오류가 발생했습니다.");
+    throw new ApiError(
+      status,
+      serverMessage ?? error.message ?? "네트워크 오류가 발생했습니다.",
+      error.response?.data?.errorCode ?? null,
+    );
   },
 );
 

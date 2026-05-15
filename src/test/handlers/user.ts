@@ -108,6 +108,7 @@ export const userHandlers = [
     const sliced = filtered.slice(page * size, (page + 1) * size);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         content: sliced.map(toListItem),
@@ -151,6 +152,7 @@ export const userHandlers = [
     return HttpResponse.json(
       {
         code: "success",
+        errorCode: null,
         message: "직원이 등록되었습니다.",
         data: {
           id: created.id,
@@ -174,12 +176,13 @@ export const userHandlers = [
     const u = users.find((x) => x.id === id);
     if (!u) {
       return HttpResponse.json(
-        { code: "error", message: "직원을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "USER_NOT_FOUND", message: "직원을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: { ...toListItem(u), createdAt: u.createdAt, updatedAt: u.updatedAt },
     });
@@ -190,7 +193,7 @@ export const userHandlers = [
     const u = users.find((x) => x.id === id);
     if (!u) {
       return HttpResponse.json(
-        { code: "error", message: "직원을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "USER_NOT_FOUND", message: "직원을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -202,6 +205,7 @@ export const userHandlers = [
     u.updatedAt = new Date().toISOString();
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "직원 정보가 수정되었습니다.",
       data: {
         id: u.id,
@@ -220,13 +224,14 @@ export const userHandlers = [
     const u = users.find((x) => x.id === id);
     if (!u) {
       return HttpResponse.json(
-        { code: "error", message: "직원을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "USER_NOT_FOUND", message: "직원을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
     u.status = "INACTIVE";
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "퇴사 처리되었습니다.",
       data: null,
     });
@@ -241,7 +246,7 @@ export const userHandlers = [
     // 비밀번호 변경 시 currentPassword 필수 검증 (백엔드 정합).
     if (body.password && !body.currentPassword) {
       return HttpResponse.json(
-        { code: "error", message: "현재 비밀번호가 필요합니다.", data: null },
+        { code: "error", errorCode: "MISSING_REQUIRED_FIELD", message: "현재 비밀번호가 필요합니다.", data: null },
         { status: 400 },
       );
     }
@@ -250,6 +255,7 @@ export const userHandlers = [
     me.updatedAt = new Date().toISOString();
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정보가 수정되었습니다.",
       data: { phone: me.phone, updatedAt: me.updatedAt },
     });

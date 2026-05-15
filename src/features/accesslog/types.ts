@@ -1,9 +1,7 @@
 // 백엔드 com.grown.smartoffice.domain.accesslog.dto 패키지와 1:1 매핑.
 
-// authResult 가능 값 — 백엔드 코드 표준은 APPROVED/DENIED/BLOCKED 이며,
-// V5 시드 잔존 데이터에 "ALLOW" 값이 존재한다 (BACKEND_SUGGESTIONS 참조).
-// 호환을 위해 본 literal union 에 "ALLOW" 도 포함한다.
-export type AccessLogAuthResult = "APPROVED" | "DENIED" | "BLOCKED" | "ALLOW";
+// authResult 가능 값 — PR #28 V9 마이그레이션 후 ALLOW 폐기, APPROVED/DENIED/BLOCKED 만 유효.
+export type AccessLogAuthResult = "APPROVED" | "DENIED" | "BLOCKED";
 
 /** AccessLogResponse 단건 — GET /access-logs / GET /users/{id}/access-logs 공통. */
 export interface AccessLog {

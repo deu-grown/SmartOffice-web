@@ -20,8 +20,7 @@ interface AccessLogRow {
   taggedAt: string;
 }
 
-// 백엔드 시드 데이터를 모방. authResult 는 코드 표준(APPROVED/DENIED)을 사용한다.
-// 시드에 ALLOW 값이 잔존하는 백엔드 정합성 이슈는 BACKEND_SUGGESTIONS 로 등록 예정.
+// 백엔드 시드 데이터를 모방. authResult 는 PR #28 V9 마이그레이션 후 코드 표준(APPROVED/DENIED/BLOCKED)만 사용.
 const logs: AccessLogRow[] = [
   {
     id: 1,
@@ -94,6 +93,7 @@ export const accessLogHandlers = [
     const totalPages = Math.max(Math.ceil(totalElements / size), 1);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         totalElements,
@@ -109,7 +109,7 @@ export const accessLogHandlers = [
     const u = __testUsersForAccessLog.find((x) => x.id === id);
     if (!u) {
       return HttpResponse.json(
-        { code: "error", message: "직원을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "USER_NOT_FOUND", message: "직원을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -123,6 +123,7 @@ export const accessLogHandlers = [
 
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         userId: u.id,

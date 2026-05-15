@@ -42,6 +42,7 @@ export const controlHandlers = [
     commands.push(created);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "제어 명령이 발송되었습니다.",
       data: { controlId: created.id },
     });
@@ -51,10 +52,14 @@ export const controlHandlers = [
     const id = Number(params.id);
     const target = commands.find((c) => c.id === id);
     if (!target) {
-      return HttpResponse.json({ code: "error", message: "제어 명령을 찾을 수 없습니다.", data: null }, { status: 404 });
+      return HttpResponse.json(
+        { code: "error", errorCode: "CONTROL_NOT_FOUND", message: "제어 명령을 찾을 수 없습니다.", data: null },
+        { status: 404 },
+      );
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "상세 조회가 완료되었습니다.",
       data: {
         controlId: target.id,
@@ -72,6 +77,7 @@ export const controlHandlers = [
     if (zoneId !== null) filtered = filtered.filter((c) => c.zoneId === Number(zoneId));
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "조회 완료",
       data: {
         searchQuery: zoneId !== null ? { zoneId: Number(zoneId) } : {},

@@ -90,6 +90,7 @@ export const assetHandlers = [
 
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         content,
@@ -107,11 +108,11 @@ export const assetHandlers = [
     const target = assets.find((a) => a.assetId === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "자산을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "ASSET_NOT_FOUND", message: "자산을 찾을 수 없습니다.", data: null },
         { status: 404 }
       );
     }
-    return HttpResponse.json({ code: "success", message: "정상 조회되었습니다.", data: target });
+    return HttpResponse.json({ code: "success", errorCode: null, message: "정상 조회되었습니다.", data: target });
   }),
 
   http.post("/api/v1/assets", async ({ request }) => {
@@ -139,7 +140,7 @@ export const assetHandlers = [
     };
     assets.push(created);
     return HttpResponse.json(
-      { code: "success", message: "자산이 등록되었습니다.", data: created },
+      { code: "success", errorCode: null, message: "자산이 등록되었습니다.", data: created },
       { status: 201 }
     );
   }),
@@ -149,7 +150,7 @@ export const assetHandlers = [
     const target = assets.find((a) => a.assetId === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "자산을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "ASSET_NOT_FOUND", message: "자산을 찾을 수 없습니다.", data: null },
         { status: 404 }
       );
     }
@@ -164,6 +165,7 @@ export const assetHandlers = [
     target.updatedAt = new Date().toISOString();
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "자산 정보가 수정되었습니다.",
       data: target,
     });
@@ -174,11 +176,11 @@ export const assetHandlers = [
     const idx = assets.findIndex((a) => a.assetId === id);
     if (idx === -1) {
       return HttpResponse.json(
-        { code: "error", message: "자산을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "ASSET_NOT_FOUND", message: "자산을 찾을 수 없습니다.", data: null },
         { status: 404 }
       );
     }
     assets.splice(idx, 1);
-    return HttpResponse.json({ code: "success", message: "자산이 삭제되었습니다.", data: null });
+    return HttpResponse.json({ code: "success", errorCode: null, message: "자산이 삭제되었습니다.", data: null });
   }),
 ];

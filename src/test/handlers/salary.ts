@@ -59,6 +59,7 @@ export const salaryHandlers = [
 
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         content,
@@ -108,6 +109,7 @@ export const salaryHandlers = [
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "급여 산출이 완료되었습니다.",
       data: {
         totalCount: targetUsers.length,
@@ -122,10 +124,13 @@ export const salaryHandlers = [
     const id = Number(params.id);
     const target = records.find((r) => r.id === id);
     if (!target) {
-      return HttpResponse.json({ code: "error", message: "급여 내역을 찾을 수 없습니다.", data: null }, { status: 404 });
+      return HttpResponse.json(
+        { code: "error", errorCode: "SALARY_RECORD_NOT_FOUND", message: "급여 내역을 찾을 수 없습니다.", data: null },
+        { status: 404 },
+      );
     }
     target.status = "CONFIRMED";
-    return HttpResponse.json({ code: "success", message: "급여가 확정되었습니다.", data: target });
+    return HttpResponse.json({ code: "success", errorCode: null, message: "급여가 확정되었습니다.", data: target });
   }),
 
   // ── setting ────────────────────────────────────────────────
@@ -136,6 +141,7 @@ export const salaryHandlers = [
     if (position !== null) filtered = filtered.filter((s) => s.position === position);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: filtered,
     });
@@ -159,7 +165,10 @@ export const salaryHandlers = [
       effectiveTo: null,
     };
     settings.push(created);
-    return HttpResponse.json({ code: "success", message: "급여 기준이 등록되었습니다.", data: created }, { status: 201 });
+    return HttpResponse.json(
+      { code: "success", errorCode: null, message: "급여 기준이 등록되었습니다.", data: created },
+      { status: 201 },
+    );
   }),
 
   http.put("/api/v1/salary/settings/:id", async ({ request, params }) => {
@@ -167,11 +176,14 @@ export const salaryHandlers = [
     const body = (await request.json()) as { baseSalary?: number; overtimeRate?: number; nightRate?: number };
     const target = settings.find((s) => s.id === id);
     if (!target) {
-      return HttpResponse.json({ code: "error", message: "급여 기준을 찾을 수 없습니다.", data: null }, { status: 404 });
+      return HttpResponse.json(
+        { code: "error", errorCode: "SALARY_SETTING_NOT_FOUND", message: "급여 기준을 찾을 수 없습니다.", data: null },
+        { status: 404 },
+      );
     }
     if (body.baseSalary !== undefined) target.baseSalary = body.baseSalary;
     if (body.overtimeRate !== undefined) target.overtimeRate = body.overtimeRate;
     if (body.nightRate !== undefined) target.nightRate = body.nightRate;
-    return HttpResponse.json({ code: "success", message: "급여 기준이 수정되었습니다.", data: target });
+    return HttpResponse.json({ code: "success", errorCode: null, message: "급여 기준이 수정되었습니다.", data: target });
   }),
 ];

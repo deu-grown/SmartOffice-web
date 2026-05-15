@@ -16,6 +16,7 @@ export const authHandlers = [
     if (body.email === "admin@grown.com" && body.password === "EMP001") {
       return HttpResponse.json({
         code: "success",
+        errorCode: null,
         message: "로그인에 성공했습니다.",
         data: {
           accessToken: "mock-access-token",
@@ -29,6 +30,7 @@ export const authHandlers = [
     return HttpResponse.json(
       {
         code: "error",
+        errorCode: "INVALID_CREDENTIALS",
         message: "이메일 또는 비밀번호가 일치하지 않습니다.",
         data: null,
       },
@@ -39,6 +41,7 @@ export const authHandlers = [
   http.get("/api/v1/auth/me", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         id: 1,
@@ -59,12 +62,13 @@ export const authHandlers = [
     const body = (await request.json()) as { refreshToken?: string };
     if (!body.refreshToken) {
       return HttpResponse.json(
-        { code: "error", message: "refreshToken은 필수입니다.", data: null },
+        { code: "error", errorCode: "MISSING_REQUIRED_FIELD", message: "refreshToken은 필수입니다.", data: null },
         { status: 400 },
       );
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "토큰이 재발급되었습니다.",
       data: {
         accessToken: "new-mock-access-token",
@@ -77,6 +81,7 @@ export const authHandlers = [
   http.post("/api/v1/auth/logout", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "로그아웃 되었습니다.",
       data: null,
     }),

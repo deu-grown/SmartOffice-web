@@ -132,6 +132,7 @@ export const nfcCardHandlers = [
 
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: filtered.map(toListItem),
     });
@@ -143,12 +144,13 @@ export const nfcCardHandlers = [
     const target = cards.find((c) => c.id === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "NFC 카드를 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "NFC_CARD_NOT_FOUND", message: "NFC 카드를 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: target,
     });
@@ -159,7 +161,7 @@ export const nfcCardHandlers = [
     const body = (await request.json()) as NfcCardRegisterRequest;
     if (cards.some((c) => c.uid === body.uid)) {
       return HttpResponse.json(
-        { code: "error", message: "이미 등록된 NFC UID 입니다.", data: null },
+        { code: "error", errorCode: "DUPLICATE_NFC_CARD", message: "이미 등록된 NFC UID 입니다.", data: null },
         { status: 409 },
       );
     }
@@ -182,6 +184,7 @@ export const nfcCardHandlers = [
     return HttpResponse.json(
       {
         code: "success",
+        errorCode: null,
         message: "NFC 카드가 발급되었습니다.",
         data: {
           id: created.id,
@@ -204,7 +207,7 @@ export const nfcCardHandlers = [
     const target = cards.find((c) => c.id === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "NFC 카드를 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "NFC_CARD_NOT_FOUND", message: "NFC 카드를 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -214,6 +217,7 @@ export const nfcCardHandlers = [
     target.updatedAt = new Date().toISOString().replace("Z", "");
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "카드 정보가 수정되었습니다.",
       data: {
         id: target.id,
@@ -231,13 +235,14 @@ export const nfcCardHandlers = [
     const idx = cards.findIndex((c) => c.id === id);
     if (idx === -1) {
       return HttpResponse.json(
-        { code: "error", message: "NFC 카드를 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "NFC_CARD_NOT_FOUND", message: "NFC 카드를 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
     cards.splice(idx, 1);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "NFC 카드가 삭제되었습니다.",
       data: null,
     });
