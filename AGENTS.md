@@ -221,3 +221,195 @@ export const authKeys = {
 - `CLAUDE.md` · `AGENTS.md` · `GEMINI.md` 세 파일은 **본문 동일**.
 - 갱신 시 같은 변경에 세 파일을 함께 반영. 차이가 발생하면 즉시 정합 커밋.
 - 백엔드 md 3종(`../SmartOffice-server/CLAUDE.md` 등)과는 별개의 동기화 그룹이다.
+
+## 20. 디자인 시스템 (Tokens v2) — 참고 필수
+
+Claude Design에서 생성한 핸드오프 번들이 **`capstone/`** 폴더에 위치한다.
+스타일/레이아웃 작업 시 반드시 이 파일들을 기준으로 삼을 것.
+
+### 핵심 파일
+
+| 파일 | 용도 |
+|------|------|
+| `capstone/project/tokens-v2-preview.html` | **메인 디자인 기준** — 통합 관제·인사 관리 2개 화면의 완성 프로토타입. 컴포넌트 교체 시 이 파일 CSS/마크업을 1차 참조. |
+| `capstone/project/tokens-v2.html` | 대안 A/B/C 비교 원본. A 베이스 + B 일부 차용으로 확정됨. |
+| `capstone/project/design-system-audit.html` | 기존 디자인 시스템 감사 리포트. 문제점 목록 참고용. |
+| `capstone/project/responsive-review.html` | 반응형 검토 리포트. min-width 960px, 1024px 권장. |
+| `capstone/chats/chat2.md` | 디자인 결정 히스토리 전체. 왜 이렇게 결정됐는지 맥락 확인용. |
+| `capstone/project/src/index.css` | 디자인 어시스턴트가 작성한 참고 index.css (실제 적용본은 `src/index.css`). |
+
+### 확정 토큰 요약 (Tokens v2 · A 베이스 + B 차용)
+
+- **Primary**: blue 258° (`--primary: oklch(0.555 0.180 258)`)
+- **Surface 3단**: `--canvas` (near-white) / `--surface` (pure white) / `--surface-2` (중간)
+- **Semantic 4쌍**: `success` / `warning` / `info` / `error` × (`base` · `bg` · `fg`)
+- **Chart 5색**: 동일 L=0.62 C=0.16, hue 5등분 (258°/178°/138°/60°/348°)
+- **Radius**: `--radius-card: 12px` (일반 카드) / `--radius-card-warm: 16px` (인사·회의실 도메인)
+- **Shadow**: `--shadow-card` (subtle) / `--shadow-action` (primary 버튼 blue tint)
+- **Font**: Pretendard Variable, body 15px LH 1.70, heading LH 1.35, letter-spacing 0
+- **Button**: 좌우 padding 22px (`--btn-px`)
+- **Korean**: `word-break: keep-all` + `overflow-wrap: break-word` body 기본
+
+### 컴포넌트별 핵심 패턴 (프로토타입 → Tailwind 매핑)
+
+```
+Sidebar:
+  - 컨테이너: w-[248px] bg-surface border-r border-border h-screen shrink-0
+  - 로고 박스: w-[30px] h-[30px] bg-foreground rounded-lg (다이아몬드: bg-[var(--primary-foreground)] rotate-45)
+  - 브랜드: text-base font-bold text-foreground + 11.5px muted-foreground 메타
+  - "메뉴" 라벨: text-[11px] font-semibold uppercase tracking-[0.07em] pt-[22px] px-7 pb-2
+  - nav-item: py-[9px] px-[14px] rounded-lg text-sm font-medium transition-colors
+  - 활성: bg-surface-2 text-foreground font-semibold / 아이콘 text-primary
+  - 호버: hover:bg-surface-2 hover:text-foreground
+
+TopBar:
+  - 컨테이너: h-16 flex items-center justify-between px-8 bg-surface border-b border-border
+  - 검색창: flex items-center gap-[10px] py-2 px-[14px] bg-surface-2 rounded-lg w-[380px] border border-transparent
+  - 포커스: focus-within:bg-surface focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--ring)]
+  - kbd 배지: text-[11px] font-mono font-semibold bg-surface border border-border rounded px-[7px] py-0.5
+  - 알림 버튼: w-[38px] h-[38px] rounded-lg text-muted-foreground hover:bg-surface-2
+  - 구분선: w-px h-6 bg-border mx-[6px]
+
+카드 기본:
+  - bg-surface border border-border rounded-xl shadow-[var(--shadow-card)]  (radius-card = 12px → rounded-xl)
+  - warm 카드: rounded-2xl  (radius-card-warm = 16px → rounded-2xl)
+  - card-head: px-[22px] py-[18px] border-b border-border flex items-center justify-between gap-3
+  - card-title: text-[15px] font-semibold text-foreground
+  - card-sub: text-[13px] text-muted-foreground font-medium mt-0.5
+  - card-body: px-[22px] pt-5 pb-[22px]
+
+Stat 카드:
+  - stat-icon: w-9 h-9 rounded-lg flex items-center justify-center
+  - primary tone: bg-[oklch(0.555_0.180_258/0.10)] text-primary
+  - success tone: bg-[var(--success-bg)] text-[var(--success-fg)]
+  - warning tone: bg-[var(--warning-bg)] text-[var(--warning-fg)]
+  - info tone: bg-[var(--info-bg)] text-[var(--info-fg)]
+  - stat-label: text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]
+  - stat-value: text-[28px] font-bold text-foreground tabular-nums
+
+Badge:
+  - inline-flex items-center gap-[5px] px-[9px] py-[3px] rounded-full text-[12px] font-semibold whitespace-nowrap shrink-0
+  - success: bg-[var(--success-bg)] text-[var(--success-fg)]
+  - warning: bg-[var(--warning-bg)] text-[var(--warning-fg)]
+  - info: bg-[var(--info-bg)] text-[var(--info-fg)]
+  - error: bg-[var(--error-bg)] text-[var(--error-fg)]
+  - muted: bg-surface-2 text-muted-foreground
+
+Filter Pill (인사 관리):
+  - inline-flex items-center gap-[7px] px-[14px] py-[7px] bg-surface border border-border rounded-full text-[13px] font-medium
+  - 활성: bg-primary text-white border-primary shadow-[var(--shadow-action)]
+  - count 뱃지: text-[11.5px] font-semibold px-[6px] py-px rounded-full bg-black/[0.07]
+  - 활성 count: bg-white/[0.18]
+
+Personnel 테이블 (warm card):
+  - 래퍼: bg-surface border border-border rounded-2xl overflow-x-auto shadow-[var(--shadow-card)]
+  - th: text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-[18px] py-[14px] bg-surface-2 border-b border-border whitespace-nowrap
+  - td: text-[14px] text-foreground px-[18px] py-[14px] border-b border-surface-2 vertical-align-middle
+  - 호버: hover:bg-surface-2
+
+Pagination:
+  - page-btn: w-8 h-8 rounded-lg border border-border bg-surface text-[13px] font-medium tabular-nums
+  - 활성: bg-primary border-primary text-white
+```
+
+### 스타일 작업 원칙
+
+1. **기능 로직(API 호출, 상태, 데이터 바인딩) 절대 수정 금지** — className/style/레이아웃만 교체
+2. 프로토타입(`tokens-v2-preview.html`)에 있는 화면 → 해당 CSS를 Tailwind로 1:1 번역
+3. 프로토타입에 없는 화면(meetingroom, parking 등) → 위 토큰 패턴을 일관성 있게 적용
+4. 한국어 라벨/배지/테이블 헤더 → `whitespace-nowrap` + Badge는 `shrink-0` 추가
+5. `bg-white` → `bg-surface`, `border-gray-100` → `border-border`, `text-gray-400/500/600` → `text-muted-foreground`, `text-gray-900` → `text-foreground`
+
+### 20-1. 수정 필요 파일 목록 (Tokens v2 마이그레이션 대상)
+
+**작업 브랜치**: `design/tokens-v2`  
+**원칙**: 기능 로직 불변, className/style 색상값/recharts 색상 props 만 교체.
+
+#### 기능 결합 파일 주의 (색상이 로직과 섞임)
+
+수정 전 삼항 색상·status 맵·`fill=`/`stroke=` 위치를 먼저 grep으로 식별한다.
+- **recharts 색상 props (SVG `fill`/`stroke` — `var(--chart-N)` 값 사용)**: `IntegratedDashboard.tsx`, `building/PowerHourlyChart.tsx`
+- **status/조건부 색상 (삼항·맵)**: `AccessRecordTable`, `GuestTable`, `PersonnelTable`, `ZoneManagement`, `SalaryManagement`, `MeetingRoomManagement`, `InventoryManagement`, `Sidebar`(active 상태), `building/ControlPanel`, `personnel/PersonnelListTable·PersonnelDetailDrawer·AttendanceTab·DepartmentSidebar`, `zone/ZoneListView·ZoneDetailView·tabs/DeviceListTab`, `parking/ParkingSpotsTable·VehicleSection·ReservationSection·ParkingZoneMap`, `salary/SalaryRecordsTable·SalarySettingsTable`, `meetingroom/ReservationListTable·ReservationDetailDrawer`, `nfccard/NfcCardListTable·NfcCardDetailDrawer·NfcCardIssueModal`
+- **인라인 `style={{}}`**: `parking/ParkingZoneMap.tsx` — style 객체 보존, 색상값만 교체
+
+#### 전체 체크리스트 (실행 순서대로)
+
+**C1 — 인프라**
+- [ ] `src/index.css` — capstone 정본 기반 전면 교체 + `--foreground-soft`·`--border-strong` 추가
+- [ ] `package.json` — `@fontsource-variable/geist` 제거 + npm install
+
+**C2 — auth/ (C1 직후 토큰 스모크 테스트)**
+- [ ] `src/components/auth/LoginPage.tsx`
+
+**C3 — components/ui/**
+- [ ] `components/ui/DatePicker.tsx`
+- [ ] `components/ui/slider.tsx`
+
+**C4 — common/**
+- [ ] `src/components/common/ErrorBoundary.tsx`
+- [ ] `src/components/common/ZoneSelect.tsx`
+
+**C5 — App + dashboard/** (셸 Sidebar→TopBar→App.tsx 먼저, 셸 완료 후 dev 서버 전체 점검)
+- [ ] `src/components/dashboard/Sidebar.tsx` ← 중 (active 상태 조건부 색상)
+- [ ] `src/components/dashboard/TopBar.tsx` ← 중
+- [ ] `src/App.tsx` ← 중 (NavGuard 모달 semantic 색상)
+- [ ] `src/components/dashboard/widgets/PowerBillingWidget.tsx`
+- [ ] `src/components/dashboard/widgets/PowerCurrentWidget.tsx`
+- [ ] `src/components/dashboard/IntegratedDashboard.tsx` ← 상 (recharts + 48 하드코딩)
+- [ ] `src/components/dashboard/AccessRecordTable.tsx` ← 중 (status 맵 + 40)
+- [ ] `src/components/dashboard/GuestTable.tsx` ← 중 (status 맵 + 54)
+- [ ] `src/components/dashboard/InventoryManagement.tsx` ← 중 (94 하드코딩 최다)
+- [ ] `src/components/dashboard/PersonnelTable.tsx`
+- [ ] `src/components/dashboard/BuildingManagement.tsx`
+- [ ] `src/components/dashboard/MeetingRoomManagement.tsx`
+- [ ] `src/components/dashboard/NfcCardManagement.tsx`
+- [ ] `src/components/dashboard/ParkingManagement.tsx`
+- [ ] `src/components/dashboard/SalaryManagement.tsx`
+- [ ] `src/components/dashboard/ZoneManagement.tsx`
+
+**C6 — personnel/**
+- [ ] `src/components/personnel/PersonnelListTable.tsx` ← 중 (44 하드코딩)
+- [ ] `src/components/personnel/AttendanceTab.tsx` ← 중 (43 하드코딩)
+- [ ] `src/components/personnel/PersonnelDetailDrawer.tsx` ← 중 (status 색상)
+- [ ] `src/components/personnel/MyProfileSection.tsx`
+- [ ] `src/components/personnel/PersonnelNfcCardTab.tsx`
+- [ ] `src/components/personnel/DepartmentSidebar.tsx` ← 중 (조건부 색상)
+
+**C7 — zone/**
+- [ ] `src/components/zone/ZoneListView.tsx` ← 중 (status 색상)
+- [ ] `src/components/zone/ZoneDetailView.tsx` ← 중 (status 색상)
+- [ ] `src/components/zone/tabs/DeviceListTab.tsx` ← 중 (30 하드코딩)
+- [ ] `src/components/zone/tabs/ZoneInfoTab.tsx`
+- [ ] `src/components/zone/tabs/ZonePowerTab.tsx`
+- [ ] `src/components/zone/tabs/ZoneReservationTab.tsx`
+
+**C8 — parking/**
+- [ ] `src/components/parking/ParkingSpotsTable.tsx` ← 중 (64 하드코딩)
+- [ ] `src/components/parking/VehicleSection.tsx` ← 중 (35 하드코딩)
+- [ ] `src/components/parking/ReservationSection.tsx` ← 중 (31 하드코딩)
+- [ ] `src/components/parking/ParkingZoneMap.tsx` ← 중 (인라인 style 주의)
+- [ ] `src/components/parking/ParkingZoneSummary.tsx`
+
+**C9 — salary/**
+- [ ] `src/components/salary/SalaryRecordsTable.tsx` ← 중 (36 하드코딩)
+- [ ] `src/components/salary/SalarySettingsTable.tsx` ← 중 (33 하드코딩)
+- [ ] `src/components/salary/SalaryCalculateModal.tsx`
+
+**C10 — building/**
+- [ ] `src/components/building/PowerHourlyChart.tsx` ← 중 (recharts hex → var(--chart-N))
+- [ ] `src/components/building/SensorChart.tsx` (차트 아님 — className만)
+- [ ] `src/components/building/ControlPanel.tsx` ← 중 (조건부 색상)
+- [ ] `src/components/building/PowerZoneBillingTable.tsx`
+- [ ] `src/components/building/PowerBillingCalculateModal.tsx`
+
+**C11 — meetingroom/**
+- [ ] `src/components/meetingroom/ReservationListTable.tsx` ← 중 (status 색상)
+- [ ] `src/components/meetingroom/ReservationDetailDrawer.tsx` ← 중 (status 색상)
+- [ ] `src/components/meetingroom/ZoneReservationCalendar.tsx`
+
+**C12 — nfccard/**
+- [ ] `src/components/nfccard/NfcCardListTable.tsx` ← 중 (29 하드코딩)
+- [ ] `src/components/nfccard/NfcCardIssueModal.tsx` ← 중 (status 색상)
+- [ ] `src/components/nfccard/NfcCardDetailDrawer.tsx` ← 중 (status 색상)
+
+**합계: 인프라 2 + 컴포넌트 52 = 54개 파일**
