@@ -64,3 +64,17 @@
 
 - 우선순위: 중 (현재 우회 코드로 동작 가능. 정식 엔드포인트 전환은 시드 ↔ 하드코딩 동기화 부담 해소 + 운영 환경 정합)
 - 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 3 (2026-05-15)
+
+---
+
+## [2026-05-15] 4. (중) ParkingManagement 차량/예약 UI 신설
+
+- 발생 맥락: SmartOffice-server 백엔드 수정 sprint 묶음 4 (#14 Vehicle + ParkingReservation 엔티티 신설) 완료 (2026-05-15)
+- 배경: 플랜 3-3 당시 백엔드 차량/예약 모델 부재로 ParkingManagement 의 차량 의존 코드(vehicles mock · 등록/상세 Dialog · 상태 변경 dropdown · 차량 stats 카드 3종)를 전체 제거했음. 백엔드 sprint 묶음 4 에서 옵션 A 채택으로 정식 모델 신설.
+- 신설된 백엔드 엔드포인트:
+  · 차량: POST/GET/GET{id}/PUT/DELETE /api/v1/vehicles (VehicleType STAFF|VISITOR, 응답 필드 vehicleId·plateNumber·ownerName·ownerUserId·ownerUserName·vehicleType·purpose)
+  · 주차 예약: POST/GET/GET{id}/PUT/DELETE /api/v1/parking/reservations (status RESERVED→PARKED→EXITED, 응답 필드 reservationId·vehicleId·vehiclePlateNumber·zoneId·zoneName·spotId·spotNumber·reservedAt·entryAt·exitAt)
+- 권장: src/features/vehicle/ + src/features/parking 의 reservation 관련 신설 → ParkingManagement 에 차량 등록/상세/예약 UI 복원 (기존 mock 패턴 재활용 가능). 차량 stats 카드 3종 복원 — 플랜 3-3 제거 당시: 등록 차량 / 입차 중 / 예약 대기 (정확 명칭은 git log 또는 본 통합 작업 PLAN_3_MASTER 3-3 참조).
+- 우선순위: 중 (현재 spot 관리만으로 동작 가능. 차량/예약 운영 기능 복원)
+- 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 4 (2026-05-15)
+- 추적 정합: PLAN_3_MASTER 9절 #8 마감 표기와 1:1 매핑. web sprint 진입 시 본 SUGGESTIONS #4 + 9절 #8 본문 동시 참조 권장.
