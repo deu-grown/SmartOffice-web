@@ -155,9 +155,9 @@ B 계열 19건 전부 정합 또는 의도적 미사용 판정. 묶음 2 skip, s
 | 4b | A3, M3 | ✅ 완료 (커밋 ee4303e) |
 | 4c | A5(zoneType 포함), M5 | ✅ 완료 (커밋 ee4303e) |
 | 5 | SUGGESTIONS #1·#2 | ✅ 완료 (커밋 98aec3b) |
-| 6a | A6, A7, M6, M7 | 미해결 |
-| 6b | A8, M8 | 미해결 |
-| 6c | A9, M9 | 미해결 |
+| 6a | A6, A7, M6, M7 | ✅ 완료 (커밋 4f58473) |
+| 6b | A8, M8 | ✅ 완료 (커밋 4f58473) |
+| 6c | A9, M9 | ✅ 완료 (커밋 4f58473) |
 | 7 | A10, M10 | 미해결 |
 
 ---
@@ -171,3 +171,4 @@ B 계열 19건 전부 정합 또는 의도적 미사용 판정. 묶음 2 skip, s
 | 2026-05-15 | 묶음 3 완료 — A1(`ApiResponse.errorCode` 추가 + `ApiError.errorCode` 추가), A2(`"ALLOW"` 제거), M1·M2(전체 핸들러 16개 errorCode 갱신). 커밋 94f0170. |
 | 2026-05-15 | 묶음 4a/4b/4c 완료 — A3(`zoneApi.detail`+`useZoneDetail` useQuery 교체), A4(`usePowerZones` 신설+POWER_ZONES_TEMP 완전 제거), A5(`useParkingZones` 신설+ParkingManagement 우회 제거), M3·M4·M5(MSW 핸들러 추가). 커밋 ee4303e. |
 | 2026-05-15 | 묶음 5 완료 — SUGGESTIONS #1(ZoneManagement 수정 모달에 parentId Select + clearParent 전송 추가), #2(access-log authResult ALLOW 제거 + Select 표시 라벨 수정). 커밋 98aec3b. |
+| 2026-05-15 | 묶음 6a/6b/6c 완료 — A6(vehicle CRUD UI), A7(parking-reservation UI), A8(guest domain 실 API 연동 + 사이드바 복구), A9(userPreferences 설정 페이지), M6~M9(MSW 핸들러 신설). 커밋 4f58473. |
