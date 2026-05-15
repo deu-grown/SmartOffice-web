@@ -4,6 +4,7 @@ import type { ParkingSpotsFilter } from "./types";
 
 export const parkingKeys = {
   all: ["parking"] as const,
+  zones: () => [...parkingKeys.all, "zones"] as const,
   spots: {
     all: () => [...parkingKeys.all, "spots"] as const,
     list: (filter?: ParkingSpotsFilter) =>

@@ -1,7 +1,6 @@
-// 구역 상세 - 전력 탭. 묶음 4 커밋 4.5: placeholder 제거 + 실제 차트/표 연결.
-// POWER 미터 보유 zone (POWER_ZONES_TEMP) 만 활성. 외 zone 은 '미보유' 안내.
+// 구역 상세 - 전력 탭. POWER 미터 보유 여부는 GET /power/zones 응답으로 동적 판단.
 import { Zap } from "lucide-react";
-import { POWER_ZONES_TEMP } from "@/src/features/power/constants";
+import { usePowerZones } from "@/src/features/power/hooks";
 import { PowerHourlyChart } from "@/src/components/building/PowerHourlyChart";
 import { PowerZoneBillingTable } from "@/src/components/building/PowerZoneBillingTable";
 
@@ -15,7 +14,8 @@ const CURRENT_MONTH = now.getMonth() + 1;
 
 export function ZonePowerTab({ zoneId }: ZonePowerTabProps) {
   const zoneIdNum = zoneId !== undefined ? Number(zoneId) : NaN;
-  const hasPowerMeter = !Number.isNaN(zoneIdNum) && POWER_ZONES_TEMP.some((p) => p.zoneId === zoneIdNum);
+  const { data: powerZones } = usePowerZones();
+  const hasPowerMeter = !Number.isNaN(zoneIdNum) && (powerZones ?? []).some((p) => p.zoneId === zoneIdNum);
 
   if (!hasPowerMeter) {
     return (
@@ -29,7 +29,7 @@ export function ZonePowerTab({ zoneId }: ZonePowerTabProps) {
             본 구역에는 전력 미터가 설치되어 있지 않습니다. 지원 zone:
           </p>
           <p className="text-[10px] text-gray-400 font-mono mt-2">
-            {POWER_ZONES_TEMP.map((p) => p.zoneName).join(" · ")}
+            {(powerZones ?? []).map((p) => p.zoneName).join(" · ")}
           </p>
         </div>
       </div>

@@ -1,6 +1,4 @@
-// 구역(zone) 도메인 REST API 호출.
-// 5 함수 (목록·트리·등록·수정·삭제). GET /{id} 엔드포인트는 백엔드 부재 — useZoneDetail(id) 는 useZones() find 우회.
-// 백엔드 채택 시 detail(id) 추가 후 hook 내부만 swap (queryKey 그대로). 9절 결함 #4 / BACKEND_SUGGESTIONS #10 참조.
+// 구역(zone) 도메인 REST API 호출. 목록·트리·단건·등록·수정·삭제 6 함수.
 import { apiDelete, apiGet, apiPost, apiPut } from "@/src/lib/api/client";
 
 import type {
@@ -19,6 +17,8 @@ export const zoneApi = {
     apiGet<ZoneListItem[]>("/zones", { params: filter }),
   /** 구역 트리 (재귀 children). 메뉴/계층 탐색 용도. */
   tree: () => apiGet<ZoneTreeNode[]>("/zones/tree"),
+  /** 구역 단건 조회. */
+  detail: (id: number) => apiGet<ZoneListItem>(`/zones/${id}`),
   /** 구역 등록. */
   create: (body: ZoneCreateRequest) =>
     apiPost<ZoneCreateResponse, ZoneCreateRequest>("/zones", body),

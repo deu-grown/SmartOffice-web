@@ -1,4 +1,4 @@
-// 주차(parking) 도메인 React Query 훅. mutation 성공 시 spots/zoneSummary/zoneMap 캐시 invalidate.
+// 주차(parking) 도메인 React Query 훅.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { parkingApi } from "./api";
@@ -8,6 +8,14 @@ import type {
   ParkingSpotUpdateRequest,
   ParkingSpotsFilter,
 } from "./types";
+
+/** 주차면 보유 구역 목록. */
+export function useParkingZones() {
+  return useQuery({
+    queryKey: parkingKeys.zones(),
+    queryFn: () => parkingApi.zones(),
+  });
+}
 
 /** 주차면 목록 (zoneId · spotType · status 필터). */
 export function useParkingSpots(filter?: ParkingSpotsFilter) {

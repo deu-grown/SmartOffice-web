@@ -2,8 +2,19 @@
 // SpotType: REGULAR|DISABLED|EV / SpotStatus: ACTIVE|INACTIVE.
 // 차량(Vehicle)/예약(Reservation) 모델은 백엔드 부재 — BACKEND_SUGGESTIONS #14 (저~중).
 
+import type { ZoneType } from "@/src/features/zone/types";
+
 export type SpotType = "REGULAR" | "DISABLED" | "EV";
 export type SpotStatus = "ACTIVE" | "INACTIVE";
+
+/** GET /api/v1/parking/zones 응답 항목 — 주차면 보유 구역 목록. */
+export interface ParkingZoneItem {
+  zoneId: number;
+  zoneName: string;
+  zoneType: ZoneType;
+  totalSpots: number;
+  occupiedSpots: number;
+}
 
 /** GET /api/v1/parking/spots · POST/PUT 응답 (1:1). */
 export interface ParkingSpotResponse {

@@ -1,5 +1,4 @@
-// 주차(parking) 도메인 REST API 호출 — cat 2 ADMIN 4종 + cat 5 공용 2종 통합 6 함수.
-// GET /spots 응답은 List<ParkingSpotResponse> 직반환 (PageResponse 아님).
+// 주차(parking) 도메인 REST API 호출. zones + spots CRUD + zone summary/map.
 import { apiDelete, apiGet, apiPost, apiPut } from "@/src/lib/api/client";
 
 import type {
@@ -7,11 +6,14 @@ import type {
   ParkingSpotResponse,
   ParkingSpotUpdateRequest,
   ParkingSpotsFilter,
+  ParkingZoneItem,
   ParkingZoneMapResponse,
   ParkingZoneSummaryResponse,
 } from "./types";
 
 export const parkingApi = {
+  /** 주차면 보유 구역 목록. */
+  zones: () => apiGet<ParkingZoneItem[]>("/parking/zones"),
   /** 주차면 목록 (zoneId · spotType · status 필터). */
   list: (filter?: ParkingSpotsFilter) =>
     apiGet<ParkingSpotResponse[]>("/parking/spots", { params: filter }),

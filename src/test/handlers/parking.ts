@@ -73,6 +73,24 @@ const spots: ParkingSpotResponse[] = [
 ];
 
 export const parkingHandlers = [
+  http.get("/api/v1/parking/zones", () => {
+    const zoneSpots = spots.filter((s) => s.zoneId === 8);
+    return HttpResponse.json({
+      code: "success",
+      errorCode: null,
+      message: "정상 조회되었습니다.",
+      data: [
+        {
+          zoneId: 8,
+          zoneName: "지하 1층 주차장",
+          zoneType: "FLOOR",
+          totalSpots: zoneSpots.length,
+          occupiedSpots: zoneSpots.filter((s) => s.occupied).length,
+        },
+      ],
+    });
+  }),
+
   http.get("/api/v1/parking/spots", ({ request }) => {
     const url = new URL(request.url);
     const zoneIdParam = url.searchParams.get("zoneId");

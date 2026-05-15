@@ -62,6 +62,30 @@ export const zoneHandlers = [
     })
   ),
 
+  http.get("/api/v1/zones/:id", ({ params }) => {
+    const id = Number(params.id);
+    const z = zones.find((zone) => zone.id === id);
+    if (!z) {
+      return HttpResponse.json(
+        { code: "error", errorCode: "ZONE_NOT_FOUND", message: "구역을 찾을 수 없습니다.", data: null },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json({
+      code: "success",
+      errorCode: null,
+      message: "정상 조회되었습니다.",
+      data: {
+        id: z.id,
+        name: z.name,
+        zoneType: z.zoneType,
+        parentId: z.parentId,
+        description: z.description,
+        createdAt: z.createdAt,
+      },
+    });
+  }),
+
   http.post("/api/v1/zones", async ({ request }) => {
     const body = (await request.json()) as { name: string; zoneType: ZoneType; parentId?: number | null; description?: string | null };
     const created: ZoneRow = {

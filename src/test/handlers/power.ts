@@ -1,15 +1,27 @@
-// 전력 도메인 MSW 핸들러. G2(current/billing) + G7(hourly/zoneBilling/calculate) 확장.
+// 전력 도메인 MSW 핸들러.
 import { http, HttpResponse } from "msw";
 
-// V7/V8 시드 기반 POWER 미터 보유 zone 이름 매핑. constants.ts 의 POWER_ZONES_TEMP 와 정합.
-const POWER_ZONE_NAMES: Record<number, string> = {
-  2: "회의실 A",
-  4: "회의실 B",
-  5: "개발팀 좌석",
-  7: "서버실",
-};
+// V7/V8 시드 기반 POWER 미터 보유 zone 고정 fixture.
+const POWER_ZONES = [
+  { zoneId: 2, zoneName: "회의실 A", meterCount: 2 },
+  { zoneId: 4, zoneName: "회의실 B", meterCount: 1 },
+  { zoneId: 5, zoneName: "개발팀 좌석", meterCount: 2 },
+  { zoneId: 7, zoneName: "서버실", meterCount: 1 },
+];
+const POWER_ZONE_NAMES: Record<number, string> = Object.fromEntries(
+  POWER_ZONES.map((z) => [z.zoneId, z.zoneName])
+);
 
 export const powerHandlers = [
+  http.get("/api/v1/power/zones", () =>
+    HttpResponse.json({
+      code: "success",
+      errorCode: null,
+      message: "정상 조회되었습니다.",
+      data: POWER_ZONES,
+    })
+  ),
+
   http.get("/api/v1/power/zones/:zoneId/current", ({ params }) => {
     const zoneId = Number(params.zoneId);
     return HttpResponse.json({
