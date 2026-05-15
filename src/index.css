@@ -1,172 +1,279 @@
+/* ════════════════════════════════════════════════════════════════════════
+ * SmartOffice-web · index.css · Tokens v2 (2026-05-16)
+ *   기반: 대안 A (모던 SaaS) · 차용: B의 body line-height 1.70 + radius-card-warm
+ *   변경: Pretendard 한글 폴백 / semantic 4쌍 / chart 5색 (chroma>0) / surface 3단 / shadow 2단
+ *   다크 모드 토큰은 파일 하단 TODO 블록 — 후속 작업
+ * ════════════════════════════════════════════════════════════════════════ */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 
 @custom-variant dark (&:is(.dark *));
 
+/* ════════════════════════════════════════════════════════════════════════
+ * 1. @THEME — Tailwind v4 토큰 매핑
+ *    여기에 선언된 --color-*, --radius-*, --shadow-*, --font-* 는
+ *    각각 bg-*, text-*, rounded-*, shadow-*, font-* 유틸리티로 자동 노출된다.
+ * ════════════════════════════════════════════════════════════════════════ */
 @theme inline {
+    /* ── Font ────────────────────────────────────────────────────── */
+    --font-sans: 'Pretendard Variable', 'Pretendard', system-ui, -apple-system, sans-serif;
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
+
+    /* ── shadcn 표준 토큰 (호환 유지) ────────────────────────────── */
     --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    /* ── Surface 3단 (신규) ──────────────────────────────────────── */
+    /*   bg-[#f8f9fa] · bg-white 직접 호출 추방용                    */
+    --color-canvas: var(--canvas);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+
+    /* ── Semantic 4쌍 (신규) ─────────────────────────────────────── */
+    /*   bg-orange-50 · text-red-500 · bg-green-100 직접 호출 추방용 */
+    --color-success: var(--success);
+    --color-success-bg: var(--success-bg);
+    --color-success-fg: var(--success-fg);
+    --color-warning: var(--warning);
+    --color-warning-bg: var(--warning-bg);
+    --color-warning-fg: var(--warning-fg);
+    --color-info: var(--info);
+    --color-info-bg: var(--info-bg);
+    --color-info-fg: var(--info-fg);
+    --color-error: var(--error);
+    --color-error-bg: var(--error-bg);
+    --color-error-fg: var(--error-fg);
+
+    /* ── Chart 5색 (재정의) ──────────────────────────────────────── */
+    /*   동일 L=0.62 · C=0.16 · hue 5등분 → 카테고리 구분 가능         */
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    /* ── Sidebar (shadcn 호환) ───────────────────────────────────── */
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* ── 확장 토큰 — preview.html 에서 사용, 정본에 추가 ────────── */
+    --color-foreground-soft: var(--foreground-soft);
+    --color-border-strong: var(--border-strong);
+
+    /* ── Radius — 8px 베이스 (모던 SaaS) ─────────────────────────── */
+    --radius-sm: calc(var(--radius) * 0.75);   /*  6 */
+    --radius-md: var(--radius);                /*  8 */
+    --radius-lg: calc(var(--radius) * 1.5);    /* 12 */
+    --radius-xl: calc(var(--radius) * 2);      /* 16 */
+    --radius-2xl: calc(var(--radius) * 2.5);   /* 20 */
+    --radius-3xl: calc(var(--radius) * 3);     /* 24 */
+    --radius-4xl: calc(var(--radius) * 4);     /* 32 — 기존 rounded-[32px] 흡수용 */
+
+    /* ── 카드 라운드 — 도메인별 토큰 ─────────────────────────────── */
+    /*   기본 카드는 --radius-card (12px)                              */
+    /*   인사(personnel) · 회의실(meetingroom) 도메인은              */
+    /*   --radius-card-warm (16px) 사용 → B 톤 부분 차용              */
+    --radius-card: var(--radius-lg);           /* 12 */
+    --radius-card-warm: var(--radius-xl);      /* 16 — personnel · meetingroom */
+
+    /* ── Shadow 2단 (신규) ───────────────────────────────────────── */
+    --shadow-card: 0 1px 2px 0 oklch(0.20 0.02 255 / 0.04), 0 1px 1px 0 oklch(0.20 0.02 255 / 0.03);
+    --shadow-action: 0 1px 2px 0 oklch(0.30 0.18 258 / 0.18);
+    --shadow-overlay: 0 16px 48px -12px oklch(0.20 0.02 255 / 0.25);
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+ * 2. :ROOT — 토큰 실값 (라이트 모드)
+ * ════════════════════════════════════════════════════════════════════════ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    /* ── Surface ─────────────────────────────────────────────────── */
+    --canvas:    oklch(0.985 0.003 250);   /* 페이지 배경 — 기존 #f8f9fa 대체 */
+    --surface:   oklch(1.000 0.000 0);     /* 카드 · 모달 · 사이드바 표면 */
+    --surface-2: oklch(0.975 0.004 250);   /* nested · muted · 표 row alt */
+
+    /* ── shadcn 매핑 ─────────────────────────────────────────────── */
+    --background: var(--canvas);
+    --foreground: oklch(0.205 0.014 255);
+    --card: var(--surface);
+    --card-foreground: var(--foreground);
+    --popover: var(--surface);
+    --popover-foreground: var(--foreground);
+    --primary: oklch(0.555 0.180 258);          /* blue 258° */
+    --primary-foreground: oklch(1 0 0);
+    --secondary: var(--surface-2);
+    --secondary-foreground: var(--foreground);
+    --muted: var(--surface-2);
+    --muted-foreground: oklch(0.555 0.010 255);
+    --accent: var(--surface-2);
+    --accent-foreground: var(--foreground);
+    --destructive: var(--error);                /* error 의 alias */
+    --border: oklch(0.918 0.006 250);
+    --input: oklch(0.918 0.006 250);
+    --ring: oklch(0.555 0.180 258 / 18%);
+
+    /* ── 확장 토큰 — preview.html 에서 사용 ─────────────────────── */
+    --foreground-soft: oklch(0.355 0.012 255); /* 준-전경 — 서브 텍스트 강조 */
+    --border-strong: oklch(0.875 0.008 250);   /* 강조 테두리 — 구분선 */
+
+    /* ── Semantic ────────────────────────────────────────────────── */
+    --success:    oklch(0.555 0.140 152);
+    --success-bg: oklch(0.950 0.040 152);
+    --success-fg: oklch(0.480 0.130 152);
+    --warning:    oklch(0.700 0.150 75);
+    --warning-bg: oklch(0.960 0.050 90);
+    --warning-fg: oklch(0.500 0.130 75);
+    --info:       oklch(0.600 0.160 230);
+    --info-bg:    oklch(0.955 0.030 230);
+    --info-fg:    oklch(0.500 0.140 230);
+    --error:      oklch(0.580 0.220 25);
+    --error-bg:   oklch(0.960 0.040 25);
+    --error-fg:   oklch(0.500 0.180 25);
+
+    /* ── Chart (L=.62, C=.16, hue 5등분) ─────────────────────────── */
+    --chart-1: oklch(0.62 0.16 258);            /* blue       */
+    --chart-2: oklch(0.62 0.16 178);            /* teal-cyan  */
+    --chart-3: oklch(0.62 0.16 138);            /* green      */
+    --chart-4: oklch(0.62 0.16  60);            /* amber      */
+    --chart-5: oklch(0.62 0.16 348);            /* pink-red   */
+
+    /* ── Sidebar ─────────────────────────────────────────────────── */
+    --sidebar: var(--surface);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--surface-2);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+
+    /* ── Radius base ─────────────────────────────────────────────── */
+    --radius: 0.5rem;                           /* 8px — 모던 SaaS */
+
+    /* ── Typography (한국어 가독성) ──────────────────────────────── */
+    /*   line-height body 는 B 안에서 차용한 1.70                    */
+    --leading-body: 1.70;
+    --leading-heading: 1.35;
+    --tracking-base: 0;                         /* 음수 자간 금지 */
+
+    /* ── Button — 한글-영문 길이 차 흡수용 좌우 패딩 (B 차용) ────── */
+    --btn-px: 22px;
+    --btn-py: 12px;
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-}
+/* ════════════════════════════════════════════════════════════════════════
+ * 3. DARK MODE — TODO (후속 작업)
+ *    토글 인프라(next-themes · ThemeProvider · TopBar 토글 · uiStore.themeMode)
+ *    도입과 함께 별도 커밋에서 작성한다.
+ *    .dark {
+ *      --canvas:    oklch(0.165 0.008 255);
+ *      --surface:   oklch(0.205 0.009 255);
+ *      --surface-2: oklch(0.245 0.010 255);
+ *      ...
+ *    }
+ * ════════════════════════════════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════════════════════════════════
+ * 4. BASE — 한국어 가독성 디폴트
+ * ════════════════════════════════════════════════════════════════════════ */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
+        letter-spacing: var(--tracking-base);   /* 한글: 음수 자간 절대 금지 */
     }
-  body {
-    @apply bg-background text-foreground;
+    html {
+        @apply font-sans;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
-  html {
-    @apply font-sans;
+    body {
+        @apply bg-canvas text-foreground;
+        font-size: 15px;                        /* 한글 본문 기준 15px */
+        line-height: var(--leading-body);       /* 1.70 — 종성 받침 호흡 */
+        word-break: keep-all;                   /* 한글: 글자 단위 줄바꿈 방지 */
+        overflow-wrap: break-word;              /* URL·이메일 등 끊을 수 없는 긴 문자열은 예외 허용 */
+    }
+    h1, h2, h3, h4, h5, h6 {
+        line-height: var(--leading-heading);    /* 1.35 — heading 호흡 */
+        letter-spacing: 0;                      /* tracking-tight 금지 */
+    }
+    /* 숫자 컬럼은 tabular-nums 권장 — KPI · 시각 · 카운터 */
+    .tnum, [data-tnum] {
+        font-variant-numeric: tabular-nums;
     }
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+ * 5. UTILITIES — 페이지에서 직접 호출되는 유틸리티
+ * ════════════════════════════════════════════════════════════════════════ */
 @layer utilities {
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.2);
-  }
+    /* 사이드바 · 메인 스크롤 영역에서 사용 */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: oklch(0 0 0 / 0.1);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: oklch(0 0 0 / 0.2);
+    }
 }
 
-/*
- * 페이지 공통 타이포 토큰.
- * 기존 코드는 "text-5xl font-bold tracking-tight mb-2 text-gray-900" 같은 동일 패턴을
- * 페이지마다 반복 작성해 일관성 유지가 어려웠다. 점진적으로 아래 클래스로 교체할 것.
- */
-@layer components {
-  .heading-page {
-    @apply text-5xl font-bold tracking-tight mb-2 text-gray-900;
-  }
-  .heading-section {
-    @apply text-3xl font-bold tracking-tight text-gray-900;
-  }
-  .heading-card {
-    @apply text-xl font-bold tracking-tight text-gray-900;
-  }
-  .text-subtitle {
-    @apply text-gray-500 text-lg font-medium;
-  }
-  .text-body-sm {
-    @apply text-sm text-gray-600;
-  }
-  .text-caption {
-    @apply text-xs text-gray-400;
-  }
-}
+/* ════════════════════════════════════════════════════════════════════════
+ * 6. COMPONENT TOKENS — 정리 안내
+ *
+ *   .heading-page · .heading-section · .heading-card ·
+ *   .text-subtitle · .text-body-sm · .text-caption
+ *   → 사문화된 클래스 전부 제거됨.
+ *   → 후속 작업에서 <PageHeader title subtitle /> 컴포넌트로 이관할 것.
+ *      (App.tsx Routes inline header 5곳 + IntegratedDashboard 등 흡수)
+ *
+ *   카드 컨테이너 라운드:
+ *   → 일반: rounded-card     (12px)
+ *   → 인사 · 회의실: rounded-card-warm (16px)
+ *
+ *   하드코딩 추방 가이드:
+ *     bg-[#f8f9fa]   →  bg-canvas
+ *     bg-white       →  bg-surface
+ *     bg-gray-50     →  bg-surface-2
+ *     text-gray-500  →  text-muted-foreground
+ *     text-gray-900  →  text-foreground
+ *     bg-orange-50   →  bg-warning-bg
+ *     text-orange-500 → text-warning-fg
+ *     bg-blue-50     →  bg-info-bg
+ *     text-blue-500  →  text-info-fg
+ *     bg-green-50    →  bg-success-bg
+ *     text-green-500 →  text-success-fg
+ *     text-red-500   →  text-error-fg  (또는 text-destructive)
+ *     bg-black       →  bg-primary
+ *     rounded-[32px] →  rounded-4xl   (혹은 카드: rounded-card)
+ *     shadow-sm      →  shadow-card
+ * ════════════════════════════════════════════════════════════════════════ */
