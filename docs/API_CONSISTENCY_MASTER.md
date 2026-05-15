@@ -49,7 +49,7 @@
 | A7 | parking | ALL /parking/reservations | NEW_ENDPOINT | `/api/v1/parking/reservations` CRUD 신설 (PR #28). status: RESERVED→PARKED→EXITED. 필드: reservationId, vehicleId, vehiclePlateNumber, zoneId, zoneName, spotId, spotNumber, reservedAt, entryAt, exitAt | `src/features/parking/` 에 reservation 관련 코드 미존재 | web | 6a | 미해결 |
 | A8 | guest | ALL /guests | NEW_ENDPOINT | `/api/v1/guests` CRUD + check-in/out 신설 (PR #28). GuestStatus: SCHEDULED/VISITING/COMPLETED/CANCELLED | `src/features/guest/` 미존재, 메뉴·라우트 비활성 | web | 6b | 미해결 |
 | A9 | user | GET/PUT /users/me/preferences | NEW_ENDPOINT | `/api/v1/users/me/preferences` GET/PUT 신설 (PR #28). curl 확인 필드: `{userId, notificationsEnabled, language, theme, pushToken, updatedAt}` — id 없음, createdAt 없음 | `src/features/userPreferences/` 미존재, 설정 페이지 placeholder | web | 6c | 미해결 |
-| A10 | auth | POST /auth/refresh | NEW_ENDPOINT(관련) | 백엔드가 login 시 `Set-Cookie: refreshToken` httpOnly 쿠키로 발급 (PR #28). refresh는 쿠키 우선·body 폴백 | web `withCredentials` 미설정, localStorage refresh 방식 유지 | web | 7 | 미해결 |
+| A10 | auth | POST /auth/refresh | NEW_ENDPOINT(관련) | 백엔드가 login 시 `Set-Cookie: refreshToken` httpOnly 쿠키로 발급 (PR #28). refresh는 쿠키 우선·body 폴백 | web `withCredentials` 미설정, localStorage refresh 방식 유지 | web | 7 | 해결+커밋(2957100) |
 
 ---
 
@@ -87,7 +87,7 @@
 
 | # | 도메인 | METHOD /path | 사유 |
 |---|--------|-------------|------|
-| C1 | auth | POST /auth/logout (with cookie) | 묶음 7 전환 후 적용 — 현재 body 폴백 동작 중 |
+| C1 | auth | POST /auth/logout (with cookie) | withCredentials 묶음 7 적용 완료 — logout POST 시 쿠키 자동 전송 |
 | C2 | user | GET /users/me | USER 앱 전용 |
 | C3 | user | POST /users/me | USER 앱 전용 |
 | C4 | attendance | GET /attendance/me/daily, /me/monthly | USER 앱 전용 |
@@ -121,7 +121,7 @@
 | M7 | parking | parking.ts — parking-reservation CRUD 핸들러 추가 | 6a |
 | M8 | guest | guest.ts 신설 | 6b |
 | M9 | userPreferences | userPreferences.ts 신설 | 6c |
-| M10 | auth | auth.ts — refresh 핸들러 무바디 수용 | 7 |
+| M10 | auth | auth.ts — refresh 핸들러 무바디 수용 | 7 (완료) |
 
 ---
 
@@ -158,7 +158,7 @@ B 계열 19건 전부 정합 또는 의도적 미사용 판정. 묶음 2 skip, s
 | 6a | A6, A7, M6, M7 | ✅ 완료 (커밋 4f58473) |
 | 6b | A8, M8 | ✅ 완료 (커밋 4f58473) |
 | 6c | A9, M9 | ✅ 완료 (커밋 4f58473) |
-| 7 | A10, M10 | 미해결 |
+| 7 | A10, M10 | ✅ 완료 (커밋 2957100) |
 
 ---
 
@@ -172,3 +172,4 @@ B 계열 19건 전부 정합 또는 의도적 미사용 판정. 묶음 2 skip, s
 | 2026-05-15 | 묶음 4a/4b/4c 완료 — A3(`zoneApi.detail`+`useZoneDetail` useQuery 교체), A4(`usePowerZones` 신설+POWER_ZONES_TEMP 완전 제거), A5(`useParkingZones` 신설+ParkingManagement 우회 제거), M3·M4·M5(MSW 핸들러 추가). 커밋 ee4303e. |
 | 2026-05-15 | 묶음 5 완료 — SUGGESTIONS #1(ZoneManagement 수정 모달에 parentId Select + clearParent 전송 추가), #2(access-log authResult ALLOW 제거 + Select 표시 라벨 수정). 커밋 98aec3b. |
 | 2026-05-15 | 묶음 6a/6b/6c 완료 — A6(vehicle CRUD UI), A7(parking-reservation UI), A8(guest domain 실 API 연동 + 사이드바 복구), A9(userPreferences 설정 페이지), M6~M9(MSW 핸들러 신설). 커밋 4f58473. |
+| 2026-05-15 | 묶음 7 완료 — A10(axios.create withCredentials:true, refreshAccessToken 쿠키 우선·body 폴백, 로그인 401 refresh 제외), M10(MSW refresh 핸들러 무바디 수용). 커밋 2957100. |
