@@ -50,7 +50,7 @@ src/
     paths.ts                    # ROUTES 상수 + TAB_TO_PATH / PATH_TO_TAB 매핑
     guards.tsx                  # PrivateRoute / AdminRoute / PublicOnlyRoute
 
-  features/                       # 도메인 19종: auth · user · department · attendance · accesslog · zone · device · dashboard · power · sensor · control · salary · asset · parking · reservation · nfccard · guest · vehicle · userPreferences
+  features/                       # 도메인 18종: auth · user · department · attendance · accesslog · zone · device · dashboard · power · sensor · control · salary · asset · parking · reservation · nfccard · guest · vehicle
     {domain}/
       types.ts                    # 백엔드 DTO 1:1 영문 필드 매핑 (web+모바일 공용 응답도 DTO 1:1)
       api.ts                      # apiClient 호출 함수 집합 (한 함수 = 한 엔드포인트)

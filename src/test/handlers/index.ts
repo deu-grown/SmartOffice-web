@@ -11,7 +11,6 @@ import { departmentHandlers } from "./department";
 import { deviceHandlers } from "./device";
 import { guestHandlers } from "./guest";
 import { nfcCardHandlers } from "./nfccard";
-import { userPreferencesHandlers } from "./userPreferences";
 import { vehicleHandlers } from "./vehicle";
 import { parkingHandlers } from "./parking";
 import { powerHandlers } from "./power";
@@ -39,6 +38,5 @@ export const handlers: HttpHandler[] = [
   ...reservationHandlers,
   ...guestHandlers,
   ...vehicleHandlers,
-  ...userPreferencesHandlers,
   ...nfcCardHandlers,
 ];

@@ -16,7 +16,6 @@ export const ROUTES = {
   BUILDING: "/building",
   MEETING_ROOMS: "/meeting-rooms",
   NFC_CARDS: "/nfc-cards",
-  SETTINGS: "/settings",
 } as const;
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];
@@ -34,7 +33,6 @@ export const TAB_TO_PATH: Record<TabType, string> = {
   "주차 관리": ROUTES.PARKING,
   "회의실 관리": ROUTES.MEETING_ROOMS,
   "NFC 카드 관리": ROUTES.NFC_CARDS,
-  "시스템 설정": ROUTES.SETTINGS,
 };
 
 export const PATH_TO_TAB: Record<string, TabType> = Object.fromEntries(

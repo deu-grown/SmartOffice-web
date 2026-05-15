@@ -20,7 +20,6 @@ import { InventoryManagement } from "./components/dashboard/InventoryManagement"
 import { MeetingRoomManagement } from "./components/dashboard/MeetingRoomManagement";
 import { NfcCardManagement } from "./components/dashboard/NfcCardManagement";
 import { GuestTable } from "./components/dashboard/GuestTable";
-import { SettingsManagement } from "./components/dashboard/SettingsManagement";
 
 import { useAuthStore } from "./stores/authStore";
 import { useUIStore } from "./stores/uiStore";
@@ -215,7 +214,6 @@ export default function App() {
                 <Route path="guest" element={<GuestTable />} />
                 <Route path="meeting-rooms" element={<MeetingRoomManagement />} />
                 <Route path="nfc-cards" element={<NfcCardManagement />} />
-                <Route path="settings" element={<SettingsManagement />} />
                 <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
               </Routes>
             </motion.div>
