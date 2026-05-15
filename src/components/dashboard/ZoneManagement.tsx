@@ -51,10 +51,17 @@ export function ZoneManagement() {
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState<ZoneType>("ROOM");
   const [editDescription, setEditDescription] = useState("");
+  const [editParentId, setEditParentId] = useState<number | null>(null);
 
   const selectedZone = useMemo(
     () => (selectedZoneId !== null ? allZones.find((z) => z.id === selectedZoneId) : undefined),
     [allZones, selectedZoneId]
+  );
+
+  // 수정 모달에서 선택 가능한 부모 구역 — FLOOR/AREA 한정, 자신 제외.
+  const parentableZones = useMemo(
+    () => allZones.filter((z) => (z.zoneType === "FLOOR" || z.zoneType === "AREA") && z.id !== selectedZone?.id),
+    [allZones, selectedZone]
   );
 
   const openAddModal = () => {
@@ -101,6 +108,7 @@ export function ZoneManagement() {
     setEditName(selectedZone.name);
     setEditType(selectedZone.zoneType);
     setEditDescription(selectedZone.description ?? "");
+    setEditParentId(selectedZone.parentId ?? null);
     setIsEditOpen(true);
   };
 
@@ -116,6 +124,8 @@ export function ZoneManagement() {
         body: {
           name: editName.trim(),
           zoneType: editType,
+          parentId: editParentId,
+          clearParent: editParentId === null,
           description: editDescription.trim() || null,
         },
       },
@@ -271,6 +281,30 @@ export function ZoneManagement() {
                     {ZONE_TYPES.map((t) => (
                       <SelectItem key={t} value={t}>
                         {zoneTypeLabel(t)} ({t})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-400 ml-1">상위 구역</label>
+                <Select
+                  value={editParentId === null ? "none" : String(editParentId)}
+                  onValueChange={(v) => setEditParentId(v === "none" ? null : Number(v))}
+                >
+                  <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-base font-bold">
+                    {/* SelectValue 가 raw value 노출하는 결함 회피 — 명시 라벨 렌더. */}
+                    <span>
+                      {editParentId === null
+                        ? "없음 (최상위)"
+                        : (parentableZones.find((z) => z.id === editParentId)?.name ?? "알 수 없음")}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">없음 (최상위)</SelectItem>
+                    {parentableZones.map((z) => (
+                      <SelectItem key={z.id} value={String(z.id)}>
+                        {z.name} ({zoneTypeLabel(z.zoneType)})
                       </SelectItem>
                     ))}
                   </SelectContent>
