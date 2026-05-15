@@ -1,5 +1,4 @@
 // 구역(zone) 도메인 React Query 훅. mutation 성공 시 list/tree/detail 캐시 invalidate.
-import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { zoneApi } from "./api";
@@ -22,22 +21,13 @@ export function useZoneTree() {
   });
 }
 
-/** 구역 상세.
- *  TODO[BACKEND_SUGGESTIONS #10]: GET /api/v1/zones/{id} 도입 시 useQuery 로 swap
- *  (queryKey 는 zoneKeys.detail(id) 그대로 유지). 현재는 useZones() list 응답에서 find. */
+/** 구역 단건 상세 조회. id 미지정 시 비활성. */
 export function useZoneDetail(id: number | undefined) {
-  const listQuery = useZones();
-  const detail = useMemo(
-    () => (typeof id === "number" && listQuery.data ? listQuery.data.find((z) => z.id === id) : undefined),
-    [id, listQuery.data]
-  );
-  return {
-    data: detail,
-    isLoading: listQuery.isLoading,
-    isError: listQuery.isError,
-    error: listQuery.error,
-    isFetching: listQuery.isFetching,
-  };
+  return useQuery({
+    queryKey: zoneKeys.detail(id ?? -1),
+    queryFn: () => zoneApi.detail(id as number),
+    enabled: typeof id === "number" && id > 0,
+  });
 }
 
 /** 구역 등록. */

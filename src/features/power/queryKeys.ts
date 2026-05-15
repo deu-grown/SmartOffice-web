@@ -1,8 +1,9 @@
-// 전력 도메인 TanStack Query 키 factory. G2(current/billing) + G7(hourly/zoneBilling) 확장.
+// 전력 도메인 TanStack Query 키 factory.
 import type { PowerBillingQuery, PowerBillingZoneQuery, PowerHourlyQuery } from "./types";
 
 export const powerKeys = {
   all: ["power"] as const,
+  zones: () => [...powerKeys.all, "zones"] as const,
   current: (zoneId: number) => [...powerKeys.all, "current", zoneId] as const,
   billing: (query?: PowerBillingQuery) =>
     [...powerKeys.all, "billing", query ?? {}] as const,

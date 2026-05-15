@@ -1,4 +1,4 @@
-// 전력 도메인 React Query 훅. G2(current/billing) + G7(hourly/zoneBilling/calculate) 확장.
+// 전력 도메인 React Query 훅.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { powerApi } from "./api";
@@ -9,6 +9,14 @@ import type {
   PowerBillingZoneQuery,
   PowerHourlyQuery,
 } from "./types";
+
+/** POWER 미터가 설치된 구역 목록. */
+export function usePowerZones() {
+  return useQuery({
+    queryKey: powerKeys.zones(),
+    queryFn: () => powerApi.getZones(),
+  });
+}
 
 /** 구역별 실시간 전력 현황. zoneId 미지정 시 비활성. */
 export function usePowerCurrent(zoneId: number | undefined) {

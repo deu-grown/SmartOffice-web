@@ -26,6 +26,7 @@ export const sensorHandlers = [
     const filtered = sensorLogs.filter((s) => s.zoneId === zoneId);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "최신 센서 데이터 조회가 완료되었습니다.",
       data: {
         searchQuery: { zoneId },
@@ -43,6 +44,7 @@ export const sensorHandlers = [
     const filtered = sensorLogs.filter((s) => s.zoneId === zoneId);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "센서 로그 이력 조회가 완료되었습니다.",
       data: {
         searchQuery: { zoneId, period: `${startDate} ~ ${endDate}` },

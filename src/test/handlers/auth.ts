@@ -16,6 +16,7 @@ export const authHandlers = [
     if (body.email === "admin@grown.com" && body.password === "EMP001") {
       return HttpResponse.json({
         code: "success",
+        errorCode: null,
         message: "로그인에 성공했습니다.",
         data: {
           accessToken: "mock-access-token",
@@ -29,6 +30,7 @@ export const authHandlers = [
     return HttpResponse.json(
       {
         code: "error",
+        errorCode: "INVALID_CREDENTIALS",
         message: "이메일 또는 비밀번호가 일치하지 않습니다.",
         data: null,
       },
@@ -39,6 +41,7 @@ export const authHandlers = [
   http.get("/api/v1/auth/me", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         id: 1,
@@ -56,15 +59,16 @@ export const authHandlers = [
   ),
 
   http.post("/api/v1/auth/refresh", async ({ request }) => {
-    const body = (await request.json()) as { refreshToken?: string };
-    if (!body.refreshToken) {
-      return HttpResponse.json(
-        { code: "error", message: "refreshToken은 필수입니다.", data: null },
-        { status: 400 },
-      );
+    // 쿠키 우선·body 폴백 정책(백엔드 PR #28) 반영: body 없는 요청(쿠키 방식)도 수용.
+    // MSW 테스트 환경에서는 httpOnly 쿠키를 시뮬레이션하지 않으므로 body 유무와 무관하게 성공 응답.
+    try {
+      await request.json();
+    } catch {
+      // body 없음 — 쿠키 방식 요청, 정상
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "토큰이 재발급되었습니다.",
       data: {
         accessToken: "new-mock-access-token",
@@ -77,6 +81,7 @@ export const authHandlers = [
   http.post("/api/v1/auth/logout", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "로그아웃 되었습니다.",
       data: null,
     }),

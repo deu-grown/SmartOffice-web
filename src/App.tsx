@@ -19,6 +19,7 @@ import { ParkingManagement } from "./components/dashboard/ParkingManagement";
 import { InventoryManagement } from "./components/dashboard/InventoryManagement";
 import { MeetingRoomManagement } from "./components/dashboard/MeetingRoomManagement";
 import { NfcCardManagement } from "./components/dashboard/NfcCardManagement";
+import { GuestTable } from "./components/dashboard/GuestTable";
 
 import { useAuthStore } from "./stores/authStore";
 import { useUIStore } from "./stores/uiStore";
@@ -27,22 +28,7 @@ import type { TabType } from "./types";
 
 // 플랜 3-2 묶음 2 (커밋 2.2) 에서 zone 도메인이 features/zone 으로 마이그레이션됨에 따라
 // initialRooms / rooms / setRooms / roomsSnapshot / hasUnsavedZoneChanges 등 mock 상태는 본 파일에서 제거.
-// 잔존 mock 상태(buildingLocks/buildingSettings) 는 G7 묶음 4 에서 정리 예정.
-
-// GuestTable 컴포넌트가 import 하는 타입. 본 작업 범위 내에서는 시그니처 그대로 유지한다.
-export interface Guest {
-  id: string;
-  name: string;
-  company: string;
-  host: string;
-  details: string;
-  status: "방문중" | "출입 전" | "방문완료";
-  entryTime: string;
-  exitTime: string;
-  date: string;
-}
-
-// 게스트 페이지는 현재 사이드바에서 임시 숨김. Guest 인터페이스는 GuestTable.tsx 가 참조.
+// 묶음 6b: Guest mock 인터페이스 + mock 상태 제거 완료. features/guest 실 API 연동.
 
 function ComingSoon({ title, onBack }: { title: string; onBack: () => void }) {
   return (
@@ -225,16 +211,9 @@ export default function App() {
                     </div>
                   }
                 />
-                {/* 게스트 페이지는 백엔드 도메인 미구현으로 임시 숨김. URL 직접 진입 시 대시보드로 리다이렉트. */}
-                <Route path="guest" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+                <Route path="guest" element={<GuestTable />} />
                 <Route path="meeting-rooms" element={<MeetingRoomManagement />} />
                 <Route path="nfc-cards" element={<NfcCardManagement />} />
-                <Route
-                  path="settings"
-                  element={
-                    <ComingSoon title="시스템 설정" onBack={() => navigate(ROUTES.DASHBOARD)} />
-                  }
-                />
                 <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
               </Routes>
             </motion.div>

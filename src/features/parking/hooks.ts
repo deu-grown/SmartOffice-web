@@ -1,13 +1,23 @@
-// 주차(parking) 도메인 React Query 훅. mutation 성공 시 spots/zoneSummary/zoneMap 캐시 invalidate.
+// 주차(parking) 도메인 React Query 훅.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { parkingApi } from "./api";
 import { parkingKeys } from "./queryKeys";
 import type {
+  ParkingReservationCreateRequest,
+  ParkingReservationFilter,
   ParkingSpotCreateRequest,
   ParkingSpotUpdateRequest,
   ParkingSpotsFilter,
 } from "./types";
+
+/** 주차면 보유 구역 목록. */
+export function useParkingZones() {
+  return useQuery({
+    queryKey: parkingKeys.zones(),
+    queryFn: () => parkingApi.zones(),
+  });
+}
 
 /** 주차면 목록 (zoneId · spotType · status 필터). */
 export function useParkingSpots(filter?: ParkingSpotsFilter) {
@@ -63,6 +73,36 @@ export function useDeleteSpot() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => parkingApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: parkingKeys.all });
+    },
+  });
+}
+
+/** 주차 예약 목록. */
+export function useParkingReservations(filter?: ParkingReservationFilter) {
+  return useQuery({
+    queryKey: parkingKeys.reservations(filter),
+    queryFn: () => parkingApi.reservations(filter),
+  });
+}
+
+/** 주차 예약 등록. */
+export function useCreateReservation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ParkingReservationCreateRequest) => parkingApi.createReservation(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: parkingKeys.all });
+    },
+  });
+}
+
+/** 주차 예약 취소. */
+export function useDeleteReservation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => parkingApi.removeReservation(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: parkingKeys.all });
     },

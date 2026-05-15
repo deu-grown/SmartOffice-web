@@ -6,6 +6,7 @@ export type ApiResponseCode = "success" | "error";
 
 export interface ApiResponse<T> {
   code: ApiResponseCode;
+  errorCode: string | null;
   message: string;
   data: T;
 }
@@ -23,11 +24,13 @@ export interface PageResponse<T> {
 export class ApiError extends Error {
   readonly status: number;
   readonly serverMessage: string;
+  readonly errorCode: string | null;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, errorCode: string | null = null) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.serverMessage = message;
+    this.errorCode = errorCode;
   }
 }

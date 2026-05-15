@@ -68,6 +68,7 @@ export const attendanceHandlers = [
     const totalPages = Math.max(Math.ceil(totalElements / size), 1);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         content: filtered.slice(page * size, (page + 1) * size),
@@ -90,7 +91,7 @@ export const attendanceHandlers = [
     const target = rows.find((r) => r.attendanceId === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "근태 기록을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "ATTENDANCE_NOT_FOUND", message: "근태 기록을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -99,6 +100,7 @@ export const attendanceHandlers = [
     if (body.note !== undefined) target.attendanceNote = body.note;
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "근태 정보가 수정되었습니다.",
       data: null,
     });
@@ -108,13 +110,14 @@ export const attendanceHandlers = [
     const body = (await request.json()) as { targetDate: string };
     if (!body.targetDate) {
       return HttpResponse.json(
-        { code: "error", message: "targetDate 는 필수입니다.", data: null },
+        { code: "error", errorCode: "MISSING_REQUIRED_FIELD", message: "targetDate 는 필수입니다.", data: null },
         { status: 400 },
       );
     }
     // 처리 건수 — rows 길이로 모방.
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "배치가 완료되었습니다.",
       data: rows.length,
     });

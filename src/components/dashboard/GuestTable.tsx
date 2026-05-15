@@ -1,403 +1,399 @@
-import React, { useState, useMemo } from "react";
-import { Search, X, ChevronDown, Users, Edit2, Trash2, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
+// 방문객 관리 페이지 — features/guest 실 API 연동. mock 전면 제거.
+// 사이드바 메뉴 복구 완료 (백엔드 sprint 묶음 5 #1 guest 도메인 신설).
+import { useState } from "react";
+import { motion } from "motion/react";
+import {
+  Search,
+  UserPlus,
+  ChevronLeft,
+  ChevronRight,
+  LogIn,
+  LogOut,
+  Trash2,
+  Users,
+  Clock,
+  CheckCircle2,
+} from "lucide-react";
+import { toast } from "sonner";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Guest } from "../../App";
 
-interface GuestTableProps {
-  guests: Guest[];
-  setGuests: React.Dispatch<React.SetStateAction<Guest[]>>;
-  onAddGuest?: (guest: Guest) => void;
-}
+import {
+  useCheckInGuest,
+  useCheckOutGuest,
+  useCreateGuest,
+  useDeleteGuest,
+  useGuests,
+} from "@/src/features/guest/hooks";
+import type { GuestFilter, GuestStatus } from "@/src/features/guest/types";
 
-const ITEMS_PER_PAGE = 10;
+const PAGE_SIZE = 10;
 
-export function GuestTable({ guests, setGuests, onAddGuest }: GuestTableProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+const STATUS_OPTIONS: { value: "all" | GuestStatus; label: string }[] = [
+  { value: "all", label: "전체" },
+  { value: "SCHEDULED", label: "방문 예정" },
+  { value: "VISITING", label: "방문 중" },
+  { value: "COMPLETED", label: "방문 완료" },
+  { value: "CANCELLED", label: "취소됨" },
+];
 
-  const filteredGuests = useMemo(() => {
-    return guests.filter(g => 
-      g.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      g.company.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      g.host.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [guests, searchTerm]);
+const STATUS_STYLE: Record<GuestStatus, { label: string; className: string }> = {
+  SCHEDULED: { label: "방문 예정", className: "bg-orange-500/10 text-orange-600" },
+  VISITING: { label: "방문 중", className: "bg-green-500/10 text-green-600" },
+  COMPLETED: { label: "방문 완료", className: "bg-blue-500/10 text-blue-600" },
+  CANCELLED: { label: "취소됨", className: "bg-gray-100 text-gray-400" },
+};
 
-  const totalPages = Math.max(Math.ceil(filteredGuests.length / ITEMS_PER_PAGE), 1);
-  const paginatedGuests = filteredGuests.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+export function GuestTable() {
+  const [keyword, setKeyword] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | GuestStatus>("all");
+  const [page, setPage] = useState(0);
 
-  // Reset to first page when search changes
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
+  // 등록 모달 상태
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [addName, setAddName] = useState("");
+  const [addCompany, setAddCompany] = useState("");
+  const [addPurpose, setAddPurpose] = useState("");
+  const [addPhone, setAddPhone] = useState("");
+  const [addHostId, setAddHostId] = useState("");
+  const [addScheduled, setAddScheduled] = useState("");
 
-  const handleDelete = (id: string, name: string) => {
-    setGuests(prev => prev.filter(g => g.id !== id));
-    toast.success(`${name} 게스트 정보가 완전히 삭제되었습니다.`);
+  const filter: GuestFilter = {
+    ...(statusFilter !== "all" && { status: statusFilter }),
+    ...(keyword.trim() && { keyword: keyword.trim() }),
+    page,
+    size: PAGE_SIZE,
   };
 
-  const handleSaveAdd = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const newGuest: Guest = {
-      id: Date.now().toString(),
-      name: formData.get("name") as string,
-      company: formData.get("company") as string,
-      host: formData.get("host") as string,
-      details: formData.get("details") as string,
-      status: formData.get("status") as any,
-      entryTime: formData.get("entryTime") as string || "--:--",
-      exitTime: formData.get("exitTime") as string || "-",
-      date: formData.get("date") as string,
-    };
+  const query = useGuests(filter);
+  const data = query.data;
+  const rows = data?.guests ?? [];
+  const totalElements = data?.totalElements ?? 0;
+  const totalPages = Math.max(data?.totalPages ?? 1, 1);
 
-    if (onAddGuest) {
-      onAddGuest(newGuest);
-    } else {
-      setGuests(prev => [newGuest, ...prev]);
+  const createMutation = useCreateGuest();
+  const deleteMutation = useDeleteGuest();
+  const checkInMutation = useCheckInGuest();
+  const checkOutMutation = useCheckOutGuest();
+
+  // 현재 페이지 기준 통계
+  const scheduledCount = rows.filter((r) => r.guestStatus === "SCHEDULED").length;
+  const visitingCount = rows.filter((r) => r.guestStatus === "VISITING").length;
+  const completedCount = rows.filter((r) => r.guestStatus === "COMPLETED").length;
+
+  const resetAddForm = () => {
+    setAddName("");
+    setAddCompany("");
+    setAddPurpose("");
+    setAddPhone("");
+    setAddHostId("");
+    setAddScheduled("");
+  };
+
+  const handleCreate = () => {
+    if (!addName.trim() || !addCompany.trim() || !addPurpose.trim() || !addHostId || !addScheduled) {
+      toast.error("필수 항목을 모두 입력해 주세요.");
+      return;
     }
-    
-    toast.success("게스트가 등록되었습니다.");
-    setIsAddModalOpen(false);
+    createMutation.mutate(
+      {
+        guestName: addName.trim(),
+        company: addCompany.trim(),
+        hostUserId: Number(addHostId),
+        purpose: addPurpose.trim(),
+        contactPhone: addPhone.trim() || null,
+        scheduledEntryAt: addScheduled,
+      },
+      {
+        onSuccess: () => {
+          toast.success("방문객이 등록되었습니다.");
+          setIsAddOpen(false);
+          resetAddForm();
+          setPage(0);
+        },
+        onError: (err: Error) => toast.error(err.message || "등록에 실패했습니다."),
+      },
+    );
   };
 
-  const handleSaveEdit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!editingGuest) return;
+  const handleDelete = (id: number, name: string) => {
+    if (!window.confirm(`'${name}' 방문객을 삭제하시겠습니까?`)) return;
+    deleteMutation.mutate(id, {
+      onSuccess: () => toast.success("방문객이 삭제되었습니다."),
+      onError: (err: Error) => toast.error(err.message || "삭제에 실패했습니다."),
+    });
+  };
 
-    const formData = new FormData(e.currentTarget);
-    const updatedGuest: Guest = {
-      ...editingGuest,
-      name: formData.get("name") as string,
-      company: formData.get("company") as string,
-      host: formData.get("host") as string,
-      details: formData.get("details") as string,
-      status: formData.get("status") as any,
-      entryTime: formData.get("entryTime") as string || "--:--",
-      exitTime: formData.get("exitTime") as string || "-",
-      date: formData.get("date") as string,
-    };
+  const handleCheckIn = (id: number, name: string) => {
+    checkInMutation.mutate(id, {
+      onSuccess: () => toast.success(`${name} 체크인 완료.`),
+      onError: (err: Error) => toast.error(err.message || "체크인에 실패했습니다."),
+    });
+  };
 
-    setGuests(prev => prev.map(g => g.id === editingGuest.id ? updatedGuest : g));
-    toast.success("게스트 정보가 수정되었습니다.");
-    setEditingGuest(null);
+  const handleCheckOut = (id: number, name: string) => {
+    checkOutMutation.mutate(id, {
+      onSuccess: () => toast.success(`${name} 체크아웃 완료.`),
+      onError: (err: Error) => toast.error(err.message || "체크아웃에 실패했습니다."),
+    });
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <Input 
-            placeholder="게스트 이름, 소속사, 담당자 검색" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-12 bg-white border-gray-100 text-black h-12 rounded-2xl focus-visible:ring-black/5 shadow-sm"
-          />
+    <div className="space-y-8 pb-20">
+      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black tracking-tight text-gray-900">게스트 관리</h1>
+          <p className="text-sm font-medium text-gray-500">
+            방문객 등록 · 체크인/체크아웃 관리
+          </p>
         </div>
+        <Button
+          onClick={() => setIsAddOpen(true)}
+          className="h-12 px-6 rounded-2xl font-bold bg-black text-white hover:bg-black/90 flex items-center gap-2"
+        >
+          <UserPlus className="w-4 h-4" />
+          방문객 등록
+        </Button>
+      </header>
 
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger 
-            render={
-              <Button className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2 shadow-md w-full md:w-auto">
-                <UserPlus className="w-4 h-4" />
-                게스트 등록
-              </Button>
-            }
-          />
-          <DialogContent className="bg-white border-gray-100 text-black max-w-lg rounded-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">신규 게스트 등록</DialogTitle>
-              <DialogDescription className="text-gray-400">
-                방문객 정보를 입력해주세요.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSaveAdd} className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="guest-name">이름</Label>
-                  <Input id="guest-name" name="name" required placeholder="성함 입력" className="bg-gray-50 border-gray-100" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guest-company">소속사</Label>
-                  <Input id="guest-company" name="company" required placeholder="회사명 입력" className="bg-gray-50 border-gray-100" />
-                </div>
+      {/* 통계 카드 */}
+      <div className="grid grid-cols-3 gap-6">
+        {[
+          { label: "방문 예정", value: scheduledCount, icon: Clock, color: "text-orange-600", bg: "bg-orange-50/40 border-orange-100" },
+          { label: "방문 중", value: visitingCount, icon: Users, color: "text-green-600", bg: "bg-green-50/40 border-green-100" },
+          { label: "방문 완료", value: completedCount, icon: CheckCircle2, color: "text-blue-600", bg: "bg-white" },
+        ].map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.08 }}
+              className={cn("p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between h-44", stat.bg)}
+            >
+              <div className={cn("w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center", stat.color)}>
+                <Icon className="w-6 h-6" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="guest-host">담당자</Label>
-                  <Input id="guest-host" name="host" required placeholder="담당 직원 이름" className="bg-gray-50 border-gray-100" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guest-date">방문날짜</Label>
-                  <Input id="guest-date" name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} className="bg-gray-50 border-gray-100" />
-                </div>
+              <div>
+                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-gray-400 block mb-1">{stat.label}</span>
+                <span className={cn("text-3xl font-black tracking-tighter", stat.color)}>{stat.value}</span>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="guest-details">세부사항</Label>
-                <Input id="guest-details" name="details" placeholder="방문 목적 (예: 회의, 결재 등)" className="bg-gray-50 border-gray-100" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="guest-entry">출입시간</Label>
-                  <Input id="guest-entry" name="entryTime" type="time" className="bg-gray-50 border-gray-100" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guest-exit">퇴장시간</Label>
-                  <Input id="guest-exit" name="exitTime" type="time" className="bg-gray-50 border-gray-100" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="guest-status">상태</Label>
-                <Select name="status" defaultValue="출입 전">
-                  <SelectTrigger className="bg-gray-50 border-gray-100">
-                    <SelectValue placeholder="선택" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-gray-100 text-black">
-                    <SelectItem value="출입 전">출입 전</SelectItem>
-                    <SelectItem value="방문중">방문중</SelectItem>
-                    <SelectItem value="방문완료">방문완료</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <DialogFooter className="pt-4">
-                <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)} className="text-gray-400">취소</Button>
-                <Button type="submit" className="bg-black text-white hover:bg-black/90">등록 완료</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </motion.div>
+          );
+        })}
       </div>
 
+      {/* 필터 */}
+      <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Input
+            placeholder="이름 · 회사명 검색"
+            value={keyword}
+            onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
+            className="pl-12 h-12 bg-gray-50 border-gray-100 rounded-2xl"
+          />
+        </div>
+        <Select
+          value={statusFilter}
+          onValueChange={(v) => { setStatusFilter(v as typeof statusFilter); setPage(0); }}
+        >
+          <SelectTrigger className="h-12 w-[180px] bg-gray-50 border-gray-100 rounded-2xl px-5 font-bold">
+            <span>{STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "전체"}</span>
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* 테이블 */}
       <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[1000px]">
+          <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className="bg-gray-50 text-gray-400 text-xs font-bold uppercase tracking-wider">
-                <th className="px-6 py-5">게스트 정보</th>
-                <th className="px-6 py-5">소속사</th>
+                <th className="px-6 py-5">방문객</th>
+                <th className="px-6 py-5">회사</th>
                 <th className="px-6 py-5">담당자</th>
-                <th className="px-6 py-5">세부사항</th>
-                <th className="px-6 py-5">출입/퇴장 시간</th>
-                <th className="px-6 py-5">방문날짜</th>
+                <th className="px-6 py-5">방문 목적</th>
+                <th className="px-6 py-5">예정 시각</th>
                 <th className="px-6 py-5">상태</th>
-                <th className="px-6 py-5 text-right">관리</th>
+                <th className="px-6 py-5 text-right">액션</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {paginatedGuests.map((guest) => (
-                <tr key={guest.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <span className="text-black font-bold">{guest.name}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-gray-700 font-medium">{guest.company}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-gray-700 font-medium">{guest.host}</span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 text-sm">
-                    {guest.details}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span className="font-medium">{guest.entryTime}</span>
-                      <span className="text-gray-300">|</span>
-                      <span className="font-medium">{guest.exitTime}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 text-sm">
-                    {guest.date}
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge className={cn(
-                      "border-none px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                      guest.status === "방문중" ? "bg-green-500/10 text-green-600" : 
-                      guest.status === "출입 전" ? "bg-orange-500/10 text-orange-600" : 
-                      "bg-blue-500/10 text-blue-600"
-                    )}>
-                      {guest.status}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="w-8 h-8 rounded-lg text-gray-400 hover:text-black hover:bg-gray-100"
-                        onClick={() => setEditingGuest(guest)}
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-500/10"
-                        onClick={() => handleDelete(guest.id, guest.name)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+              {query.isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    {Array.from({ length: 7 }).map((__, j) => (
+                      <td key={j} className="px-6 py-4"><Skeleton className="h-4 w-full" /></td>
+                    ))}
+                  </tr>
+                ))
+              ) : query.isError ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm font-bold text-red-500">
+                    방문객 목록을 불러오지 못했습니다.
                   </td>
                 </tr>
-              ))}
-              {/* Fill empty rows for visual consistency if needed, but pagination handles it */}
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                    조건에 맞는 방문객이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                rows.map((g) => {
+                  const s = STATUS_STYLE[g.guestStatus];
+                  return (
+                    <tr key={g.guestId} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div>
+                          <span className="font-bold text-black">{g.guestName}</span>
+                          {g.contactPhone && (
+                            <span className="block text-[10px] text-gray-400">{g.contactPhone}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{g.company}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{g.hostUserName}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">{g.purpose}</td>
+                      <td className="px-6 py-4 text-xs text-gray-600">
+                        {new Date(g.scheduledEntryAt).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge className={cn("border-none px-3 py-1 rounded-full text-[10px] font-bold", s.className)}>
+                          {s.label}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {g.guestStatus === "SCHEDULED" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-3 rounded-xl text-xs font-bold border-green-200 text-green-700 hover:bg-green-50"
+                              onClick={() => handleCheckIn(g.guestId, g.guestName)}
+                              disabled={checkInMutation.isPending}
+                            >
+                              <LogIn className="w-3 h-3 mr-1" />
+                              체크인
+                            </Button>
+                          )}
+                          {g.guestStatus === "VISITING" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-3 rounded-xl text-xs font-bold border-blue-200 text-blue-700 hover:bg-blue-50"
+                              onClick={() => handleCheckOut(g.guestId, g.guestName)}
+                              disabled={checkOutMutation.isPending}
+                            >
+                              <LogOut className="w-3 h-3 mr-1" />
+                              체크아웃
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50"
+                            onClick={() => handleDelete(g.guestId, g.guestName)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-between px-2 py-4">
-        <p className="text-sm text-gray-500">
-          전체 <span className="font-bold text-black">{filteredGuests.length}</span>명 중 {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredGuests.length)} 표시
-        </p>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          
-          <div className="flex items-center gap-1 px-2">
-            {Array.from({ length: totalPages }, (_, i) => {
-              const pageNum = i + 1;
-              // Only show a range of buttons if there are too many pages
-              if (totalPages > 10) {
-                const isFirstSet = pageNum <= 3;
-                const isLastSet = pageNum > totalPages - 3;
-                const isMiddle = Math.abs(pageNum - currentPage) <= 1;
-                
-                if (!isFirstSet && !isLastSet && !isMiddle) {
-                  if (pageNum === 4 || pageNum === totalPages - 3) return <span key={pageNum} className="text-gray-300 px-1">...</span>;
-                  return null;
-                }
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "ghost"}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={cn(
-                    "w-10 h-10 rounded-xl font-bold transition-all",
-                    currentPage === pageNum ? "bg-black text-white shadow-lg" : "text-gray-400 hover:text-black hover:bg-gray-100"
-                  )}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-2 py-4">
+          <p className="text-sm text-gray-500">
+            전체 <span className="font-bold text-black">{totalElements}</span>명 · 페이지 {page + 1}/{totalPages}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="icon" onClick={() => setPage(Math.max(page - 1, 0))} disabled={page === 0} className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30">
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={() => setPage(Math.min(page + 1, totalPages - 1))} disabled={page >= totalPages - 1} className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30">
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
         </div>
-      </div>
+      )}
 
-      {/* Edit Modal */}
-      <Dialog open={!!editingGuest} onOpenChange={(open) => !open && setEditingGuest(null)}>
-        <DialogContent className="bg-white border-gray-100 text-black max-w-lg rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">게스트 정보 수정</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              방문객의 상세 정보를 수정할 수 있습니다.
-            </DialogDescription>
-          </DialogHeader>
-          {editingGuest && (
-            <form onSubmit={handleSaveEdit} className="space-y-4 py-4">
+      {/* 등록 모달 */}
+      {isAddOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-6"
+          >
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">방문객 등록</h2>
+              <p className="text-gray-500 font-medium mt-1">방문 예정 정보를 입력하세요.</p>
+            </div>
+            <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-guest-name">이름</Label>
-                  <Input id="edit-guest-name" name="name" defaultValue={editingGuest.name} required className="bg-gray-50 border-gray-100" />
+                  <label className="text-sm font-bold text-gray-400 ml-1">이름 *</label>
+                  <Input value={addName} onChange={(e) => setAddName(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="홍길동" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-guest-company">소속사</Label>
-                  <Input id="edit-guest-company" name="company" defaultValue={editingGuest.company} required className="bg-gray-50 border-gray-100" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-guest-host">담당자</Label>
-                  <Input id="edit-guest-host" name="host" defaultValue={editingGuest.host} required className="bg-gray-50 border-gray-100" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-guest-date">방문날짜</Label>
-                  <Input id="edit-guest-date" name="date" defaultValue={editingGuest.date} className="bg-gray-50 border-gray-100" />
+                  <label className="text-sm font-bold text-gray-400 ml-1">회사 *</label>
+                  <Input value={addCompany} onChange={(e) => setAddCompany(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="ABC 주식회사" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-guest-details">세부사항</Label>
-                <Input id="edit-guest-details" name="details" defaultValue={editingGuest.details} className="bg-gray-50 border-gray-100" />
+                <label className="text-sm font-bold text-gray-400 ml-1">방문 목적 *</label>
+                <Input value={addPurpose} onChange={(e) => setAddPurpose(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="사업 미팅" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-guest-entry">출입시간</Label>
-                  <Input id="edit-guest-entry" name="entryTime" defaultValue={editingGuest.entryTime} className="bg-gray-50 border-gray-100" />
+                  <label className="text-sm font-bold text-gray-400 ml-1">담당자 ID *</label>
+                  <Input value={addHostId} onChange={(e) => setAddHostId(e.target.value)} type="number" className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="2" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-guest-exit">퇴장시간</Label>
-                  <Input id="edit-guest-exit" name="exitTime" defaultValue={editingGuest.exitTime} className="bg-gray-50 border-gray-100" />
+                  <label className="text-sm font-bold text-gray-400 ml-1">연락처</label>
+                  <Input value={addPhone} onChange={(e) => setAddPhone(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="010-0000-0000" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-guest-status">상태</Label>
-                <Select name="status" defaultValue={editingGuest.status}>
-                  <SelectTrigger className="bg-gray-50 border-gray-100">
-                    <SelectValue placeholder="선택" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-gray-100 text-black">
-                    <SelectItem value="출입 전">출입 전</SelectItem>
-                    <SelectItem value="방문중">방문중</SelectItem>
-                    <SelectItem value="방문완료">방문완료</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="text-sm font-bold text-gray-400 ml-1">방문 예정 시각 *</label>
+                <Input value={addScheduled} onChange={(e) => setAddScheduled(e.target.value)} type="datetime-local" className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" />
               </div>
-              <DialogFooter className="pt-4">
-                <Button type="button" variant="ghost" onClick={() => setEditingGuest(null)} className="text-gray-400">취소</Button>
-                <Button type="submit" className="bg-black text-white hover:bg-black/90">수정 완료</Button>
-              </DialogFooter>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="ghost" onClick={() => { setIsAddOpen(false); resetAddForm(); }} disabled={createMutation.isPending} className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100">취소</Button>
+              <Button onClick={handleCreate} disabled={createMutation.isPending} className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90">
+                {createMutation.isPending ? "등록 중..." : "등록하기"}
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

@@ -38,6 +38,7 @@ export const departmentHandlers = [
   http.get("/api/v1/departments", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: departments,
     }),
@@ -56,6 +57,7 @@ export const departmentHandlers = [
     return HttpResponse.json(
       {
         code: "success",
+        errorCode: null,
         message: "부서가 등록되었습니다.",
         data: {
           id: created.id,
@@ -74,7 +76,7 @@ export const departmentHandlers = [
     const target = departments.find((d) => d.id === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "부서를 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "DEPARTMENT_NOT_FOUND", message: "부서를 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -82,6 +84,7 @@ export const departmentHandlers = [
     target.description = body.description ?? null;
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "부서 정보가 수정되었습니다.",
       data: {
         id: target.id,
@@ -97,7 +100,7 @@ export const departmentHandlers = [
     const idx = departments.findIndex((d) => d.id === id);
     if (idx === -1) {
       return HttpResponse.json(
-        { code: "error", message: "부서를 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "DEPARTMENT_NOT_FOUND", message: "부서를 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -105,6 +108,7 @@ export const departmentHandlers = [
       return HttpResponse.json(
         {
           code: "error",
+          errorCode: "DEPARTMENT_HAS_USERS",
           message: "소속 직원이 있는 부서는 삭제할 수 없습니다.",
           data: null,
         },
@@ -114,6 +118,7 @@ export const departmentHandlers = [
     departments.splice(idx, 1);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "부서가 삭제되었습니다.",
       data: null,
     });

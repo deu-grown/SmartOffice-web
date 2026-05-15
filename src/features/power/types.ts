@@ -1,5 +1,11 @@
 // 백엔드 com.grown.smartoffice.domain.power.dto 패키지와 1:1 매핑.
-// G2(통합 관제) 단계에서는 current / billing 2종만 사용하며, G7 에서 hourly / zone-billing / calculate 가 추가될 예정.
+
+/** GET /api/v1/power/zones 응답 항목 — POWER 미터가 설치된 구역 목록. */
+export interface PowerZoneItem {
+  zoneId: number;
+  zoneName: string;
+  meterCount: number;
+}
 
 /** GET /api/v1/power/zones/{zoneId}/current 응답의 단건 장치 전력. */
 export interface DevicePower {

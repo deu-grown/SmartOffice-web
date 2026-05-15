@@ -4,7 +4,7 @@ import { Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/src/components/common/ErrorBoundary";
 import { ZoneSelect } from "@/src/components/common/ZoneSelect";
-import { POWER_ZONES_TEMP } from "@/src/features/power/constants";
+import { usePowerZones } from "@/src/features/power/hooks";
 import { usePowerCurrent } from "@/src/features/power/hooks";
 
 // 위젯 단위 fallback. 렌더링 에러 시 KPI/타 위젯 영향 없이 본 위젯만 대체.
@@ -22,15 +22,20 @@ function WidgetErrorFallback({ message }: { message: string }) {
 function PowerCurrentWidgetInner() {
   // 자체 zone 셀렉터. 환경 모니터링 셀렉터와 결합하면 환경 센서 미보유 zone(회의실 A·B)
   // 전력을 표시할 수 없는 결함이 있어 분리한다.
-  const [selectedZoneId, setSelectedZoneId] = useState<number>(POWER_ZONES_TEMP[0].zoneId);
-  const { data, isLoading, isError, error } = usePowerCurrent(selectedZoneId);
+  const [selectedZoneId, setSelectedZoneId] = useState<number | undefined>(undefined);
+  const { data: powerZones } = usePowerZones();
+
+  // 명시적 선택 없을 때 첫 번째 POWER zone 자동 사용.
+  const effectiveZoneId = selectedZoneId ?? powerZones?.[0]?.zoneId;
+
+  const { data, isLoading, isError, error } = usePowerCurrent(effectiveZoneId);
 
   const totalWatt =
     data?.devices.reduce((acc, d) => acc + (d.avgWatt ?? 0), 0) ?? 0;
 
   const zoneOptions = useMemo(
-    () => POWER_ZONES_TEMP.map((z) => ({ id: z.zoneId, name: z.zoneName })),
-    []
+    () => (powerZones ?? []).map((z) => ({ id: z.zoneId, name: z.zoneName })),
+    [powerZones]
   );
 
   return (
@@ -40,7 +45,7 @@ function PowerCurrentWidgetInner() {
         <div className="flex items-center gap-2">
           <ZoneSelect
             options={zoneOptions}
-            value={selectedZoneId}
+            value={effectiveZoneId}
             onChange={setSelectedZoneId}
             triggerClassName="w-[120px] h-8 bg-gray-50 border-gray-100 rounded-xl text-[11px] font-bold"
           />

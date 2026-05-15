@@ -5,6 +5,7 @@ export const dashboardHandlers = [
   http.get("/api/v1/dashboard/summary", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         totalUsers: 42,
@@ -18,6 +19,7 @@ export const dashboardHandlers = [
   http.get("/api/v1/dashboard/sensors/current", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       // 백엔드 curl 검증 결과 일부 구역은 temp/humi/co2 가 null 로 내려오므로 한 건을 부분 null 로 모방.
       data: [
@@ -44,6 +46,7 @@ export const dashboardHandlers = [
   http.get("/api/v1/dashboard/attendance/today", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: {
         presentCount: 38,
@@ -82,6 +85,7 @@ export const dashboardHandlers = [
     ].slice(0, limit);
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: items,
     });

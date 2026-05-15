@@ -67,6 +67,7 @@ export const deviceHandlers = [
   http.get("/api/v1/devices", () =>
     HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: devices,
     })
@@ -76,10 +77,14 @@ export const deviceHandlers = [
     const id = Number(params.id);
     const target = devices.find((d) => d.id === id);
     if (!target) {
-      return HttpResponse.json({ code: "error", message: "장치를 찾을 수 없습니다.", data: null }, { status: 404 });
+      return HttpResponse.json(
+        { code: "error", errorCode: "DEVICE_NOT_FOUND", message: "장치를 찾을 수 없습니다.", data: null },
+        { status: 404 },
+      );
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "정상 조회되었습니다.",
       data: { ...target, updatedAt: null },
     });
@@ -105,7 +110,10 @@ export const deviceHandlers = [
       createdAt: new Date().toISOString(),
     };
     devices.push(created);
-    return HttpResponse.json({ code: "success", message: "장치가 등록되었습니다.", data: created }, { status: 201 });
+    return HttpResponse.json(
+      { code: "success", errorCode: null, message: "장치가 등록되었습니다.", data: created },
+      { status: 201 },
+    );
   }),
 
   http.put("/api/v1/devices/:id", async ({ request, params }) => {
@@ -119,7 +127,10 @@ export const deviceHandlers = [
     };
     const target = devices.find((d) => d.id === id);
     if (!target) {
-      return HttpResponse.json({ code: "error", message: "장치를 찾을 수 없습니다.", data: null }, { status: 404 });
+      return HttpResponse.json(
+        { code: "error", errorCode: "DEVICE_NOT_FOUND", message: "장치를 찾을 수 없습니다.", data: null },
+        { status: 404 },
+      );
     }
     if (body.name !== undefined) target.name = body.name;
     if (body.deviceType !== undefined) target.deviceType = body.deviceType;
@@ -131,6 +142,7 @@ export const deviceHandlers = [
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "장치 정보가 수정되었습니다.",
       data: { ...target, updatedAt: new Date().toISOString() },
     });
@@ -140,9 +152,12 @@ export const deviceHandlers = [
     const id = Number(params.id);
     const idx = devices.findIndex((d) => d.id === id);
     if (idx === -1) {
-      return HttpResponse.json({ code: "error", message: "장치를 찾을 수 없습니다.", data: null }, { status: 404 });
+      return HttpResponse.json(
+        { code: "error", errorCode: "DEVICE_NOT_FOUND", message: "장치를 찾을 수 없습니다.", data: null },
+        { status: 404 },
+      );
     }
     devices.splice(idx, 1);
-    return HttpResponse.json({ code: "success", message: "장치가 삭제되었습니다.", data: null });
+    return HttpResponse.json({ code: "success", errorCode: null, message: "장치가 삭제되었습니다.", data: null });
   }),
 ];

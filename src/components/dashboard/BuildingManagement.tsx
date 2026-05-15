@@ -1,12 +1,12 @@
-// 건물·환경·제어 페이지 — 묶음 4 커밋 4.4 mock 제거.
-// features/sensor + features/control + features/power 위젯 조립. POWER_ZONES_TEMP zone 만 전력 위젯 활성.
+// 건물·환경·제어 페이지 — features/sensor + features/control + features/power 위젯 조립.
+// POWER 미터 보유 여부는 GET /power/zones 응답으로 동적 판단.
 import { useMemo, useState } from "react";
 import { Building2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { ZoneSelect } from "@/src/components/common/ZoneSelect";
 import { useZones } from "@/src/features/zone/hooks";
-import { POWER_ZONES_TEMP } from "@/src/features/power/constants";
+import { usePowerZones } from "@/src/features/power/hooks";
 
 import { SensorChart } from "../building/SensorChart";
 import { ControlPanel } from "../building/ControlPanel";
@@ -22,6 +22,12 @@ export function BuildingManagement() {
   const zonesQuery = useZones();
   const allZones = useMemo(() => zonesQuery.data ?? [], [zonesQuery.data]);
 
+  const { data: powerZones } = usePowerZones();
+  const powerZoneIds = useMemo(
+    () => new Set((powerZones ?? []).map((z) => z.zoneId)),
+    [powerZones]
+  );
+
   // 선택 가능한 zone: AREA/ROOM (FLOOR 제외, 센서/제어가 실제 설치되는 단위).
   const operableZones = useMemo(
     () => allZones.filter((z) => z.zoneType !== "FLOOR"),
@@ -31,16 +37,16 @@ export function BuildingManagement() {
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
   const [calcOpen, setCalcOpen] = useState(false);
 
-  // 초기 선택: POWER_ZONES_TEMP 의 첫 zone (전력 위젯 즉시 표시), 없으면 operable 첫 zone.
+  // 초기 선택: POWER zone 의 첫 항목(전력 위젯 즉시 표시), 없으면 operable 첫 zone.
   const effectiveZoneId = useMemo(() => {
     if (selectedZoneId !== null) return selectedZoneId;
-    if (POWER_ZONES_TEMP.length > 0) return POWER_ZONES_TEMP[0].zoneId;
+    if (powerZones && powerZones.length > 0) return powerZones[0].zoneId;
     return operableZones[0]?.id ?? null;
-  }, [selectedZoneId, operableZones]);
+  }, [selectedZoneId, powerZones, operableZones]);
 
   const hasPowerMeter = useMemo(
-    () => effectiveZoneId !== null && POWER_ZONES_TEMP.some((p) => p.zoneId === effectiveZoneId),
-    [effectiveZoneId]
+    () => effectiveZoneId !== null && powerZoneIds.has(effectiveZoneId),
+    [effectiveZoneId, powerZoneIds]
   );
 
   return (
@@ -87,7 +93,7 @@ export function BuildingManagement() {
             본 구역은 POWER 미터 미보유 — 전력 위젯이 비활성화됩니다.
           </p>
           <p className="text-[10px] text-gray-400 mt-1 font-mono">
-            지원 zone: {POWER_ZONES_TEMP.map((p) => p.zoneName).join(" · ")}
+            지원 zone: {(powerZones ?? []).map((p) => p.zoneName).join(" · ")}
           </p>
         </div>
       )}

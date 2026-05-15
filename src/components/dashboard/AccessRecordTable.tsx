@@ -30,8 +30,6 @@ const AUTH_RESULT_OPTIONS = [
   { value: "APPROVED", label: "정상 승인" },
   { value: "DENIED", label: "인가 실패" },
   { value: "BLOCKED", label: "차단" },
-  // V5 시드 잔존 호환 — BACKEND_SUGGESTIONS 등록 예정.
-  { value: "ALLOW", label: "정상(시드)" },
 ];
 
 const DIRECTION_OPTIONS = [
@@ -134,7 +132,8 @@ export function AccessRecordTable() {
               }}
             >
               <SelectTrigger className="bg-gray-50 border-gray-100 rounded-xl h-12">
-                <SelectValue placeholder="전체" />
+                {/* SelectValue 가 raw value 노출하는 결함 회피 — 명시 라벨 렌더. */}
+                <span>{AUTH_RESULT_OPTIONS.find((o) => o.value === authResult)?.label ?? "전체"}</span>
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-100">
                 {AUTH_RESULT_OPTIONS.map((opt) => (
@@ -154,7 +153,8 @@ export function AccessRecordTable() {
               }}
             >
               <SelectTrigger className="bg-gray-50 border-gray-100 rounded-xl h-12">
-                <SelectValue placeholder="전체" />
+                {/* SelectValue 가 raw value 노출하는 결함 회피 — 명시 라벨 렌더. */}
+                <span>{DIRECTION_OPTIONS.find((o) => o.value === direction)?.label ?? "전체"}</span>
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-100">
                 {DIRECTION_OPTIONS.map((opt) => (

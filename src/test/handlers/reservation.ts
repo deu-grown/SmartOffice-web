@@ -103,6 +103,7 @@ export const reservationHandlers = [
 
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "전체 예약 목록 조회가 완료되었습니다.",
       data: {
         content,
@@ -121,12 +122,13 @@ export const reservationHandlers = [
     const target = reservations.find((r) => r.reservationId === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "예약을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "RESERVATION_NOT_FOUND", message: "예약을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "예약 상세 조회가 완료되었습니다.",
       data: target,
     });
@@ -138,7 +140,7 @@ export const reservationHandlers = [
     const target = reservations.find((r) => r.reservationId === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "예약을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "RESERVATION_NOT_FOUND", message: "예약을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
@@ -148,6 +150,7 @@ export const reservationHandlers = [
     if (body.purpose !== undefined) target.purpose = body.purpose;
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "예약 정보가 성공적으로 수정되었습니다.",
       data: target,
     });
@@ -159,13 +162,14 @@ export const reservationHandlers = [
     const target = reservations.find((r) => r.reservationId === id);
     if (!target) {
       return HttpResponse.json(
-        { code: "error", message: "예약을 찾을 수 없습니다.", data: null },
+        { code: "error", errorCode: "RESERVATION_NOT_FOUND", message: "예약을 찾을 수 없습니다.", data: null },
         { status: 404 },
       );
     }
     target.status = "CANCELLED";
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "예약이 정상적으로 취소되었습니다.",
       data: id,
     });
@@ -190,6 +194,7 @@ export const reservationHandlers = [
 
     return HttpResponse.json({
       code: "success",
+      errorCode: null,
       message: "구역별 예약 현황 조회가 완료되었습니다.",
       data: {
         totalCount: filtered.length,

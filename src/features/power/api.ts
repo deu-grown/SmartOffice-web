@@ -1,4 +1,4 @@
-// 전력 도메인 REST API 호출. G2(current/billing) + G7(hourly/zoneBilling/calculate) 확장.
+// 전력 도메인 REST API 호출.
 import { apiGet, apiPost } from "@/src/lib/api/client";
 
 import type {
@@ -11,9 +11,12 @@ import type {
   PowerCurrent,
   PowerHourly,
   PowerHourlyQuery,
+  PowerZoneItem,
 } from "./types";
 
 export const powerApi = {
+  /** POWER 미터가 설치된 구역 목록. */
+  getZones: () => apiGet<PowerZoneItem[]>("/power/zones"),
   /** 구역별 실시간 전력 현황. */
   getCurrent: (zoneId: number) =>
     apiGet<PowerCurrent>(`/power/zones/${zoneId}/current`),
