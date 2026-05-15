@@ -78,3 +78,53 @@
 - 우선순위: 중 (현재 spot 관리만으로 동작 가능. 차량/예약 운영 기능 복원)
 - 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 4 (2026-05-15)
 - 추적 정합: PLAN_3_MASTER 9절 #8 마감 표기와 1:1 매핑. web sprint 진입 시 본 SUGGESTIONS #4 + 9절 #8 본문 동시 참조 권장.
+
+---
+
+## [2026-05-15] 5. (중) guest(방문객) 도메인 UI 신설 — mock 제거 + 메뉴 복구
+
+- 발생 맥락: SmartOffice-server 백엔드 수정 sprint 묶음 5 #1 (guest 도메인 신설) 완료 (2026-05-15)
+- 배경: web `src/components/dashboard/GuestTable.tsx` 가 외주 단계 mock 30+ 건으로 구현되어 있고, 본 통합 작업(플랜 3)에서 백엔드 부재로 사이드바 `/guest` 메뉴를 임시 숨김 + `/guest` 라우트를 대시보드로 리다이렉트 처리했음. 백엔드 sprint 묶음 5 에서 정식 도메인이 신설됨.
+- 신설된 백엔드 엔드포인트:
+  · POST/GET/GET{id}/PUT/DELETE `/api/v1/guests` (ADMIN)
+  · POST `/api/v1/guests/{id}/check-in` · POST `/api/v1/guests/{id}/check-out` (ADMIN)
+  · GuestStatus: SCHEDULED → VISITING → COMPLETED, CANCELLED. 체크인은 SCHEDULED, 체크아웃은 VISITING 상태에서만 허용 (그 외 400)
+  · 응답 필드: guestId·guestName·company·hostUserId·hostUserName·purpose·contactPhone·guestStatus·scheduledEntryAt·actualEntryAt·actualExitAt·createdAt·updatedAt
+  · 목록 필터: status·hostUserId·keyword(이름·회사) + 페이지네이션
+- 권장: `src/features/guest/` 4파일 세트 신설 → `GuestTable` mock 제거 후 실 API 연동. 사이드바 `/guest` 메뉴 복구 + 라우트 리다이렉트 해제. 체크인/체크아웃 액션 버튼 (상태별 활성화 — SCHEDULED 일 때 체크인, VISITING 일 때 체크아웃).
+- 우선순위: 중 (mock 의존 UI 가 외주 단계부터 존재 — 도입 시 메뉴 즉시 복구)
+- 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 5 #1 (2026-05-15)
+
+---
+
+## [2026-05-15] 6. (중) Refresh Token httpOnly 쿠키 전환 — web 동반 변경
+
+- 발생 맥락: SmartOffice-server 백엔드 수정 sprint 묶음 5 #2 (Refresh Token httpOnly 쿠키 전환) 완료 (2026-05-15)
+- 백엔드 변경:
+  · `POST /auth/login` 응답이 `Set-Cookie: refreshToken=...` (HttpOnly · SameSite=Lax · Path=/api/v1/auth) 발급. Access Token 은 기존대로 응답 body.
+  · `POST /auth/refresh` 는 쿠키의 refreshToken 을 우선 사용, 부재 시 body 의 `refreshToken` 폴백 — **현재 web 의 body 전송 방식은 폴백으로 당분간 계속 동작** (점진 전환 가능).
+  · `POST /auth/logout` 은 쿠키 즉시 만료. CORS `allowCredentials(true)` + 명시적 origin 허용 (로컬 `http://localhost:5173`).
+- 현재 web: Access·Refresh Token 모두 `localStorage` 보관 (`tokenStorage.ts`). axios `withCredentials` 미설정 → 쿠키 미전송.
+- 권장 web 변경:
+  · `src/lib/api/client.ts` axios 인스턴스에 `withCredentials: true` 활성화 → httpOnly 쿠키 자동 송수신.
+  · `tokenStorage` 의 `refreshToken` 저장/조회/삭제 제거. login 응답 body 의 `refreshToken` 미사용.
+  · 401 refresh 인터셉터의 `/auth/refresh` 호출을 body 없이 호출 (쿠키 자동 첨부).
+  · 운영 환경 도메인 통일 시 쿠키 `Domain` 속성 정합 확인.
+- 비고: 백엔드가 body 폴백을 유지하므로 web 미변경 상태에서도 현재 로그인/갱신 동작은 유지된다. 단 httpOnly 전환의 XSS 토큰 탈취 완화 효과는 web 측 `withCredentials` + localStorage refreshToken 제거가 완료되어야 발생한다.
+- 우선순위: 중 (보안 강화 — XSS 시 Refresh Token 탈취 완화. 동작 회귀는 없음)
+- 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 5 #2 (2026-05-15)
+
+---
+
+## [2026-05-15] 7. (하~중) 시스템 설정 페이지 — user_preferences API 채택
+
+- 발생 맥락: SmartOffice-server 백엔드 수정 sprint 묶음 5 #3 (user_preferences API 신설) 완료 (2026-05-15)
+- 배경: web 사이드바의 "시스템 설정" 라우트가 *준비 중* placeholder 로 유지되어 있음. 사용자별 환경설정(알림·언어·테마·푸시 토큰)을 저장할 백엔드가 부재했음.
+- 신설된 백엔드 엔드포인트:
+  · GET `/api/v1/users/me/preferences` · PUT `/api/v1/users/me/preferences` (본인, JWT subject 기준)
+  · 응답 필드: userId·notificationsEnabled·language·theme·pushToken·updatedAt
+  · 설정 행은 최초 조회/수정 시점에 기본값(알림 on · ko · light)으로 lazy 생성. PUT 은 부분 수정 (null 필드는 기존 값 유지).
+- 권장: `src/features/userPreferences/` (또는 settings) 4파일 세트 신설 → "시스템 설정" 페이지에서 알림 on/off · 언어 · 테마 토글 UI. TopBar 드롭다운의 시스템 설정 모달도 동일 hook 연동 가능.
+- 비고: 다크모드 토글은 본 통합 작업에서 `useUIStore.theme = "light"` 고정 + 토글 UI 미노출 정책이었음 (CLAUDE.md 18절). `theme` preference 가 백엔드에 생겼으므로 다크모드 토글 도입 시 함께 검토 가능.
+- 우선순위: 하~중 (현재 placeholder 로 동작에 결함 없음. 시스템 설정 페이지 실구현)
+- 출처 세션: SmartOffice-server 백엔드 수정 sprint 묶음 5 #3 (2026-05-15)
