@@ -40,8 +40,8 @@
 
 | # | 도메인 | METHOD /path | 분류 | 백엔드 계약 | web 현재 | 수정 측 | 수정 묶음 | 상태 |
 |---|--------|-------------|------|------------|---------|--------|---------|------|
-| A1 | 공통 | ALL | WRAPPER | `ApiResponse.errorCode: string\|null` 필드 존재 | `src/lib/api/types.ts` `ApiResponse<T>`에 `errorCode` 부재 | web | 3 | 미해결 |
-| A2 | accesslog | GET /access-logs | ENUM | `authResult`: APPROVED/DENIED/BLOCKED (V9 마이그레이션 후 ALLOW 폐기) | `AccessLogAuthResult`에 `"ALLOW"` 잔존 (`src/features/accesslog/types.ts`) | web | 3 | 미해결 |
+| A1 | 공통 | ALL | WRAPPER | `ApiResponse.errorCode: string\|null` 필드 존재 | `src/lib/api/types.ts` `ApiResponse<T>`에 `errorCode` 부재 | web | 3 | 해결+커밋(94f0170) |
+| A2 | accesslog | GET /access-logs | ENUM | `authResult`: APPROVED/DENIED/BLOCKED (V9 마이그레이션 후 ALLOW 폐기) | `AccessLogAuthResult`에 `"ALLOW"` 잔존 (`src/features/accesslog/types.ts`) | web | 3 | 해결+커밋(94f0170) |
 | A3 | zone | GET /zones/{id} | NEW_ENDPOINT | `GET /zones/{id}` → `ZoneListItemResponse` 신설 (PR #28). curl 확인: `{zoneId,zoneName,zoneType,parentId,description,createdAt}` | `useZoneDetail(id)` 가 `useZones()+find` 우회 사용, `api.ts`에 `getZoneDetail()` 미존재 | web | 4b | 미해결 |
 | A4 | power | GET /power/zones | NEW_ENDPOINT | `GET /power/zones` → `List<{zoneId,zoneName,meterCount}>` 신설 (PR #28) | `features/power/constants.ts` 임시 상수(`POWER_ZONES_TEMP`) 우회 사용, API 미소비 | web | 4a | 미해결 |
 | A5 | parking | GET /parking/zones | NEW_ENDPOINT | `GET /parking/zones` → `List<{zoneId,zoneName,zoneType,totalSpots,occupiedSpots}>` 신설 (PR #28). **curl 확인: `zoneType` 필드 존재 — 계획 미포함, web 타입에 추가 필요** | `ParkingManagement`가 `useParkingSpots({})+useZones()` 우회, API 미소비 | web | 4c | 미해결 |
@@ -150,7 +150,7 @@ B 계열 19건 전부 정합 또는 의도적 미사용 판정. 묶음 2 skip, s
 |------|------------|------|
 | 1 (감사) | 본 문서 작성 + curl 실측 완료 | ✅ 완료 |
 | 2 (server fix) | SKIP — server 결함 0건 확정 | ✅ SKIP |
-| 3 | A1, A2, M1, M2 | 미해결 |
+| 3 | A1, A2, M1, M2 | ✅ 완료 (커밋 94f0170) |
 | 4a | A4, M4 | 미해결 |
 | 4b | A3, M3 | 미해결 |
 | 4c | A5(zoneType 포함), M5 | 미해결 |
@@ -168,3 +168,4 @@ B 계열 19건 전부 정합 또는 의도적 미사용 판정. 묶음 2 skip, s
 |------|------|
 | 2026-05-15 | 초판 — server 21컨트롤러 × web 16도메인 전수 정합 감사 완료. 확정 결함 10건(A1~A10), 실측 결과 19건(B1~B19), 의도적 미사용 16건(C1~C16), MSW 갱신 10항목(M1~M10) 원장 작성. |
 | 2026-05-15 | curl 실측 완료 — B 계열 19건 전부 정합(B12 의도적 미사용 확정). A5 `zoneType` 필드 추가 확인. A9 실제 필드 목록 확정. 묶음 2 SKIP 확정. |
+| 2026-05-15 | 묶음 3 완료 — A1(`ApiResponse.errorCode` 추가 + `ApiError.errorCode` 추가), A2(`"ALLOW"` 제거), M1·M2(전체 핸들러 16개 errorCode 갱신). 커밋 94f0170. |
