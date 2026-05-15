@@ -21,7 +21,7 @@ export const ROUTES = {
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];
 
-// 게스트 메뉴는 임시 숨김(BACKEND_SUGGESTIONS.md 참조). 라우트 자체는 존재하지만 사이드바에 노출하지 않는다.
+// 게스트 메뉴 사이드바 복구 완료 (묶음 6b — guest 도메인 실 API 연동).
 export const TAB_TO_PATH: Record<TabType, string> = {
   "통합 관제": ROUTES.DASHBOARD,
   "건물 관리": ROUTES.BUILDING,

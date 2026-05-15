@@ -50,7 +50,7 @@ src/
     paths.ts                    # ROUTES 상수 + TAB_TO_PATH / PATH_TO_TAB 매핑
     guards.tsx                  # PrivateRoute / AdminRoute / PublicOnlyRoute
 
-  features/                       # 도메인 16종: auth · user · department · attendance · accesslog · zone · device · dashboard · power · sensor · control · salary · asset · parking · reservation · nfccard
+  features/                       # 도메인 19종: auth · user · department · attendance · accesslog · zone · device · dashboard · power · sensor · control · salary · asset · parking · reservation · nfccard · guest · vehicle · userPreferences
     {domain}/
       types.ts                    # 백엔드 DTO 1:1 영문 필드 매핑 (web+모바일 공용 응답도 DTO 1:1)
       api.ts                      # apiClient 호출 함수 집합 (한 함수 = 한 엔드포인트)
@@ -154,7 +154,7 @@ export const authKeys = {
 - 경로 상수는 `src/routes/paths.ts` 의 `ROUTES` 만 사용. 문자열 하드코딩 금지.
 - 가드: `PrivateRoute` / `AdminRoute` / `PublicOnlyRoute` (`src/routes/guards.tsx`)
 - 사이드바 메뉴 ↔ 경로 매핑은 `TAB_TO_PATH` 한 곳에서 관리.
-- 운영 메뉴(10종): 통합 관제 · 인사 관리 · 출입 기록 관리 · 구역 관리 · 회의실 관리 · NFC 카드 관리 · 급여 관리 · 건물 관리 · 재고 관리 · 주차 관리.
+- 운영 메뉴(11종): 통합 관제 · 인사 관리 · 출입 기록 관리 · 구역 관리 · 게스트 관리 · 회의실 관리 · NFC 카드 관리 · 급여 관리 · 건물 관리 · 재고 관리 · 주차 관리.
 
 ## 12. 테스트 가이드
 
@@ -170,12 +170,12 @@ export const authKeys = {
 - ADMIN 전용 페이지는 `AdminRoute` 로 감싼다.
 - 본인 정보 조회는 표준 엔드포인트로 **`GET /api/v1/auth/me`** 사용. `/users/me` 는 사용하지 않음.
 - IoT 전용 엔드포인트(NFC 태그·센서·주차 상태 업데이트)는 프론트에서 호출하지 않음 (장치용 permitAll).
-- 토큰: localStorage 보관(Access/Refresh). httpOnly 쿠키 전환은 본 작업 범위 외 (BACKEND_SUGGESTIONS.md 참조).
+- 토큰: AccessToken은 localStorage 보관. RefreshToken은 백엔드가 httpOnly 쿠키(`Set-Cookie`)로 발급 — axios `withCredentials: true` 로 자동 전송. 401 시 쿠키 우선 refresh 시도 후 localStorage 폴백.
 
 ## 14. 백엔드 CLAUDE.md 핵심 규칙 (프론트 적용 분)
 
 - 모든 호출 경로: `/api/v1/{resource}`
-- 공통 응답: `ApiResponse<T> { code, message, data }` — `code === "success"` 외에는 throw
+- 공통 응답: `ApiResponse<T> { code, errorCode, message, data }` — `code === "success"` 외에는 throw
 - 에러 응답: `{ code: "error", message: "한국어" }` — message 를 그대로 사용자에게 노출 가능
 - JWT 만료: Access 30분 / Refresh 7일 — refresh 인터셉터 동작 보장 (timeout 8s)
 - API 성능 SLO: 95% 500ms 이내 (실측은 백엔드 책임. 프론트는 timeout 8s + 401 자동 refresh)
