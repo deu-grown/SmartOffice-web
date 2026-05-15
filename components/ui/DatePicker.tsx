@@ -20,24 +20,24 @@ export function DatePicker({ date, onChange, label }: DatePickerProps) {
 
   return (
     <div className="space-y-2">
-      {label && <label className="text-xs font-bold text-gray-400 ml-1">{label}</label>}
+      {label && <label className="text-xs font-bold text-muted-foreground ml-1">{label}</label>}
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger asChild>
           <button
             className={cn(
-              "w-full bg-gray-50 border border-gray-100 rounded-xl h-12 pl-11 pr-4 font-bold text-sm text-left flex items-center transition-all hover:bg-gray-100/50 hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-black/5 relative group",
-              !date && "text-gray-400"
+              "w-full bg-surface-2 border border-border rounded-xl h-12 pl-11 pr-4 font-bold text-sm text-left flex items-center transition-all hover:bg-surface hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-primary/20 relative group",
+              !date && "text-muted-foreground"
             )}
           >
             <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              <CalendarIcon className="w-4 h-4 text-gray-400 group-hover:text-black transition-colors" />
+              <CalendarIcon className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
             </div>
             {date ? format(selectedDate, "yyyy년 MM월 dd일", { locale: ko }) : <span>날짜 선택</span>}
           </button>
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Content
-            className="z-[100] w-auto bg-white p-4 rounded-[32px] border border-gray-100 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="z-[100] w-auto bg-surface p-4 rounded-4xl border border-border shadow-overlay animate-in fade-in zoom-in-95 duration-200"
             align="start"
             sideOffset={8}
           >
@@ -56,7 +56,7 @@ export function DatePicker({ date, onChange, label }: DatePickerProps) {
                 months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                 month: "space-y-4",
                 month_caption: "flex justify-center pt-1 relative items-center mb-4",
-                caption_label: "text-sm font-bold text-gray-900",
+                caption_label: "text-sm font-bold text-foreground",
                 nav: "space-x-1 flex items-center",
                 button_previous: cn(
                   buttonVariants({ variant: "outline" }),
@@ -68,7 +68,7 @@ export function DatePicker({ date, onChange, label }: DatePickerProps) {
                 ),
                 month_grid: "w-full border-collapse space-y-1",
                 weekdays: "flex",
-                weekday: "text-gray-400 rounded-md w-9 font-bold text-[10px] uppercase text-center",
+                weekday: "text-muted-foreground rounded-md w-9 font-bold text-[10px] uppercase text-center",
                 week: "flex w-full mt-2",
                 day: "h-9 w-9 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
                 day_button: cn(
@@ -76,13 +76,13 @@ export function DatePicker({ date, onChange, label }: DatePickerProps) {
                   "h-9 w-9 p-0 font-bold aria-selected:opacity-100 rounded-xl transition-all"
                 ),
                 selected:
-                  "bg-black text-white hover:bg-black hover:text-white focus:bg-black focus:text-white shadow-lg forced-color-adjust-none",
-                today: "bg-gray-100 text-black",
+                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground shadow-lg forced-color-adjust-none",
+                today: "bg-surface-2 text-foreground",
                 outside:
-                  "day-outside text-gray-300 opacity-50 aria-selected:bg-gray-100/50 aria-selected:text-gray-300 aria-selected:opacity-30",
-                disabled: "text-gray-300 opacity-50",
+                  "day-outside text-muted-foreground opacity-50 aria-selected:bg-surface-2/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                disabled: "text-muted-foreground opacity-50",
                 range_middle:
-                  "aria-selected:bg-gray-100 aria-selected:text-gray-900",
+                  "aria-selected:bg-surface-2 aria-selected:text-foreground",
                 hidden: "invisible",
               }}
               components={{
