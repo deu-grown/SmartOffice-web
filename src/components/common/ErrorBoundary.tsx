@@ -44,21 +44,21 @@ export class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
       return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-[#f8f9fa] p-6 font-sans">
-          <div className="w-full max-w-md bg-white rounded-[32px] shadow-sm border border-gray-100 p-10 text-center space-y-6">
-            <div className="w-16 h-16 mx-auto bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-3xl">
+        <div className="min-h-screen w-full flex items-center justify-center bg-canvas p-6 font-sans">
+          <div className="w-full max-w-md bg-surface rounded-4xl shadow-card border border-border p-10 text-center space-y-6">
+            <div className="w-16 h-16 mx-auto bg-error-bg text-error-fg rounded-2xl flex items-center justify-center text-3xl">
               ⚠️
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-gray-900">문제가 발생했습니다</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-2xl font-bold text-foreground">문제가 발생했습니다</h1>
+              <p className="text-sm text-muted-foreground">
                 예상치 못한 오류로 화면을 표시할 수 없습니다. 잠시 후 다시 시도해 주세요.
               </p>
             </div>
             <button
               type="button"
               onClick={this.handleReset}
-              className="w-full h-12 rounded-xl bg-black text-white font-bold hover:bg-black/90 transition-colors"
+              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
             >
               처음으로 돌아가기
             </button>

@@ -58,7 +58,7 @@ export function ZoneSelect({
       </SelectTrigger>
       <SelectContent>
         {options.length === 0 ? (
-          <div className="px-3 py-2 text-sm text-gray-400">{emptyText}</div>
+          <div className="px-3 py-2 text-sm text-muted-foreground">{emptyText}</div>
         ) : (
           options.map((o) => (
             <SelectItem key={o.id} value={String(o.id)}>
