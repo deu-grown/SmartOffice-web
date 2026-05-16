@@ -53,21 +53,21 @@ export function BuildingManagement() {
     <div className="space-y-8 pb-12">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-5xl font-bold tracking-tight mb-2 text-gray-900 flex items-center gap-3">
-            <Building2 className="w-10 h-10 text-gray-400" />
+          <h1 className="text-5xl font-bold tracking-tight mb-2 text-foreground flex items-center gap-3">
+            <Building2 className="w-10 h-10 text-muted-foreground" />
             건물·환경·제어
           </h1>
-          <p className="text-gray-500 text-lg font-medium">구역별 환경 센서·장치 제어·전력 관리</p>
+          <p className="text-muted-foreground text-lg font-medium">구역별 환경 센서·장치 제어·전력 관리</p>
         </div>
         <div className="flex gap-2 items-center">
           <ZoneSelect
             options={operableZones.map((z) => ({ id: z.id, name: z.name, suffix: `(${z.zoneType})` }))}
             value={effectiveZoneId ?? undefined}
             onChange={(id) => setSelectedZoneId(id)}
-            triggerClassName="w-[220px] bg-white border-gray-100 rounded-xl h-12 font-bold"
+            triggerClassName="w-[220px] bg-surface border-border rounded-xl h-12 font-bold"
             placeholder="구역 선택"
           />
-          <Button onClick={() => setCalcOpen(true)} className="bg-red-500 text-white hover:bg-red-600 rounded-xl h-12 px-6 font-bold flex items-center gap-2">
+          <Button onClick={() => setCalcOpen(true)} className="bg-error-fg text-white hover:bg-error-fg/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2">
             <Zap className="w-4 h-4" />
             전력 요금 산출
           </Button>
@@ -87,12 +87,12 @@ export function BuildingManagement() {
           <PowerZoneBillingTable zoneId={effectiveZoneId ?? undefined} year={CURRENT_YEAR} month={CURRENT_MONTH} />
         </div>
       ) : (
-        <div className="bg-gray-50 rounded-3xl p-6 border-2 border-dashed border-gray-200 text-center">
-          <Zap className="w-6 h-6 text-gray-300 mx-auto mb-2" />
-          <p className="text-sm font-bold text-gray-500">
+        <div className="bg-surface-2 rounded-xl p-6 border-2 border-dashed border-border text-center">
+          <Zap className="w-6 h-6 text-border mx-auto mb-2" />
+          <p className="text-sm font-bold text-muted-foreground">
             본 구역은 POWER 미터 미보유 — 전력 위젯이 비활성화됩니다.
           </p>
-          <p className="text-[10px] text-gray-400 mt-1 font-mono">
+          <p className="text-[10px] text-muted-foreground mt-1 font-mono">
             지원 zone: {(powerZones ?? []).map((p) => p.zoneName).join(" · ")}
           </p>
         </div>

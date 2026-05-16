@@ -71,9 +71,9 @@ const PAGE_SIZE = 10;
 
 // 상태별 배지 색상 매핑.
 const STATUS_BADGE: Record<AssetStatus, string> = {
-  ACTIVE: "bg-emerald-50 text-emerald-600",
-  INACTIVE: "bg-gray-100 text-gray-600",
-  LOST: "bg-red-50 text-red-500",
+  ACTIVE: "bg-success-bg text-success-fg",
+  INACTIVE: "bg-surface-2 text-muted-foreground",
+  LOST: "bg-error-bg text-error-fg",
 };
 
 interface AssetFormState {
@@ -242,18 +242,18 @@ export function InventoryManagement() {
 
   return (
     <div className="space-y-8 pb-20">
-      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
+      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-surface p-8 rounded-4xl border border-border shadow-card">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tight text-gray-900">재고 및 자산 관리</h1>
-          <p className="text-sm font-medium text-gray-500">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">재고 및 자산 관리</h1>
+          <p className="text-sm font-medium text-muted-foreground">
             자산 = 재고 품목 (구입·할당·상태 관리). 장치 = 구역 설치 IoT (구역 관리 페이지 참조).
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-100">
+          <div className="flex items-center gap-2 bg-surface-2 p-2 rounded-2xl border border-border">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="자산 번호 또는 자산명 검색..."
                 value={searchQuery}
@@ -261,12 +261,12 @@ export function InventoryManagement() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSearch();
                 }}
-                className="w-[280px] h-10 pl-10 bg-white border-none rounded-xl text-sm focus:ring-2 focus:ring-black/5"
+                className="w-[280px] h-10 pl-10 bg-surface border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/10"
               />
             </div>
             <Button
               onClick={handleSearch}
-              className="h-10 px-6 bg-zinc-900 text-white rounded-xl font-bold shadow-md hover:bg-black transition-colors"
+              className="h-10 px-6 bg-primary text-primary-foreground rounded-xl font-bold shadow-action hover:bg-primary/90 transition-colors"
             >
               검색
             </Button>
@@ -275,17 +275,17 @@ export function InventoryManagement() {
                 render={
                   <Button
                     variant="outline"
-                    className="h-10 px-6 rounded-xl border-gray-200 font-bold gap-2"
+                    className="h-10 px-6 rounded-xl border-border font-bold gap-2"
                   />
                 }
               >
                 <Plus className="w-4 h-4" />
                 자산 신규 등록
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[560px] bg-white rounded-[32px] p-10 border-none shadow-2xl">
+              <DialogContent className="sm:max-w-[560px] bg-surface rounded-4xl p-10 border-none shadow-overlay">
                 <DialogHeader className="space-y-2">
                   <DialogTitle className="text-2xl font-black">자산 신규 등록</DialogTitle>
-                  <DialogDescription className="text-gray-500 font-medium">
+                  <DialogDescription className="text-muted-foreground font-medium">
                     자산 대장에 새로운 항목을 등록합니다.
                   </DialogDescription>
                 </DialogHeader>
@@ -301,7 +301,7 @@ export function InventoryManagement() {
                   <Button
                     onClick={handleRegister}
                     disabled={createMutation.isPending}
-                    className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-2xl font-bold h-14 flex-1 shadow-xl shadow-indigo-100"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl font-bold h-14 flex-1 shadow-action"
                   >
                     {createMutation.isPending ? "등록 중..." : "자산 등록하기"}
                   </Button>
@@ -320,36 +320,36 @@ export function InventoryManagement() {
             label: "전체 자산",
             value: stats.total,
             icon: Package,
-            color: "text-zinc-700",
-            bg: "bg-white",
-            ring: "ring-zinc-500",
+            color: "text-foreground",
+            bg: "bg-surface",
+            ring: "ring-foreground",
           },
           {
             id: "ACTIVE" as const,
             label: ASSET_STATUS_LABELS.ACTIVE,
             value: stats.active,
             icon: CheckCircle2,
-            color: "text-emerald-600",
-            bg: "bg-emerald-50/40 border-emerald-100",
-            ring: "ring-emerald-500",
+            color: "text-success-fg",
+            bg: "bg-success-bg",
+            ring: "ring-success-fg",
           },
           {
             id: "INACTIVE" as const,
             label: ASSET_STATUS_LABELS.INACTIVE,
             value: stats.inactive,
             icon: Archive,
-            color: "text-gray-600",
-            bg: "bg-white",
-            ring: "ring-gray-400",
+            color: "text-muted-foreground",
+            bg: "bg-surface",
+            ring: "ring-border",
           },
           {
             id: "LOST" as const,
             label: ASSET_STATUS_LABELS.LOST,
             value: stats.lost,
             icon: XCircle,
-            color: "text-red-500",
-            bg: "bg-red-50/40 border-red-100",
-            ring: "ring-red-500",
+            color: "text-error-fg",
+            bg: "bg-error-bg",
+            ring: "ring-error-fg",
           },
         ].map((stat, i) => {
           const Icon = stat.icon;
@@ -362,7 +362,7 @@ export function InventoryManagement() {
               transition={{ delay: i * 0.08 }}
               onClick={() => handleCardClick(stat.id)}
               className={cn(
-                "p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between h-44 cursor-pointer group transition-all hover:scale-[1.02] active:scale-[0.98]",
+                "p-8 rounded-4xl border border-border shadow-card flex flex-col justify-between h-44 cursor-pointer group transition-all hover:scale-[1.02] active:scale-[0.98]",
                 stat.bg,
                 isActive ? `ring-2 ${stat.ring} border-transparent` : "",
               )}
@@ -370,7 +370,7 @@ export function InventoryManagement() {
               <div className="flex items-center justify-between">
                 <div
                   className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center bg-gray-50 border border-gray-100 group-hover:scale-110 transition-transform",
+                    "w-12 h-12 rounded-2xl flex items-center justify-center bg-surface-2 border border-border group-hover:scale-110 transition-transform",
                     stat.color,
                   )}
                 >
@@ -378,7 +378,7 @@ export function InventoryManagement() {
                 </div>
               </div>
               <div>
-                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-gray-400 block mb-1">
+                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-muted-foreground block mb-1">
                   {stat.label}
                 </span>
                 <span className={cn("text-3xl font-black tracking-tighter", stat.color)}>
@@ -391,14 +391,14 @@ export function InventoryManagement() {
       </div>
 
       {/* Main Table */}
-      <div className="bg-white p-10 rounded-[50px] border border-gray-100 shadow-sm space-y-8">
+      <div className="bg-surface p-10 rounded-4xl border border-border shadow-card space-y-8">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-              <LayoutGrid className="w-5 h-5 text-indigo-600" />
+            <div className="w-10 h-10 bg-info-bg rounded-xl flex items-center justify-center">
+              <LayoutGrid className="w-5 h-5 text-info-fg" />
             </div>
             <h3 className="text-xl font-black">자산 리스트</h3>
-            <span className="text-xs font-bold text-gray-400">총 {totalElements}건</span>
+            <span className="text-xs font-bold text-muted-foreground">총 {totalElements}건</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -409,14 +409,14 @@ export function InventoryManagement() {
                 setPage(0);
               }}
             >
-              <SelectTrigger className="w-[160px] h-10 bg-gray-50 border-none rounded-xl text-xs font-bold px-4">
+              <SelectTrigger className="w-[160px] h-10 bg-surface-2 border-none rounded-xl text-xs font-bold px-4">
                 {selectedCategory === "ALL" ? (
                   <span>모든 카테고리</span>
                 ) : (
                   <span>{selectedCategory}</span>
                 )}
               </SelectTrigger>
-              <SelectContent className="bg-white border-gray-100 rounded-xl font-bold">
+              <SelectContent className="bg-surface border-border rounded-xl font-bold">
                 <SelectItem value="ALL">모든 카테고리</SelectItem>
                 {ASSET_CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat}>
@@ -433,14 +433,14 @@ export function InventoryManagement() {
                 setPage(0);
               }}
             >
-              <SelectTrigger className="w-[160px] h-10 bg-gray-50 border-none rounded-xl text-xs font-bold px-4">
+              <SelectTrigger className="w-[160px] h-10 bg-surface-2 border-none rounded-xl text-xs font-bold px-4">
                 {selectedStatus === "ALL" ? (
                   <span>모든 상태</span>
                 ) : (
                   <span>{ASSET_STATUS_LABELS[selectedStatus]}</span>
                 )}
               </SelectTrigger>
-              <SelectContent className="bg-white border-gray-100 rounded-xl font-bold">
+              <SelectContent className="bg-surface border-border rounded-xl font-bold">
                 <SelectItem value="ALL">모든 상태</SelectItem>
                 {ASSET_STATUSES.map((s) => (
                   <SelectItem key={s} value={s}>
@@ -455,26 +455,26 @@ export function InventoryManagement() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-50">
-                <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+              <tr className="border-b border-border">
+                <th className="text-left py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
                   자산 번호
                 </th>
-                <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                <th className="text-left py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
                   자산명
                 </th>
-                <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                <th className="text-left py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
                   카테고리
                 </th>
-                <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                <th className="text-left py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
                   담당자
                 </th>
-                <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                <th className="text-left py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
                   구매일
                 </th>
-                <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                <th className="text-left py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
                   상태
                 </th>
-                <th className="text-right py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                <th className="text-right py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest px-2">
                   관리
                 </th>
               </tr>
@@ -486,25 +486,25 @@ export function InventoryManagement() {
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                  className="group border-b border-border hover:bg-surface-2/50 transition-colors"
                 >
-                  <td className="py-5 px-2 font-mono text-xs font-bold text-gray-400">
+                  <td className="py-5 px-2 font-mono text-xs font-bold text-muted-foreground">
                     {a.assetNumber}
                   </td>
                   <td className="py-5 px-2">
-                    <span className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                    <span className="font-bold text-foreground group-hover:text-primary transition-colors">
                       {a.assetName}
                     </span>
                   </td>
                   <td className="py-5 px-2">
-                    <span className="text-xs font-bold text-gray-500 bg-gray-100/50 px-2.5 py-1 rounded-lg">
+                    <span className="text-xs font-bold text-muted-foreground bg-surface-2 px-2.5 py-1 rounded-lg">
                       {a.category}
                     </span>
                   </td>
-                  <td className="py-5 px-2 text-sm font-medium text-gray-600">
+                  <td className="py-5 px-2 text-sm font-medium text-muted-foreground">
                     {a.assignedUserName ?? "—"}
                   </td>
-                  <td className="py-5 px-2 text-sm font-mono text-gray-500">
+                  <td className="py-5 px-2 text-sm font-mono text-muted-foreground">
                     {a.purchasedAt ?? "—"}
                   </td>
                   <td className="py-5 px-2">
@@ -524,31 +524,31 @@ export function InventoryManagement() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="rounded-xl hover:bg-white shadow-sm border border-transparent hover:border-gray-100 group/btn"
+                            className="rounded-xl hover:bg-surface shadow-card border border-transparent hover:border-border group/btn"
                           />
                         }
                       >
-                        <MoreHorizontal className="w-4 h-4 text-gray-400 group-hover/btn:text-gray-900" />
+                        <MoreHorizontal className="w-4 h-4 text-muted-foreground group-hover/btn:text-foreground" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-white border-gray-100 rounded-2xl w-40 p-2 z-[200] shadow-xl overflow-hidden"
+                        className="bg-surface border-border rounded-2xl w-40 p-2 z-[200] shadow-overlay overflow-hidden"
                       >
                         <DropdownMenuGroup>
-                          <DropdownMenuLabel className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-3 py-2">
+                          <DropdownMenuLabel className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-3 py-2">
                             자산 관리
                           </DropdownMenuLabel>
                         </DropdownMenuGroup>
-                        <DropdownMenuSeparator className="bg-gray-100 mb-1" />
+                        <DropdownMenuSeparator className="bg-border mb-1" />
                         <DropdownMenuItem
-                          className="rounded-xl px-3 py-2 font-bold cursor-pointer hover:bg-gray-50 outline-none"
+                          className="rounded-xl px-3 py-2 font-bold cursor-pointer hover:bg-surface-2 outline-none"
                           onClick={() => openEdit(a)}
                         >
                           자산 수정
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-gray-100 my-1" />
+                        <DropdownMenuSeparator className="bg-border my-1" />
                         <DropdownMenuItem
-                          className="rounded-xl px-3 py-2 font-bold cursor-pointer text-red-500 hover:bg-red-50"
+                          className="rounded-xl px-3 py-2 font-bold cursor-pointer text-error-fg hover:bg-error-bg"
                           onClick={() => setDeleteTarget(a)}
                         >
                           자산 삭제
@@ -562,15 +562,15 @@ export function InventoryManagement() {
           </table>
           {!listQuery.isLoading && items.length === 0 && (
             <div className="py-20 text-center space-y-3">
-              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-200" />
+              <div className="w-16 h-16 bg-surface-2 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-border" />
               </div>
-              <h4 className="text-xl font-bold text-gray-900">
+              <h4 className="text-xl font-bold text-foreground">
                 {appliedKeyword || selectedCategory !== "ALL" || selectedStatus !== "ALL"
                   ? "검색 결과가 없습니다"
                   : "등록된 자산이 없습니다"}
               </h4>
-              <p className="text-gray-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 {appliedKeyword || selectedCategory !== "ALL" || selectedStatus !== "ALL"
                   ? "필터 조건을 다시 확인해주세요."
                   : "신규 등록 버튼으로 자산을 추가하세요."}
@@ -578,25 +578,25 @@ export function InventoryManagement() {
             </div>
           )}
           {listQuery.isLoading && (
-            <div className="py-20 text-center text-gray-400 text-sm">자산 목록 불러오는 중...</div>
+            <div className="py-20 text-center text-muted-foreground text-sm">자산 목록 불러오는 중...</div>
           )}
           {listQuery.isError && (
-            <div className="py-20 text-center text-red-500 text-sm">
+            <div className="py-20 text-center text-error-fg text-sm">
               자산 목록 조회 중 오류가 발생했습니다.
             </div>
           )}
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-6 border-t border-gray-50">
-            <p className="text-xs font-bold text-gray-400">
+          <div className="flex items-center justify-between pt-6 border-t border-border">
+            <p className="text-xs font-bold text-muted-foreground">
               총 {totalElements}개 ({page + 1} / {totalPages} 페이지)
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="w-8 h-8 rounded-lg border-gray-100"
+                className="w-8 h-8 rounded-lg border-border"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
               >
@@ -610,7 +610,7 @@ export function InventoryManagement() {
                     onClick={() => setPage(p)}
                     className={cn(
                       "w-8 h-8 rounded-lg font-bold text-xs p-0",
-                      p === page ? "bg-zinc-900 text-white" : "text-gray-400",
+                      p === page ? "bg-primary text-primary-foreground" : "text-muted-foreground",
                     )}
                   >
                     {p + 1}
@@ -620,7 +620,7 @@ export function InventoryManagement() {
               <Button
                 variant="outline"
                 size="icon"
-                className="w-8 h-8 rounded-lg border-gray-100"
+                className="w-8 h-8 rounded-lg border-border"
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page + 1 >= totalPages}
               >
@@ -638,10 +638,10 @@ export function InventoryManagement() {
           if (!open) setEditTarget(null);
         }}
       >
-        <DialogContent className="sm:max-w-[560px] bg-white rounded-[32px] p-10 border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[560px] bg-surface rounded-4xl p-10 border-none shadow-overlay">
           <DialogHeader className="space-y-2">
             <DialogTitle className="text-2xl font-black">자산 정보 수정</DialogTitle>
-            <DialogDescription className="text-gray-500 font-medium">
+            <DialogDescription className="text-muted-foreground font-medium">
               {editTarget?.assetName}
             </DialogDescription>
           </DialogHeader>
@@ -657,7 +657,7 @@ export function InventoryManagement() {
             <Button
               onClick={handleSaveEdit}
               disabled={updateMutation.isPending}
-              className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-2xl font-bold h-14 flex-1 shadow-xl shadow-indigo-100"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl font-bold h-14 flex-1 shadow-action"
             >
               {updateMutation.isPending ? "수정 중..." : "수정 저장"}
             </Button>
@@ -672,14 +672,14 @@ export function InventoryManagement() {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <DialogContent className="sm:max-w-[420px] bg-white rounded-[32px] p-10 border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[420px] bg-surface rounded-4xl p-10 border-none shadow-overlay">
           <DialogHeader className="space-y-3">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 bg-error-bg text-error-fg rounded-2xl flex items-center justify-center mx-auto">
               <AlertTriangle className="w-8 h-8" />
             </div>
             <DialogTitle className="text-xl font-black text-center">자산 삭제 확인</DialogTitle>
-            <DialogDescription className="text-gray-500 font-medium text-center">
-              <span className="font-bold text-gray-900">{deleteTarget?.assetName}</span> 자산을
+            <DialogDescription className="text-muted-foreground font-medium text-center">
+              <span className="font-bold text-foreground">{deleteTarget?.assetName}</span> 자산을
               삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
             </DialogDescription>
           </DialogHeader>
@@ -694,7 +694,7 @@ export function InventoryManagement() {
             <Button
               onClick={handleConfirmDelete}
               disabled={deleteMutation.isPending}
-              className="bg-red-500 text-white hover:bg-red-600 rounded-2xl font-bold h-12 flex-1"
+              className="bg-error-fg text-white hover:bg-error-fg/90 rounded-2xl font-bold h-12 flex-1"
             >
               {deleteMutation.isPending ? "삭제 중..." : "삭제"}
             </Button>
@@ -717,28 +717,28 @@ function AssetFormFields({
     <div className="space-y-6 py-6 font-sans">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-black text-muted-foreground uppercase tracking-widest px-1">
             자산 번호
           </Label>
           <Input
             value={form.assetNumber}
             onChange={(e) => onChange({ ...form, assetNumber: e.target.value })}
             placeholder="AST-001"
-            className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
+            className="h-12 bg-surface-2 border-none rounded-2xl px-5 font-mono"
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-black text-muted-foreground uppercase tracking-widest px-1">
             카테고리
           </Label>
           <Select
             value={form.category}
             onValueChange={(val) => onChange({ ...form, category: val })}
           >
-            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-bold">
+            <SelectTrigger className="h-12 bg-surface-2 border-none rounded-2xl px-5 font-bold">
               {form.category ? <span>{form.category}</span> : <SelectValue placeholder="카테고리 선택" />}
             </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100 rounded-2xl font-bold">
+            <SelectContent className="bg-surface border-border rounded-2xl font-bold">
               {ASSET_CATEGORIES.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat}
@@ -750,30 +750,30 @@ function AssetFormFields({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+        <Label className="text-xs font-black text-muted-foreground uppercase tracking-widest px-1">
           자산명
         </Label>
         <Input
           value={form.assetName}
           onChange={(e) => onChange({ ...form, assetName: e.target.value })}
           placeholder="자산 이름을 입력하세요"
-          className="h-14 bg-gray-50 border-none rounded-2xl px-6 focus:ring-2 focus:ring-black/5 font-bold text-lg"
+          className="h-14 bg-surface-2 border-none rounded-2xl px-6 focus:ring-2 focus:ring-primary/10 font-bold text-lg"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-black text-muted-foreground uppercase tracking-widest px-1">
             상태
           </Label>
           <Select
             value={form.assetStatus}
             onValueChange={(val) => onChange({ ...form, assetStatus: val as AssetStatus })}
           >
-            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-bold">
+            <SelectTrigger className="h-12 bg-surface-2 border-none rounded-2xl px-5 font-bold">
               <span>{ASSET_STATUS_LABELS[form.assetStatus]}</span>
             </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100 rounded-2xl font-bold">
+            <SelectContent className="bg-surface border-border rounded-2xl font-bold">
               {ASSET_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>
                   {ASSET_STATUS_LABELS[s]}
@@ -783,39 +783,39 @@ function AssetFormFields({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-black text-muted-foreground uppercase tracking-widest px-1">
             구매일
           </Label>
           <Input
             type="date"
             value={form.purchasedAt}
             onChange={(e) => onChange({ ...form, purchasedAt: e.target.value })}
-            className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
+            className="h-12 bg-surface-2 border-none rounded-2xl px-5 font-mono"
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+        <Label className="text-xs font-black text-muted-foreground uppercase tracking-widest px-1">
           담당자 사번 ID (선택)
         </Label>
         <Input
           value={form.assignedUserId}
           onChange={(e) => onChange({ ...form, assignedUserId: e.target.value })}
           placeholder="예: 1 (담당자 미지정 시 비워두세요)"
-          className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
+          className="h-12 bg-surface-2 border-none rounded-2xl px-5 font-mono"
         />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+        <Label className="text-xs font-black text-muted-foreground uppercase tracking-widest px-1">
           설명 (선택)
         </Label>
         <Input
           value={form.description}
           onChange={(e) => onChange({ ...form, description: e.target.value })}
           placeholder="자산 메모 (예: 임원용 노트북)"
-          className="h-12 bg-gray-50 border-none rounded-2xl px-5"
+          className="h-12 bg-surface-2 border-none rounded-2xl px-5"
         />
       </div>
     </div>

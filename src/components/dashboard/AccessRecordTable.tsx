@@ -39,10 +39,10 @@ const DIRECTION_OPTIONS = [
 ];
 
 const AUTH_LABEL: Record<string, { label: string; className: string }> = {
-  APPROVED: { label: "정상", className: "bg-green-500/10 text-green-600" },
-  ALLOW: { label: "정상", className: "bg-green-500/10 text-green-600" },
-  DENIED: { label: "인가 실패", className: "bg-red-500/10 text-red-600" },
-  BLOCKED: { label: "차단", className: "bg-orange-500/10 text-orange-600" },
+  APPROVED: { label: "정상", className: "bg-success-bg text-success-fg" },
+  ALLOW: { label: "정상", className: "bg-success-bg text-success-fg" },
+  DENIED: { label: "인가 실패", className: "bg-error-bg text-error-fg" },
+  BLOCKED: { label: "차단", className: "bg-warning-bg text-warning-fg" },
 };
 
 export function AccessRecordTable() {
@@ -88,18 +88,18 @@ export function AccessRecordTable() {
           label="현재 페이지 입장 수"
           value={inCount.toString()}
           unit="건"
-          color="text-blue-500"
+          color="text-info-fg"
         />
         <RecordStatCard
           icon={AlertCircle}
           label="현재 페이지 비정상"
           value={deniedCount.toString()}
           unit="건"
-          color="text-red-500"
+          color="text-error-fg"
         />
       </div>
 
-      <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-6">
+      <div className="bg-surface p-6 rounded-4xl border border-border shadow-card space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <FilterField label="시작일">
             <Input
@@ -109,7 +109,7 @@ export function AccessRecordTable() {
                 setStartDate(e.target.value);
                 setPage(0);
               }}
-              className="bg-gray-50 border-gray-100 rounded-xl h-12"
+              className="bg-surface-2 border-border rounded-xl h-12"
             />
           </FilterField>
           <FilterField label="종료일">
@@ -120,7 +120,7 @@ export function AccessRecordTable() {
                 setEndDate(e.target.value);
                 setPage(0);
               }}
-              className="bg-gray-50 border-gray-100 rounded-xl h-12"
+              className="bg-surface-2 border-border rounded-xl h-12"
             />
           </FilterField>
           <FilterField label="인증 결과">
@@ -131,11 +131,11 @@ export function AccessRecordTable() {
                 setPage(0);
               }}
             >
-              <SelectTrigger className="bg-gray-50 border-gray-100 rounded-xl h-12">
+              <SelectTrigger className="bg-surface-2 border-border rounded-xl h-12">
                 {/* SelectValue 가 raw value 노출하는 결함 회피 — 명시 라벨 렌더. */}
                 <span>{AUTH_RESULT_OPTIONS.find((o) => o.value === authResult)?.label ?? "전체"}</span>
               </SelectTrigger>
-              <SelectContent className="bg-white border-gray-100">
+              <SelectContent className="bg-surface border-border">
                 {AUTH_RESULT_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -152,11 +152,11 @@ export function AccessRecordTable() {
                 setPage(0);
               }}
             >
-              <SelectTrigger className="bg-gray-50 border-gray-100 rounded-xl h-12">
+              <SelectTrigger className="bg-surface-2 border-border rounded-xl h-12">
                 {/* SelectValue 가 raw value 노출하는 결함 회피 — 명시 라벨 렌더. */}
                 <span>{DIRECTION_OPTIONS.find((o) => o.value === direction)?.label ?? "전체"}</span>
               </SelectTrigger>
-              <SelectContent className="bg-white border-gray-100">
+              <SelectContent className="bg-surface border-border">
                 {DIRECTION_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -169,7 +169,7 @@ export function AccessRecordTable() {
 
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
           <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               placeholder="userId 직접 입력 (정수)"
               value={userIdInput}
@@ -177,17 +177,17 @@ export function AccessRecordTable() {
                 setUserIdInput(e.target.value);
                 setPage(0);
               }}
-              className="pl-12 h-12 bg-gray-50 border-gray-100 rounded-2xl"
+              className="pl-12 h-12 bg-surface-2 border-border rounded-2xl"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className="bg-surface rounded-xl border border-border overflow-hidden shadow-card">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="bg-gray-50 text-gray-400 text-xs font-bold uppercase tracking-wider">
+              <tr className="bg-surface-2 text-muted-foreground text-xs font-bold uppercase tracking-wider">
                 <th className="px-6 py-5">시각</th>
                 <th className="px-6 py-5">직원</th>
                 <th className="px-6 py-5">구역</th>
@@ -197,7 +197,7 @@ export function AccessRecordTable() {
                 <th className="px-6 py-5">사유</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {query.isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i}>
@@ -210,13 +210,13 @@ export function AccessRecordTable() {
                 ))
               ) : query.isError ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-sm font-bold text-red-500">
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm font-bold text-error-fg">
                     출입 로그를 불러오지 못했습니다: {query.error?.message ?? ""}
                   </td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
                     조건에 맞는 출입 기록이 없습니다.
                   </td>
                 </tr>
@@ -224,30 +224,30 @@ export function AccessRecordTable() {
                 rows.map((r) => {
                   const meta = AUTH_LABEL[r.authResult] ?? {
                     label: r.authResult,
-                    className: "bg-gray-100 text-gray-600",
+                    className: "bg-surface-2 text-muted-foreground",
                   };
                   return (
-                    <tr key={r.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-xs text-gray-700 font-medium">
+                    <tr key={r.id} className="hover:bg-surface-2">
+                      <td className="px-6 py-4 text-xs text-muted-foreground font-medium">
                         {new Date(r.taggedAt).toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-bold text-black">{r.userName ?? "(미식별)"}</span>
-                          <span className="text-[10px] text-gray-400">
+                          <span className="font-bold text-foreground">{r.userName ?? "(미식별)"}</span>
+                          <span className="text-[10px] text-muted-foreground">
                             {r.employeeNumber ?? r.uid ?? "-"}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{r.zoneName}</td>
-                      <td className="px-6 py-4 text-xs text-gray-500">{r.deviceName}</td>
+                      <td className="px-6 py-4 text-sm text-foreground">{r.zoneName}</td>
+                      <td className="px-6 py-4 text-xs text-muted-foreground">{r.deviceName}</td>
                       <td className="px-6 py-4 text-xs">
                         <span
                           className={cn(
                             "inline-flex items-center px-2 py-0.5 rounded-full font-bold",
                             r.direction === "IN"
-                              ? "bg-blue-100 text-blue-600"
-                              : "bg-orange-100 text-orange-600",
+                              ? "bg-info-bg text-info-fg"
+                              : "bg-warning-bg text-warning-fg",
                           )}
                         >
                           {r.direction === "IN" ? "입장" : "퇴장"}
@@ -263,7 +263,7 @@ export function AccessRecordTable() {
                           {meta.label}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 text-xs text-gray-500">{r.denyReason ?? "-"}</td>
+                      <td className="px-6 py-4 text-xs text-muted-foreground">{r.denyReason ?? "-"}</td>
                     </tr>
                   );
                 })
@@ -275,8 +275,8 @@ export function AccessRecordTable() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2 py-4">
-          <p className="text-sm text-gray-500">
-            전체 <span className="font-bold text-black">{totalElements}</span>건 · 페이지 {page + 1}/
+          <p className="text-sm text-muted-foreground">
+            전체 <span className="font-bold text-foreground">{totalElements}</span>건 · 페이지 {page + 1}/
             {totalPages}
           </p>
           <div className="flex items-center gap-1">
@@ -285,7 +285,7 @@ export function AccessRecordTable() {
               size="icon"
               onClick={() => setPage(Math.max(page - 1, 0))}
               disabled={page === 0}
-              className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30"
+              className="w-10 h-10 rounded-xl border-border disabled:opacity-30"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -294,7 +294,7 @@ export function AccessRecordTable() {
               size="icon"
               onClick={() => setPage(Math.min(page + 1, totalPages - 1))}
               disabled={page >= totalPages - 1}
-              className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30"
+              className="w-10 h-10 rounded-xl border-border disabled:opacity-30"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -308,7 +308,7 @@ export function AccessRecordTable() {
 function FilterField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold text-gray-400 ml-1">{label}</label>
+      <label className="text-xs font-bold text-muted-foreground ml-1">{label}</label>
       {children}
     </div>
   );
@@ -319,7 +319,7 @@ function RecordStatCard({
   label,
   value,
   unit,
-  color = "text-black",
+  color = "text-foreground",
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -328,16 +328,16 @@ function RecordStatCard({
   color?: string;
 }) {
   return (
-    <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+    <div className="bg-surface p-6 rounded-4xl border border-border shadow-card">
       <div className="flex items-center justify-between mb-3">
-        <div className="w-10 h-10 bg-gray-50 rounded-2xl flex items-center justify-center">
+        <div className="w-10 h-10 bg-surface-2 rounded-2xl flex items-center justify-center">
           <Icon className={cn("w-5 h-5", color)} />
         </div>
       </div>
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">{label}</p>
       <div className="flex items-baseline gap-1">
-        <span className="text-3xl font-bold text-gray-900">{value}</span>
-        <span className="text-sm font-medium text-gray-400">{unit}</span>
+        <span className="text-3xl font-bold text-foreground">{value}</span>
+        <span className="text-sm font-medium text-muted-foreground">{unit}</span>
       </div>
     </div>
   );

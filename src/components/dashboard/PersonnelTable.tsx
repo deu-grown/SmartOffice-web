@@ -108,7 +108,7 @@ export function PersonnelTable(_props: PersonnelTableProps) {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-2 border-b border-gray-100">
+      <div className="flex items-center gap-2 border-b border-border">
         <ViewTabButton
           active={activeView === "personnel"}
           onClick={() => handleViewChange("personnel")}
@@ -200,7 +200,7 @@ function ViewTabButton({
       onClick={onClick}
       className={cn(
         "px-5 py-3 text-sm font-bold transition-colors border-b-2",
-        active ? "border-black text-black" : "border-transparent text-gray-400 hover:text-gray-700",
+        active ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
       )}
     >
       {children}

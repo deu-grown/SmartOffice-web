@@ -10,8 +10,8 @@ import { usePowerCurrent } from "@/src/features/power/hooks";
 // 위젯 단위 fallback. 렌더링 에러 시 KPI/타 위젯 영향 없이 본 위젯만 대체.
 function WidgetErrorFallback({ message }: { message: string }) {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-red-100 shadow-sm">
-      <div className="flex items-center gap-3 text-red-500">
+    <div className="bg-surface p-6 rounded-xl border border-error-bg shadow-card">
+      <div className="flex items-center gap-3 text-error-fg">
         <Zap className="w-5 h-5" />
         <p className="text-sm font-bold">{message}</p>
       </div>
@@ -39,17 +39,17 @@ function PowerCurrentWidgetInner() {
   );
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <div className="bg-surface p-6 rounded-xl border border-border shadow-card">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-gray-400 text-sm font-medium">실시간 전력</p>
+        <p className="text-muted-foreground text-sm font-medium">실시간 전력</p>
         <div className="flex items-center gap-2">
           <ZoneSelect
             options={zoneOptions}
             value={effectiveZoneId}
             onChange={setSelectedZoneId}
-            triggerClassName="w-[120px] h-8 bg-gray-50 border-gray-100 rounded-xl text-[11px] font-bold"
+            triggerClassName="w-[120px] h-8 bg-surface-2 border-border rounded-xl text-[11px] font-bold"
           />
-          <Zap className="w-4 h-4 text-gray-300" />
+          <Zap className="w-4 h-4 text-muted-foreground" />
         </div>
       </div>
       {isLoading ? (
@@ -64,12 +64,12 @@ function PowerCurrentWidgetInner() {
       ) : (
         <>
           <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-3xl font-bold text-black">
+            <span className="text-3xl font-bold text-foreground">
               {totalWatt.toLocaleString()}
             </span>
-            <span className="text-gray-400 text-xs font-medium">W</span>
+            <span className="text-muted-foreground text-xs font-medium">W</span>
           </div>
-          <p className="text-gray-500 text-xs">
+          <p className="text-muted-foreground text-xs">
             {data?.zoneName ?? "-"} · 장치 {data?.devices.length ?? 0}대
           </p>
         </>

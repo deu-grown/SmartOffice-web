@@ -57,10 +57,10 @@ export function ParkingManagement() {
 
   return (
     <div className="space-y-8 pb-20">
-      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
+      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-surface p-8 rounded-4xl border border-border shadow-card">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tight text-gray-900">주차 관리</h1>
-          <p className="text-sm font-medium text-gray-500">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">주차 관리</h1>
+          <p className="text-sm font-medium text-muted-foreground">
             구역별 주차면 CRUD · 평면도 · 실시간 점유 현황. 차량/예약 관리는 백엔드 미지원
             (BACKEND_SUGGESTIONS #14).
           </p>
@@ -72,7 +72,7 @@ export function ParkingManagement() {
             value={selectedZoneId}
             onChange={(id) => setSelectedZoneId(id)}
             placeholder="구역 선택"
-            triggerClassName="h-12 w-[220px] bg-gray-50 border-none rounded-2xl px-5 font-bold"
+            triggerClassName="h-12 w-[220px] bg-surface-2 border-none rounded-2xl px-5 font-bold"
           />
         </div>
       </header>
@@ -84,29 +84,29 @@ export function ParkingManagement() {
             label: "총 주차면",
             value: stats.total,
             icon: ParkingCircle,
-            color: "text-zinc-700",
-            bg: "bg-white",
+            color: "text-foreground",
+            bg: "bg-surface",
           },
           {
             label: "점유",
             value: stats.occupied,
             icon: Car,
-            color: "text-emerald-600",
-            bg: "bg-emerald-50/40 border-emerald-100",
+            color: "text-success-fg",
+            bg: "bg-success-bg",
           },
           {
             label: "여유",
             value: stats.available,
             icon: ParkingMeter,
-            color: "text-indigo-600",
-            bg: "bg-white",
+            color: "text-info-fg",
+            bg: "bg-surface",
           },
           {
             label: "비활성",
             value: stats.inactive,
             icon: Activity,
-            color: "text-gray-400",
-            bg: "bg-white",
+            color: "text-muted-foreground",
+            bg: "bg-surface",
           },
         ].map((stat, i) => {
           const Icon = stat.icon;
@@ -117,15 +117,15 @@ export function ParkingManagement() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.08 }}
               className={cn(
-                "p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between h-44",
+                "p-8 rounded-4xl border border-border shadow-card flex flex-col justify-between h-44",
                 stat.bg,
               )}
             >
-              <div className={cn("w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center", stat.color)}>
+              <div className={cn("w-12 h-12 rounded-2xl bg-surface-2 border border-border flex items-center justify-center", stat.color)}>
                 <Icon className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-gray-400 block mb-1">
+                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-muted-foreground block mb-1">
                   {stat.label}
                 </span>
                 <span className={cn("text-3xl font-black tracking-tighter", stat.color)}>
@@ -144,22 +144,22 @@ export function ParkingManagement() {
             label: "등록 차량",
             value: vehiclesQuery.data?.totalElements ?? 0,
             icon: Car,
-            color: "text-indigo-600",
-            bg: "bg-white",
+            color: "text-info-fg",
+            bg: "bg-surface",
           },
           {
             label: "입차 중",
             value: parkedQuery.data?.totalElements ?? 0,
             icon: ParkingCircle,
-            color: "text-green-600",
-            bg: "bg-green-50/40 border-green-100",
+            color: "text-success-fg",
+            bg: "bg-success-bg",
           },
           {
             label: "예약 대기",
             value: reservedQuery.data?.totalElements ?? 0,
             icon: CalendarClock,
-            color: "text-orange-600",
-            bg: "bg-orange-50/40 border-orange-100",
+            color: "text-warning-fg",
+            bg: "bg-warning-bg",
           },
         ].map((stat, i) => {
           const Icon = stat.icon;
@@ -170,15 +170,15 @@ export function ParkingManagement() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.06 + 0.32 }}
               className={cn(
-                "p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col justify-between h-36",
+                "p-6 rounded-4xl border border-border shadow-card flex flex-col justify-between h-36",
                 stat.bg,
               )}
             >
-              <div className={cn("w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center", stat.color)}>
+              <div className={cn("w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center", stat.color)}>
                 <Icon className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-gray-400 block mb-1">{stat.label}</span>
+                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-muted-foreground block mb-1">{stat.label}</span>
                 <span className={cn("text-2xl font-black tracking-tighter", stat.color)}>{stat.value}</span>
               </div>
             </motion.div>
@@ -191,7 +191,7 @@ export function ParkingManagement() {
       <ParkingSpotsTable zoneId={selectedZoneId} />
 
       {/* 구분선 */}
-      <div className="border-t border-gray-100 pt-2" />
+      <div className="border-t border-border pt-2" />
 
       <VehicleSection />
       <ReservationSection zoneId={selectedZoneId} />

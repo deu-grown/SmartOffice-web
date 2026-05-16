@@ -5,10 +5,10 @@
  *   다크 모드 토큰은 파일 하단 TODO 블록 — 후속 작업
  * ════════════════════════════════════════════════════════════════════════ */
 
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 
 @custom-variant dark (&:is(.dark *));
 

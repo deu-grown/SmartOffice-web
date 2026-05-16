@@ -165,7 +165,7 @@ export function ZoneManagement() {
     return (
       <div className="space-y-8 pb-12">
         <Skeleton className="h-16 w-full max-w-md" />
-        <Skeleton className="h-[500px] w-full rounded-[32px]" />
+        <Skeleton className="h-[500px] w-full rounded-4xl" />
       </div>
     );
   }
@@ -174,30 +174,30 @@ export function ZoneManagement() {
     <div className="space-y-8 pb-12 relative">
       {/* 등록 모달 */}
       {isAddOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-foreground/60 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-8"
+            className="bg-surface rounded-4xl w-full max-w-md p-10 shadow-overlay space-y-8"
           >
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold text-gray-900">구역 등록</h2>
-              <p className="text-gray-500 font-medium">
+              <h2 className="text-3xl font-bold text-foreground">구역 등록</h2>
+              <p className="text-muted-foreground font-medium">
                 {newType === "FLOOR" ? "새 층(FLOOR)을 등록합니다." : "현재 선택된 층의 자식 구역으로 등록합니다."}
               </p>
             </div>
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">구역 이름</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">구역 이름</label>
                 <Input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-lg font-bold"
+                  className="h-14 rounded-2xl border-border bg-surface-2 px-6 text-lg font-bold"
                   placeholder="예: 회의실 C / 1층 / 휴게실"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">구역 유형</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">구역 유형</label>
                 <div className="grid grid-cols-3 gap-3">
                   {ZONE_TYPES.map((t) => (
                     <button
@@ -206,22 +206,22 @@ export function ZoneManagement() {
                       className={cn(
                         "p-4 rounded-2xl border-2 transition-all text-center font-bold",
                         newType === t
-                          ? "border-black bg-white shadow-sm"
-                          : "border-gray-50 bg-gray-50/50 hover:border-gray-100"
+                          ? "border-primary bg-surface shadow-card"
+                          : "border-border bg-surface-2/50 hover:border-border-strong"
                       )}
                     >
                       <div className="text-sm">{zoneTypeLabel(t)}</div>
-                      <div className="text-[10px] text-gray-400 mt-1">{t}</div>
+                      <div className="text-[10px] text-muted-foreground mt-1">{t}</div>
                     </button>
                   ))}
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">설명 (선택)</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">설명 (선택)</label>
                 <Input
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-base"
+                  className="h-14 rounded-2xl border-border bg-surface-2 px-6 text-base"
                   placeholder="구역에 대한 간단한 설명"
                 />
               </div>
@@ -231,14 +231,14 @@ export function ZoneManagement() {
                 variant="ghost"
                 onClick={() => setIsAddOpen(false)}
                 disabled={createMutation.isPending}
-                className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                className="flex-1 h-14 rounded-2xl font-bold text-muted-foreground hover:text-foreground hover:bg-surface-2"
               >
                 취소
               </Button>
               <Button
                 onClick={handleCreate}
                 disabled={createMutation.isPending}
-                className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
+                className="flex-1 h-14 rounded-2xl font-bold bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {createMutation.isPending ? "등록 중..." : "등록하기"}
               </Button>
@@ -249,29 +249,29 @@ export function ZoneManagement() {
 
       {/* 수정 모달 */}
       {isEditOpen && selectedZone && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-foreground/60 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-8"
+            className="bg-surface rounded-4xl w-full max-w-md p-10 shadow-overlay space-y-8"
           >
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold text-gray-900">구역 정보 수정</h2>
-              <p className="text-gray-500 font-medium">#{selectedZone.id} · {selectedZone.name}</p>
+              <h2 className="text-3xl font-bold text-foreground">구역 정보 수정</h2>
+              <p className="text-muted-foreground font-medium">#{selectedZone.id} · {selectedZone.name}</p>
             </div>
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">구역 이름</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">구역 이름</label>
                 <Input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-lg font-bold"
+                  className="h-14 rounded-2xl border-border bg-surface-2 px-6 text-lg font-bold"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">구역 유형</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">구역 유형</label>
                 <Select value={editType} onValueChange={(v) => setEditType(v as ZoneType)}>
-                  <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-base font-bold">
+                  <SelectTrigger className="h-14 rounded-2xl border-border bg-surface-2 px-6 text-base font-bold">
                     {/* SelectValue 가 SelectItem children 자동 매핑 안 되는 결함 회피 — 명시 텍스트 렌더. */}
                     <span>
                       {zoneTypeLabel(editType)} ({editType})
@@ -287,12 +287,12 @@ export function ZoneManagement() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">상위 구역</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">상위 구역</label>
                 <Select
                   value={editParentId === null ? "none" : String(editParentId)}
                   onValueChange={(v) => setEditParentId(v === "none" ? null : Number(v))}
                 >
-                  <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-base font-bold">
+                  <SelectTrigger className="h-14 rounded-2xl border-border bg-surface-2 px-6 text-base font-bold">
                     {/* SelectValue 가 raw value 노출하는 결함 회피 — 명시 라벨 렌더. */}
                     <span>
                       {editParentId === null
@@ -311,11 +311,11 @@ export function ZoneManagement() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">설명</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">설명</label>
                 <Input
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 px-6 text-base"
+                  className="h-14 rounded-2xl border-border bg-surface-2 px-6 text-base"
                 />
               </div>
             </div>
@@ -324,14 +324,14 @@ export function ZoneManagement() {
                 variant="ghost"
                 onClick={() => setIsEditOpen(false)}
                 disabled={updateMutation.isPending}
-                className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                className="flex-1 h-14 rounded-2xl font-bold text-muted-foreground hover:text-foreground hover:bg-surface-2"
               >
                 취소
               </Button>
               <Button
                 onClick={handleUpdate}
                 disabled={updateMutation.isPending}
-                className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
+                className="flex-1 h-14 rounded-2xl font-bold bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {updateMutation.isPending ? "저장 중..." : "저장하기"}
               </Button>

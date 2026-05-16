@@ -33,16 +33,16 @@ import type { TabType } from "./types";
 function ComingSoon({ title, onBack }: { title: string; onBack: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+      <div className="w-20 h-20 bg-surface-2 rounded-full flex items-center justify-center mb-4">
         <span className="text-4xl">🚧</span>
       </div>
-      <h2 className="text-3xl font-bold text-gray-900">{title} 페이지 준비 중</h2>
-      <p className="text-gray-500 max-w-md">
+      <h2 className="text-3xl font-bold text-foreground">{title} 페이지 준비 중</h2>
+      <p className="text-muted-foreground max-w-md">
         현재 이 페이지는 개발 중입니다. 곧 멋진 기능으로 찾아뵙겠습니다!
       </p>
       <button
         onClick={onBack}
-        className="mt-4 px-6 py-2 bg-black text-white rounded-full font-bold hover:bg-black/90 transition-colors"
+        className="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded-full font-bold hover:bg-primary/90 transition-colors"
       >
         대시보드로 돌아가기
       </button>
@@ -92,43 +92,43 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#f8f9fa] font-sans text-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-canvas font-sans text-foreground overflow-hidden">
       {showNavGuard && (
-        <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-foreground/60 z-[1000] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-[40px] w-full max-w-sm p-10 shadow-2xl space-y-8 text-center"
+            className="bg-surface rounded-[40px] w-full max-w-sm p-10 shadow-overlay space-y-8 text-center"
           >
-            <div className="w-20 h-20 bg-orange-50 text-orange-600 rounded-3xl flex items-center justify-center mx-auto">
+            <div className="w-20 h-20 bg-warning-bg text-warning-fg rounded-3xl flex items-center justify-center mx-auto">
               <ShieldAlert className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+              <h2 className="text-2xl font-bold text-foreground leading-tight">
                 저장하지 않은
                 <br />
                 변경사항이 있습니다
               </h2>
-              <p className="text-gray-500 font-medium">이동하시기 전에 변경사항을 저장할까요?</p>
+              <p className="text-muted-foreground font-medium">이동하시기 전에 변경사항을 저장할까요?</p>
             </div>
             <div className="flex flex-col gap-2">
               <Button
                 onClick={() => confirmNavigation(true)}
-                className="w-full h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90"
+                className="w-full h-14 rounded-2xl font-bold bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 저장하고 이동하기
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => confirmNavigation(false)}
-                className="w-full h-14 rounded-2xl font-bold text-red-500 hover:text-red-600 hover:bg-red-50"
+                className="w-full h-14 rounded-2xl font-bold text-error-fg hover:text-error-fg hover:bg-error-bg"
               >
                 무시하고 이동하기
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => setShowNavGuard(false)}
-                className="w-full h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                className="w-full h-14 rounded-2xl font-bold text-muted-foreground hover:text-foreground hover:bg-surface-2"
               >
                 페이지에 머물기
               </Button>
@@ -184,10 +184,10 @@ export default function App() {
                   element={
                     <div className="space-y-8">
                       <header>
-                        <h1 className="text-5xl font-bold tracking-tight mb-2 text-gray-900">
+                        <h1 className="text-5xl font-bold tracking-tight mb-2 text-foreground">
                           출입 기록 관리
                         </h1>
-                        <p className="text-gray-500 text-lg font-medium">
+                        <p className="text-muted-foreground text-lg font-medium">
                           건물 및 구역별 상세 출입 기록을 모니터링합니다
                         </p>
                       </header>
@@ -200,10 +200,10 @@ export default function App() {
                   element={
                     <div className="space-y-8">
                       <header>
-                        <h1 className="text-5xl font-bold tracking-tight mb-2 text-gray-900">
+                        <h1 className="text-5xl font-bold tracking-tight mb-2 text-foreground">
                           인사 관리
                         </h1>
-                        <p className="text-gray-500 text-lg font-medium">
+                        <p className="text-muted-foreground text-lg font-medium">
                           직원 명부 및 근태 현황을 관리합니다
                         </p>
                       </header>

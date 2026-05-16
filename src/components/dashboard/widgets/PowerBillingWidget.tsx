@@ -11,8 +11,8 @@ interface PowerBillingWidgetProps {
 
 function WidgetErrorFallback({ message }: { message: string }) {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-red-100 shadow-sm">
-      <div className="flex items-center gap-3 text-red-500">
+    <div className="bg-surface p-6 rounded-xl border border-error-bg shadow-card">
+      <div className="flex items-center gap-3 text-error-fg">
         <Zap className="w-5 h-5" />
         <p className="text-sm font-bold">{message}</p>
       </div>
@@ -25,7 +25,7 @@ function PowerBillingWidgetInner({ query }: PowerBillingWidgetProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-3">
+      <div className="bg-surface p-6 rounded-xl border border-border shadow-card space-y-3">
         <Skeleton className="h-4 w-28" />
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-3 w-full" />
@@ -41,19 +41,19 @@ function PowerBillingWidgetInner({ query }: PowerBillingWidgetProps) {
     data?.year && data?.month ? `${data.year}년 ${data.month}월` : "현재 월";
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <div className="bg-surface p-6 rounded-xl border border-border shadow-card">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-gray-400 text-sm font-medium">월 요금</p>
-        <Zap className="w-4 h-4 text-gray-300" />
+        <p className="text-muted-foreground text-sm font-medium">월 요금</p>
+        <Zap className="w-4 h-4 text-muted-foreground" />
       </div>
       <div className="flex items-baseline gap-2 mb-3">
-        <span className="text-3xl font-bold text-black">
+        <span className="text-3xl font-bold text-foreground">
           ₩{((data?.totalFee ?? 0) / 10000).toLocaleString(undefined, {
             maximumFractionDigits: 1,
           })}만
         </span>
       </div>
-      <p className="text-gray-500 text-xs">
+      <p className="text-muted-foreground text-xs">
         {periodLabel} · 누적 {(data?.totalKwh ?? 0).toLocaleString()} kWh
       </p>
     </div>

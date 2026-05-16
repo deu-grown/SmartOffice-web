@@ -37,12 +37,12 @@ export function SalaryManagement() {
     <div className="space-y-8 pb-12">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-5xl font-bold tracking-tight mb-2 text-gray-900">직원별 급여 관리</h1>
-          <p className="text-gray-500 text-lg font-medium">출퇴근 집계 기반 급여 산출 · 직급별 기준 관리</p>
+          <h1 className="text-5xl font-bold tracking-tight mb-2 text-foreground">직원별 급여 관리</h1>
+          <p className="text-muted-foreground text-lg font-medium">출퇴근 집계 기반 급여 산출 · 직급별 기준 관리</p>
         </div>
         <div className="flex gap-2 items-center">
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-            <SelectTrigger className="w-[100px] bg-white border-gray-100 rounded-xl h-12 font-bold">
+            <SelectTrigger className="w-[100px] bg-surface border-border rounded-xl h-12 font-bold">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -54,7 +54,7 @@ export function SalaryManagement() {
             </SelectContent>
           </Select>
           <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-            <SelectTrigger className="w-[80px] bg-white border-gray-100 rounded-xl h-12 font-bold">
+            <SelectTrigger className="w-[80px] bg-surface border-border rounded-xl h-12 font-bold">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -65,21 +65,21 @@ export function SalaryManagement() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={() => setCalcOpen(true)} className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2">
+          <Button onClick={() => setCalcOpen(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2">
             <Calculator className="w-4 h-4" />
             급여 산출
           </Button>
         </div>
       </header>
 
-      <div className="flex bg-gray-50 p-1 rounded-2xl gap-1 w-fit">
+      <div className="flex bg-surface-2 p-1 rounded-2xl gap-1 w-fit">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
             className={cn(
               "px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
-              activeTab === t.id ? "bg-white text-black shadow-sm" : "text-gray-400 hover:text-gray-600"
+              activeTab === t.id ? "bg-surface text-foreground shadow-card" : "text-muted-foreground hover:text-foreground"
             )}
           >
             {t.label}

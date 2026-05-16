@@ -48,10 +48,10 @@ const STATUS_OPTIONS: { value: "all" | GuestStatus; label: string }[] = [
 ];
 
 const STATUS_STYLE: Record<GuestStatus, { label: string; className: string }> = {
-  SCHEDULED: { label: "방문 예정", className: "bg-orange-500/10 text-orange-600" },
-  VISITING: { label: "방문 중", className: "bg-green-500/10 text-green-600" },
-  COMPLETED: { label: "방문 완료", className: "bg-blue-500/10 text-blue-600" },
-  CANCELLED: { label: "취소됨", className: "bg-gray-100 text-gray-400" },
+  SCHEDULED: { label: "방문 예정", className: "bg-warning-bg text-warning-fg" },
+  VISITING: { label: "방문 중", className: "bg-success-bg text-success-fg" },
+  COMPLETED: { label: "방문 완료", className: "bg-info-bg text-info-fg" },
+  CANCELLED: { label: "취소됨", className: "bg-surface-2 text-muted-foreground" },
 };
 
 export function GuestTable() {
@@ -150,16 +150,16 @@ export function GuestTable() {
 
   return (
     <div className="space-y-8 pb-20">
-      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
+      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-surface p-8 rounded-4xl border border-border shadow-card">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tight text-gray-900">게스트 관리</h1>
-          <p className="text-sm font-medium text-gray-500">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">게스트 관리</h1>
+          <p className="text-sm font-medium text-muted-foreground">
             방문객 등록 · 체크인/체크아웃 관리
           </p>
         </div>
         <Button
           onClick={() => setIsAddOpen(true)}
-          className="h-12 px-6 rounded-2xl font-bold bg-black text-white hover:bg-black/90 flex items-center gap-2"
+          className="h-12 px-6 rounded-2xl font-bold bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2"
         >
           <UserPlus className="w-4 h-4" />
           방문객 등록
@@ -169,9 +169,9 @@ export function GuestTable() {
       {/* 통계 카드 */}
       <div className="grid grid-cols-3 gap-6">
         {[
-          { label: "방문 예정", value: scheduledCount, icon: Clock, color: "text-orange-600", bg: "bg-orange-50/40 border-orange-100" },
-          { label: "방문 중", value: visitingCount, icon: Users, color: "text-green-600", bg: "bg-green-50/40 border-green-100" },
-          { label: "방문 완료", value: completedCount, icon: CheckCircle2, color: "text-blue-600", bg: "bg-white" },
+          { label: "방문 예정", value: scheduledCount, icon: Clock, color: "text-warning-fg", bg: "bg-warning-bg" },
+          { label: "방문 중", value: visitingCount, icon: Users, color: "text-success-fg", bg: "bg-success-bg" },
+          { label: "방문 완료", value: completedCount, icon: CheckCircle2, color: "text-info-fg", bg: "bg-surface" },
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
@@ -180,13 +180,13 @@ export function GuestTable() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.08 }}
-              className={cn("p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between h-44", stat.bg)}
+              className={cn("p-8 rounded-4xl border border-border shadow-card flex flex-col justify-between h-44", stat.bg)}
             >
-              <div className={cn("w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center", stat.color)}>
+              <div className={cn("w-12 h-12 rounded-2xl bg-surface-2 border border-border flex items-center justify-center", stat.color)}>
                 <Icon className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-gray-400 block mb-1">{stat.label}</span>
+                <span className="text-[10px] font-black font-sans uppercase tracking-[0.2em] text-muted-foreground block mb-1">{stat.label}</span>
                 <span className={cn("text-3xl font-black tracking-tighter", stat.color)}>{stat.value}</span>
               </div>
             </motion.div>
@@ -195,21 +195,21 @@ export function GuestTable() {
       </div>
 
       {/* 필터 */}
-      <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
+      <div className="bg-surface p-6 rounded-4xl border border-border shadow-card flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             placeholder="이름 · 회사명 검색"
             value={keyword}
             onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
-            className="pl-12 h-12 bg-gray-50 border-gray-100 rounded-2xl"
+            className="pl-12 h-12 bg-surface-2 border-border rounded-2xl"
           />
         </div>
         <Select
           value={statusFilter}
           onValueChange={(v) => { setStatusFilter(v as typeof statusFilter); setPage(0); }}
         >
-          <SelectTrigger className="h-12 w-[180px] bg-gray-50 border-gray-100 rounded-2xl px-5 font-bold">
+          <SelectTrigger className="h-12 w-[180px] bg-surface-2 border-border rounded-2xl px-5 font-bold">
             <span>{STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "전체"}</span>
           </SelectTrigger>
           <SelectContent>
@@ -221,11 +221,11 @@ export function GuestTable() {
       </div>
 
       {/* 테이블 */}
-      <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className="bg-surface rounded-xl border border-border overflow-hidden shadow-card">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="bg-gray-50 text-gray-400 text-xs font-bold uppercase tracking-wider">
+              <tr className="bg-surface-2 text-muted-foreground text-xs font-bold uppercase tracking-wider">
                 <th className="px-6 py-5">방문객</th>
                 <th className="px-6 py-5">회사</th>
                 <th className="px-6 py-5">담당자</th>
@@ -235,7 +235,7 @@ export function GuestTable() {
                 <th className="px-6 py-5 text-right">액션</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {query.isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
@@ -246,13 +246,13 @@ export function GuestTable() {
                 ))
               ) : query.isError ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-sm font-bold text-red-500">
+                  <td colSpan={7} className="px-6 py-12 text-center text-sm font-bold text-error-fg">
                     방문객 목록을 불러오지 못했습니다.
                   </td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
                     조건에 맞는 방문객이 없습니다.
                   </td>
                 </tr>
@@ -260,19 +260,19 @@ export function GuestTable() {
                 rows.map((g) => {
                   const s = STATUS_STYLE[g.guestStatus];
                   return (
-                    <tr key={g.guestId} className="hover:bg-gray-50">
+                    <tr key={g.guestId} className="hover:bg-surface-2">
                       <td className="px-6 py-4">
                         <div>
-                          <span className="font-bold text-black">{g.guestName}</span>
+                          <span className="font-bold text-foreground">{g.guestName}</span>
                           {g.contactPhone && (
-                            <span className="block text-[10px] text-gray-400">{g.contactPhone}</span>
+                            <span className="block text-[10px] text-muted-foreground">{g.contactPhone}</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{g.company}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{g.hostUserName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{g.purpose}</td>
-                      <td className="px-6 py-4 text-xs text-gray-600">
+                      <td className="px-6 py-4 text-sm text-foreground">{g.company}</td>
+                      <td className="px-6 py-4 text-sm text-foreground">{g.hostUserName}</td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">{g.purpose}</td>
+                      <td className="px-6 py-4 text-xs text-muted-foreground">
                         {new Date(g.scheduledEntryAt).toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
@@ -286,7 +286,7 @@ export function GuestTable() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 px-3 rounded-xl text-xs font-bold border-green-200 text-green-700 hover:bg-green-50"
+                              className="h-8 px-3 rounded-xl text-xs font-bold border-success-bg text-success-fg hover:bg-success-bg"
                               onClick={() => handleCheckIn(g.guestId, g.guestName)}
                               disabled={checkInMutation.isPending}
                             >
@@ -298,7 +298,7 @@ export function GuestTable() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 px-3 rounded-xl text-xs font-bold border-blue-200 text-blue-700 hover:bg-blue-50"
+                              className="h-8 px-3 rounded-xl text-xs font-bold border-info-bg text-info-fg hover:bg-info-bg"
                               onClick={() => handleCheckOut(g.guestId, g.guestName)}
                               disabled={checkOutMutation.isPending}
                             >
@@ -309,7 +309,7 @@ export function GuestTable() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50"
+                            className="h-8 w-8 p-0 rounded-xl text-muted-foreground hover:text-error-fg hover:bg-error-bg"
                             onClick={() => handleDelete(g.guestId, g.guestName)}
                             disabled={deleteMutation.isPending}
                           >
@@ -329,14 +329,14 @@ export function GuestTable() {
       {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2 py-4">
-          <p className="text-sm text-gray-500">
-            전체 <span className="font-bold text-black">{totalElements}</span>명 · 페이지 {page + 1}/{totalPages}
+          <p className="text-sm text-muted-foreground">
+            전체 <span className="font-bold text-foreground">{totalElements}</span>명 · 페이지 {page + 1}/{totalPages}
           </p>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={() => setPage(Math.max(page - 1, 0))} disabled={page === 0} className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30">
+            <Button variant="outline" size="icon" onClick={() => setPage(Math.max(page - 1, 0))} disabled={page === 0} className="w-10 h-10 rounded-xl border-border disabled:opacity-30">
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={() => setPage(Math.min(page + 1, totalPages - 1))} disabled={page >= totalPages - 1} className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30">
+            <Button variant="outline" size="icon" onClick={() => setPage(Math.min(page + 1, totalPages - 1))} disabled={page >= totalPages - 1} className="w-10 h-10 rounded-xl border-border disabled:opacity-30">
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
@@ -345,49 +345,49 @@ export function GuestTable() {
 
       {/* 등록 모달 */}
       {isAddOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-foreground/60 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-6"
+            className="bg-surface rounded-4xl w-full max-w-md p-10 shadow-overlay space-y-6"
           >
             <div>
-              <h2 className="text-3xl font-bold text-gray-900">방문객 등록</h2>
-              <p className="text-gray-500 font-medium mt-1">방문 예정 정보를 입력하세요.</p>
+              <h2 className="text-3xl font-bold text-foreground">방문객 등록</h2>
+              <p className="text-muted-foreground font-medium mt-1">방문 예정 정보를 입력하세요.</p>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-400 ml-1">이름 *</label>
-                  <Input value={addName} onChange={(e) => setAddName(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="홍길동" />
+                  <label className="text-sm font-bold text-muted-foreground ml-1">이름 *</label>
+                  <Input value={addName} onChange={(e) => setAddName(e.target.value)} className="h-12 rounded-2xl border-border bg-surface-2 px-5" placeholder="홍길동" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-400 ml-1">회사 *</label>
-                  <Input value={addCompany} onChange={(e) => setAddCompany(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="ABC 주식회사" />
+                  <label className="text-sm font-bold text-muted-foreground ml-1">회사 *</label>
+                  <Input value={addCompany} onChange={(e) => setAddCompany(e.target.value)} className="h-12 rounded-2xl border-border bg-surface-2 px-5" placeholder="ABC 주식회사" />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">방문 목적 *</label>
-                <Input value={addPurpose} onChange={(e) => setAddPurpose(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="사업 미팅" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">방문 목적 *</label>
+                <Input value={addPurpose} onChange={(e) => setAddPurpose(e.target.value)} className="h-12 rounded-2xl border-border bg-surface-2 px-5" placeholder="사업 미팅" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-400 ml-1">담당자 ID *</label>
-                  <Input value={addHostId} onChange={(e) => setAddHostId(e.target.value)} type="number" className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="2" />
+                  <label className="text-sm font-bold text-muted-foreground ml-1">담당자 ID *</label>
+                  <Input value={addHostId} onChange={(e) => setAddHostId(e.target.value)} type="number" className="h-12 rounded-2xl border-border bg-surface-2 px-5" placeholder="2" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-400 ml-1">연락처</label>
-                  <Input value={addPhone} onChange={(e) => setAddPhone(e.target.value)} className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" placeholder="010-0000-0000" />
+                  <label className="text-sm font-bold text-muted-foreground ml-1">연락처</label>
+                  <Input value={addPhone} onChange={(e) => setAddPhone(e.target.value)} className="h-12 rounded-2xl border-border bg-surface-2 px-5" placeholder="010-0000-0000" />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">방문 예정 시각 *</label>
-                <Input value={addScheduled} onChange={(e) => setAddScheduled(e.target.value)} type="datetime-local" className="h-12 rounded-2xl border-gray-100 bg-gray-50 px-5" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">방문 예정 시각 *</label>
+                <Input value={addScheduled} onChange={(e) => setAddScheduled(e.target.value)} type="datetime-local" className="h-12 rounded-2xl border-border bg-surface-2 px-5" />
               </div>
             </div>
             <div className="flex gap-3 pt-2">
-              <Button variant="ghost" onClick={() => { setIsAddOpen(false); resetAddForm(); }} disabled={createMutation.isPending} className="flex-1 h-14 rounded-2xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-100">취소</Button>
-              <Button onClick={handleCreate} disabled={createMutation.isPending} className="flex-1 h-14 rounded-2xl font-bold bg-black text-white hover:bg-black/90">
+              <Button variant="ghost" onClick={() => { setIsAddOpen(false); resetAddForm(); }} disabled={createMutation.isPending} className="flex-1 h-14 rounded-2xl font-bold text-muted-foreground hover:text-foreground hover:bg-surface-2">취소</Button>
+              <Button onClick={handleCreate} disabled={createMutation.isPending} className="flex-1 h-14 rounded-2xl font-bold bg-primary text-primary-foreground hover:bg-primary/90">
                 {createMutation.isPending ? "등록 중..." : "등록하기"}
               </Button>
             </div>

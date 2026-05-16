@@ -28,11 +28,11 @@ export function TopBar({ user, onLogout }: TopBarProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="h-20 flex items-center justify-end px-8 bg-white border-b border-gray-100">
+    <header className="h-20 flex items-center justify-end px-8 bg-surface border-b border-border">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 ml-2">
           <DropdownMenu>
-            <DropdownMenuTrigger className="w-10 h-10 border-2 border-gray-100 cursor-pointer hover:border-gray-200 transition-all outline-none rounded-full overflow-hidden flex items-center justify-center">
+            <DropdownMenuTrigger className="w-10 h-10 border-2 border-border cursor-pointer hover:border-border-strong transition-all outline-none rounded-full overflow-hidden flex items-center justify-center">
               <Avatar className="w-full h-full border-none">
                 <AvatarImage
                   src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || "User"}`}
@@ -44,23 +44,23 @@ export function TopBar({ user, onLogout }: TopBarProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-56 bg-white text-black border border-gray-100 shadow-2xl rounded-2xl p-2 z-50"
+              className="w-56 bg-surface text-foreground border border-border shadow-overlay rounded-2xl p-2 z-50"
             >
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <DropdownMenuLabel className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   나의 계정
                 </DropdownMenuLabel>
               </DropdownMenuGroup>
-              <DropdownMenuSeparator className="bg-gray-100 mx-2 my-1" />
+              <DropdownMenuSeparator className="bg-border mx-2 my-1" />
               <DropdownMenuItem
-                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors cursor-pointer outline-none focus:bg-gray-50"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-foreground hover:bg-surface-2 hover:text-foreground transition-colors cursor-pointer outline-none focus:bg-surface-2"
                 onClick={() => navigate(`${ROUTES.PERSONNEL}?view=myinfo`)}
               >
                 <User className="w-4 h-4" /> 내 정보
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-gray-100 mx-2 my-1" />
+              <DropdownMenuSeparator className="bg-border mx-2 my-1" />
               <DropdownMenuItem
-                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer outline-none focus:bg-red-50"
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-error-fg hover:bg-error-bg hover:text-error-fg transition-colors cursor-pointer outline-none focus:bg-error-bg"
                 onClick={onLogout}
               >
                 <LogOut className="w-4 h-4" /> 로그아웃

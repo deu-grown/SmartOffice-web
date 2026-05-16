@@ -17,14 +17,14 @@ export function NfcCardManagement() {
     <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-5xl font-bold tracking-tight mb-2 text-gray-900">NFC 카드 관리</h1>
-          <p className="text-gray-500 text-lg font-medium">
+          <h1 className="text-5xl font-bold tracking-tight mb-2 text-foreground">NFC 카드 관리</h1>
+          <p className="text-muted-foreground text-lg font-medium">
             발급된 카드를 관리하고 분실·재발급·삭제를 처리합니다.
           </p>
         </div>
         <Button
           onClick={() => setIssueOpen(true)}
-          className="bg-black text-white hover:bg-black/90 rounded-2xl font-bold h-12 px-5"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl font-bold h-12 px-5"
         >
           <Plus className="w-4 h-4 mr-1" /> 카드 발급
         </Button>

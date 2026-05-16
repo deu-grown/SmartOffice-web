@@ -19,13 +19,13 @@ export function MeetingRoomManagement() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-5xl font-bold tracking-tight mb-2 text-gray-900">회의실 관리</h1>
-        <p className="text-gray-500 text-lg font-medium">
+        <h1 className="text-5xl font-bold tracking-tight mb-2 text-foreground">회의실 관리</h1>
+        <p className="text-muted-foreground text-lg font-medium">
           예약 현황을 운영하고 회의실별 슬롯을 관리합니다.
         </p>
       </header>
 
-      <div className="flex items-center gap-2 border-b border-gray-100">
+      <div className="flex items-center gap-2 border-b border-border">
         <ViewTab active={view === "list"} onClick={() => setView("list")} icon={<ListChecks className="w-4 h-4" />}>
           예약 목록
         </ViewTab>
@@ -70,8 +70,8 @@ function ViewTab({
       className={cn(
         "px-5 py-3 text-sm font-bold transition-colors border-b-2 flex items-center gap-2",
         active
-          ? "border-black text-black"
-          : "border-transparent text-gray-400 hover:text-gray-700",
+          ? "border-primary text-foreground"
+          : "border-transparent text-muted-foreground hover:text-foreground",
       )}
     >
       {icon}
