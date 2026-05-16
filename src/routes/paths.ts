@@ -16,6 +16,7 @@ export const ROUTES = {
   BUILDING: "/building",
   MEETING_ROOMS: "/meeting-rooms",
   NFC_CARDS: "/nfc-cards",
+  HARDWARE_TEST: "/test/hardware",
 } as const;
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];

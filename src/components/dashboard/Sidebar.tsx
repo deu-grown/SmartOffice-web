@@ -1,8 +1,10 @@
-import { LayoutDashboard, FolderKanban, Calendar, Sparkles, Timer, BarChart3, CalendarClock, KeyRound, LogOut, ChevronLeft, ChevronRight, UserCheck } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Calendar, Sparkles, Timer, BarChart3, CalendarClock, KeyRound, LogOut, ChevronLeft, ChevronRight, UserCheck, FlaskConical } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { TabType } from "../../types";
+import { ROUTES } from "@/src/routes/paths";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "통합 관제" },
@@ -88,8 +90,29 @@ export function Sidebar({ activeTab, onTabChange, isCollapsed, onToggle, onLogou
         </div>
       </div>
 
-      <div className="p-4 border-t border-gray-100">
-        <button 
+      <div className="p-4 border-t border-gray-100 space-y-1">
+        {import.meta.env.DEV && (
+          <Link
+            to={ROUTES.HARDWARE_TEST}
+            title={isCollapsed ? "🧪 데이터 주입 (dev)" : undefined}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group hover:bg-amber-50 hover:text-amber-700 text-amber-500 text-sm",
+              isCollapsed && "justify-center px-0"
+            )}
+          >
+            <FlaskConical className="w-4 h-4 shrink-0" />
+            {!isCollapsed && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="font-medium truncate"
+              >
+                🧪 데이터 주입 (dev)
+              </motion.span>
+            )}
+          </Link>
+        )}
+        <button
           onClick={handleLogout}
           title={isCollapsed ? "로그아웃" : undefined}
           className={cn(
@@ -99,7 +122,7 @@ export function Sidebar({ activeTab, onTabChange, isCollapsed, onToggle, onLogou
         >
           <LogOut className="w-5 h-5 text-gray-400 group-hover:text-black" />
           {!isCollapsed && (
-            <motion.span 
+            <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="font-medium"

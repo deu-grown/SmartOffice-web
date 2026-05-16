@@ -20,6 +20,7 @@ import { InventoryManagement } from "./components/dashboard/InventoryManagement"
 import { MeetingRoomManagement } from "./components/dashboard/MeetingRoomManagement";
 import { NfcCardManagement } from "./components/dashboard/NfcCardManagement";
 import { GuestTable } from "./components/dashboard/GuestTable";
+import { HardwareInjectionPage } from "./components/test/HardwareInjectionPage";
 
 import { useAuthStore } from "./stores/authStore";
 import { useUIStore } from "./stores/uiStore";
@@ -214,6 +215,9 @@ export default function App() {
                 <Route path="guest" element={<GuestTable />} />
                 <Route path="meeting-rooms" element={<MeetingRoomManagement />} />
                 <Route path="nfc-cards" element={<NfcCardManagement />} />
+                {import.meta.env.DEV && (
+                  <Route path="test/hardware" element={<HardwareInjectionPage />} />
+                )}
                 <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
               </Routes>
             </motion.div>
