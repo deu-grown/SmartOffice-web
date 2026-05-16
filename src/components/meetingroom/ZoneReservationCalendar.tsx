@@ -19,10 +19,10 @@ const HOUR_END = 22;
 
 // 상태별 슬롯 색상.
 const STATUS_BG: Record<ReservationStatus, string> = {
-  CONFIRMED: "bg-blue-100 border-blue-300 text-blue-700",
-  CHECKED_IN: "bg-emerald-100 border-emerald-300 text-emerald-700",
-  CANCELLED: "bg-gray-100 border-gray-200 text-gray-400 line-through",
-  NO_SHOW: "bg-red-50 border-red-200 text-red-500",
+  CONFIRMED: "bg-info-bg border-info-fg/30 text-info-fg",
+  CHECKED_IN: "bg-success-bg border-success-fg/30 text-success-fg",
+  CANCELLED: "bg-surface-2 border-border text-muted-foreground line-through",
+  NO_SHOW: "bg-error-bg border-error-fg/20 text-error-fg",
 };
 
 interface ZoneReservationCalendarProps {
@@ -58,11 +58,11 @@ export function ZoneReservationCalendar({
   const hours = Array.from({ length: HOUR_END - HOUR_START + 1 }, (_, i) => HOUR_START + i);
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
+    <div className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)] p-6 space-y-4">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">캘린더</h2>
-          <p className="text-sm text-gray-400">
+          <h2 className="text-xl font-bold text-foreground">캘린더</h2>
+          <p className="text-sm text-muted-foreground">
             {effectiveZoneId ? "선택된 회의실의 일자별 예약을 표시합니다." : "회의실을 선택하세요."}
           </p>
         </div>
@@ -73,7 +73,7 @@ export function ZoneReservationCalendar({
               value={selectedZoneId}
               onChange={(id) => setSelectedZoneId(id)}
               placeholder="회의실 선택"
-              triggerClassName="w-44 h-10 rounded-xl bg-gray-50 border-gray-100"
+              triggerClassName="w-44 h-10 rounded-xl bg-surface-2 border-border"
               emptyText="등록된 회의실이 없습니다."
             />
           )}
@@ -81,13 +81,13 @@ export function ZoneReservationCalendar({
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-44 h-10 rounded-xl bg-gray-50 border-gray-100"
+            className="w-44 h-10 rounded-xl bg-surface-2 border-border"
           />
         </div>
       </header>
 
       {!effectiveZoneId ? (
-        <p className="py-12 text-center text-gray-400">회의실을 먼저 선택해 주세요.</p>
+        <p className="py-12 text-center text-muted-foreground">회의실을 먼저 선택해 주세요.</p>
       ) : isLoading ? (
         <div className="space-y-2 py-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -95,11 +95,11 @@ export function ZoneReservationCalendar({
           ))}
         </div>
       ) : isError ? (
-        <p className="py-12 text-center text-sm font-bold text-red-500">
+        <p className="py-12 text-center text-sm font-bold text-error-fg">
           구역 예약 현황을 불러오지 못했습니다: {error?.message ?? ""}
         </p>
       ) : (
-        <div className="border border-gray-100 rounded-2xl overflow-hidden divide-y divide-gray-50">
+        <div className="border border-border rounded-2xl overflow-hidden divide-y divide-border">
           {hours.map((h) => {
             const overlapping = items.filter((r) => {
               const start = new Date(r.startTime).getHours();
@@ -108,12 +108,12 @@ export function ZoneReservationCalendar({
             });
             return (
               <div key={h} className="flex items-stretch min-h-[44px]">
-                <div className="w-16 px-3 py-2 text-xs font-bold text-gray-400 bg-gray-50 flex items-center">
+                <div className="w-16 px-3 py-2 text-xs font-bold text-muted-foreground bg-surface-2 flex items-center">
                   {String(h).padStart(2, "0")}:00
                 </div>
                 <div className="flex-1 flex flex-wrap gap-2 px-3 py-2">
                   {overlapping.length === 0 ? (
-                    <span className="text-xs text-gray-300">예약 없음</span>
+                    <span className="text-xs text-muted-foreground/50">예약 없음</span>
                   ) : (
                     overlapping.map((r) => (
                       <button
@@ -139,7 +139,7 @@ export function ZoneReservationCalendar({
         </div>
       )}
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-muted-foreground">
         총 {items.length} 건 · {date}
       </p>
     </div>

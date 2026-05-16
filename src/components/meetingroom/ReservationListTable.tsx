@@ -24,10 +24,10 @@ const PAGE_SIZE = 10;
 
 // 상태별 배지 색상.
 const STATUS_BADGE: Record<ReservationStatus, string> = {
-  CONFIRMED: "bg-blue-50 text-blue-600",
-  CHECKED_IN: "bg-emerald-50 text-emerald-600",
-  CANCELLED: "bg-gray-100 text-gray-500",
-  NO_SHOW: "bg-red-50 text-red-500",
+  CONFIRMED: "bg-info-bg text-info-fg",
+  CHECKED_IN: "bg-success-bg text-success-fg",
+  CANCELLED: "bg-surface-2 text-muted-foreground",
+  NO_SHOW: "bg-error-bg text-error-fg",
 };
 
 const STATUS_LABEL: Record<ReservationStatus, string> = {
@@ -56,15 +56,15 @@ export function ReservationListTable({ onSelect }: ReservationListTableProps) {
   const totalElements = data?.totalElements ?? 0;
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
+    <div className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)] p-6 space-y-4">
       <header className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">예약 목록</h2>
-          <p className="text-sm text-gray-400">총 {totalElements} 건</p>
+          <h2 className="text-xl font-bold text-foreground">예약 목록</h2>
+          <p className="text-sm text-muted-foreground">총 {totalElements} 건</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Select
               value={status}
               onValueChange={(v) => {
@@ -72,10 +72,10 @@ export function ReservationListTable({ onSelect }: ReservationListTableProps) {
                 setPage(0);
               }}
             >
-              <SelectTrigger className="pl-9 w-44 h-10 rounded-xl bg-gray-50 border-gray-100">
+              <SelectTrigger className="pl-9 w-44 h-10 rounded-xl bg-surface-2 border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-border">
                 <SelectItem value="ALL">전체 상태</SelectItem>
                 <SelectItem value="CONFIRMED">예약 확정</SelectItem>
                 <SelectItem value="CHECKED_IN">체크인 완료</SelectItem>
@@ -94,34 +94,34 @@ export function ReservationListTable({ onSelect }: ReservationListTableProps) {
           ))}
         </div>
       ) : isError ? (
-        <p className="py-12 text-center text-sm font-bold text-red-500">
+        <p className="py-12 text-center text-sm font-bold text-error-fg">
           예약 목록을 불러오지 못했습니다: {error?.message ?? ""}
         </p>
       ) : items.length === 0 ? (
-        <p className="py-12 text-center text-gray-400">예약이 없습니다.</p>
+        <p className="py-12 text-center text-muted-foreground">예약이 없습니다.</p>
       ) : (
-        <div className="border border-gray-100 rounded-2xl overflow-hidden">
+        <div className="border border-border rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr className="text-left text-xs font-bold text-gray-500 uppercase">
-                <th className="px-4 py-3">예약자</th>
-                <th className="px-4 py-3">회의실</th>
-                <th className="px-4 py-3">시작</th>
-                <th className="px-4 py-3">종료</th>
-                <th className="px-4 py-3">상태</th>
+            <thead className="bg-surface-2">
+              <tr className="text-left text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em]">
+                <th className="px-4 py-3 whitespace-nowrap">예약자</th>
+                <th className="px-4 py-3 whitespace-nowrap">회의실</th>
+                <th className="px-4 py-3 whitespace-nowrap">시작</th>
+                <th className="px-4 py-3 whitespace-nowrap">종료</th>
+                <th className="px-4 py-3 whitespace-nowrap">상태</th>
               </tr>
             </thead>
             <tbody>
               {items.map((r) => (
                 <tr
                   key={r.id}
-                  className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
+                  className="border-t border-border hover:bg-surface-2 cursor-pointer"
                   onClick={() => onSelect(r.id)}
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">{r.userName}</td>
-                  <td className="px-4 py-3 text-gray-700">{r.zoneName}</td>
-                  <td className="px-4 py-3 text-gray-700">{formatDateTime(r.startTime)}</td>
-                  <td className="px-4 py-3 text-gray-700">{formatDateTime(r.endTime)}</td>
+                  <td className="px-4 py-3 font-medium text-foreground">{r.userName}</td>
+                  <td className="px-4 py-3 text-foreground">{r.zoneName}</td>
+                  <td className="px-4 py-3 text-foreground">{formatDateTime(r.startTime)}</td>
+                  <td className="px-4 py-3 text-foreground">{formatDateTime(r.endTime)}</td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(
@@ -150,7 +150,7 @@ export function ReservationListTable({ onSelect }: ReservationListTableProps) {
           >
             <ChevronLeft className="w-4 h-4" /> 이전
           </Button>
-          <span className="text-sm text-gray-500 px-2">
+          <span className="text-sm text-muted-foreground px-2">
             {page + 1} / {totalPages}
           </span>
           <Button

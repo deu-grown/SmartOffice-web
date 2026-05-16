@@ -89,10 +89,10 @@ export function ReservationDetailDrawer({
 
   return (
     <Dialog open={reservationId !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-white border-gray-100 text-black max-w-xl rounded-3xl">
+      <DialogContent className="bg-surface border-border text-foreground max-w-xl rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">예약 상세</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             {data ? `${data.zoneName} · ${data.userName} · ${STATUS_LABEL[data.status]}` : ""}
           </DialogDescription>
         </DialogHeader>
@@ -104,12 +104,12 @@ export function ReservationDetailDrawer({
             <Skeleton className="h-10 w-full" />
           </div>
         ) : isError ? (
-          <p className="py-6 text-sm font-bold text-red-500">
+          <p className="py-6 text-sm font-bold text-error-fg">
             예약 정보를 불러오지 못했습니다: {error?.message ?? ""}
           </p>
         ) : data ? (
           <form onSubmit={handleSubmitUpdate} className="space-y-4 py-4">
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs text-amber-700 font-medium">
+            <div className="bg-warning-bg border border-warning-fg/20 rounded-2xl p-3 text-xs text-warning-fg font-medium">
               본인 예약이 아닐 수 있습니다. ADMIN 권한으로 강제 변경됩니다.
             </div>
 
@@ -119,7 +119,7 @@ export function ReservationDetailDrawer({
                 <Input
                   value={data.zoneName}
                   disabled
-                  className="bg-gray-100 border-gray-100 text-gray-500"
+                  className="bg-surface-2 border-border text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -127,7 +127,7 @@ export function ReservationDetailDrawer({
                 <Input
                   value={data.userName}
                   disabled
-                  className="bg-gray-100 border-gray-100 text-gray-500"
+                  className="bg-surface-2 border-border text-muted-foreground"
                 />
               </div>
             </div>
@@ -140,7 +140,7 @@ export function ReservationDetailDrawer({
                   name="startTime"
                   type="datetime-local"
                   defaultValue={toLocal(data.startTime)}
-                  className="bg-gray-50 border-gray-100"
+                  className="bg-surface-2 border-border"
                 />
               </div>
               <div className="space-y-2">
@@ -150,7 +150,7 @@ export function ReservationDetailDrawer({
                   name="endTime"
                   type="datetime-local"
                   defaultValue={toLocal(data.endTime)}
-                  className="bg-gray-50 border-gray-100"
+                  className="bg-surface-2 border-border"
                 />
               </div>
             </div>
@@ -161,12 +161,12 @@ export function ReservationDetailDrawer({
                 id="r-purpose"
                 name="purpose"
                 defaultValue={data.purpose ?? ""}
-                className="bg-gray-50 border-gray-100"
+                className="bg-surface-2 border-border"
               />
             </div>
 
             {data.checkInTime && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-xs text-emerald-700">
+              <div className="bg-success-bg border border-success-fg/20 rounded-xl px-3 py-2 text-xs text-success-fg">
                 체크인 완료: {new Date(data.checkInTime).toLocaleString("ko-KR")}
               </div>
             )}
@@ -176,18 +176,18 @@ export function ReservationDetailDrawer({
                 type="button"
                 variant="ghost"
                 onClick={() => setConfirmCancel(true)}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                className="text-error-fg hover:text-error-fg hover:bg-error-bg"
                 disabled={data.status === "CANCELLED" || cancelMutation.isPending}
               >
                 예약 취소
               </Button>
-              <Button type="button" variant="ghost" onClick={onClose} className="text-gray-400">
+              <Button type="button" variant="ghost" onClick={onClose} className="text-muted-foreground hover:text-foreground hover:bg-surface-2">
                 닫기
               </Button>
               <Button
                 type="submit"
                 disabled={updateMutation.isPending}
-                className="bg-black text-white hover:bg-black/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {updateMutation.isPending ? "수정 중..." : "수정 적용"}
               </Button>
@@ -197,14 +197,14 @@ export function ReservationDetailDrawer({
 
         {pendingUpdate && data && (
           <Dialog open={pendingUpdate !== null} onOpenChange={(open) => !open && setPendingUpdate(null)}>
-            <DialogContent className="bg-white border-gray-100 text-black max-w-md rounded-3xl">
+            <DialogContent className="bg-surface border-border text-foreground max-w-md rounded-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold">예약 수정 확인</DialogTitle>
-                <DialogDescription className="text-gray-500">
+                <DialogDescription className="text-muted-foreground">
                   본인 예약이 아닐 수 있습니다. ADMIN 권한으로 강제 변경됩니다.
                 </DialogDescription>
               </DialogHeader>
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs text-amber-700 font-medium space-y-1">
+              <div className="bg-warning-bg border border-warning-fg/20 rounded-2xl p-3 text-xs text-warning-fg font-medium space-y-1">
                 <p>
                   <span className="font-bold">대상</span>: {data.userName} · {data.zoneName}
                 </p>
@@ -234,14 +234,14 @@ export function ReservationDetailDrawer({
                 <Button
                   variant="ghost"
                   onClick={() => setPendingUpdate(null)}
-                  className="text-gray-400"
+                  className="text-muted-foreground hover:text-foreground hover:bg-surface-2"
                 >
                   돌아가기
                 </Button>
                 <Button
                   onClick={handleConfirmUpdate}
                   disabled={updateMutation.isPending}
-                  className="bg-amber-500 hover:bg-amber-600 text-white"
+                  className="bg-warning text-white hover:bg-warning/90"
                 >
                   {updateMutation.isPending ? "수정 중..." : "강제 적용"}
                 </Button>
@@ -252,25 +252,25 @@ export function ReservationDetailDrawer({
 
         {confirmCancel && data && (
           <Dialog open={confirmCancel} onOpenChange={setConfirmCancel}>
-            <DialogContent className="bg-white border-gray-100 text-black max-w-md rounded-3xl">
+            <DialogContent className="bg-surface border-border text-foreground max-w-md rounded-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold">예약 취소 확인</DialogTitle>
-                <DialogDescription className="text-gray-500">
+                <DialogDescription className="text-muted-foreground">
                   본인 예약이 아닐 수 있습니다. ADMIN 권한으로 강제 취소됩니다.
                 </DialogDescription>
               </DialogHeader>
-              <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-xs text-red-600 font-medium">
+              <div className="bg-error-bg border border-error-fg/20 rounded-2xl p-3 text-xs text-error-fg font-medium">
                 {data.userName} 의 {new Date(data.startTime).toLocaleString("ko-KR")} 예약을
                 취소합니다. 되돌릴 수 없습니다.
               </div>
               <DialogFooter className="gap-2">
-                <Button variant="ghost" onClick={() => setConfirmCancel(false)} className="text-gray-400">
+                <Button variant="ghost" onClick={() => setConfirmCancel(false)} className="text-muted-foreground hover:text-foreground hover:bg-surface-2">
                   돌아가기
                 </Button>
                 <Button
                   onClick={handleCancel}
                   disabled={cancelMutation.isPending}
-                  className="bg-red-500 hover:bg-red-600 text-white"
+                  className="bg-error text-white hover:bg-error/90"
                 >
                   {cancelMutation.isPending ? "취소 중..." : "강제 취소"}
                 </Button>
