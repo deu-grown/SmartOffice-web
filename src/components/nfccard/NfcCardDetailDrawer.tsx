@@ -36,9 +36,9 @@ const STATUS_LABEL: Record<NfcCardStatus, string> = {
   INACTIVE: "비활성",
 };
 const STATUS_BADGE: Record<NfcCardStatus, string> = {
-  ACTIVE: "bg-emerald-50 text-emerald-600",
-  LOST: "bg-red-50 text-red-500",
-  INACTIVE: "bg-gray-100 text-gray-500",
+  ACTIVE: "bg-success-bg text-success-fg",
+  LOST: "bg-error-bg text-error-fg",
+  INACTIVE: "bg-surface-2 text-muted-foreground",
 };
 
 interface NfcCardDetailDrawerProps {
@@ -101,10 +101,10 @@ export function NfcCardDetailDrawer({ cardId, onClose }: NfcCardDetailDrawerProp
 
   return (
     <Dialog open={cardId !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-white border-gray-100 text-black max-w-xl rounded-3xl">
+      <DialogContent className="bg-surface border-border text-foreground max-w-xl rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">NFC 카드 상세</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             {data
               ? `${data.userName} (${data.employeeNumber}) · ${data.department ?? "부서 미지정"}`
               : ""}
@@ -118,7 +118,7 @@ export function NfcCardDetailDrawer({ cardId, onClose }: NfcCardDetailDrawerProp
             <Skeleton className="h-10 w-full" />
           </div>
         ) : isError ? (
-          <p className="py-6 text-sm font-bold text-red-500">
+          <p className="py-6 text-sm font-bold text-error-fg">
             카드 정보를 불러오지 못했습니다: {error?.message ?? ""}
           </p>
         ) : data ? (
@@ -139,24 +139,24 @@ export function NfcCardDetailDrawer({ cardId, onClose }: NfcCardDetailDrawerProp
               </ReadField>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
               <div className="space-y-2">
                 <Label htmlFor="card-status">상태 변경</Label>
                 <Select
                   value={effectiveStatus}
                   onValueChange={(v) => setStatus(v as NfcCardStatus)}
                 >
-                  <SelectTrigger id="card-status" className="bg-gray-50 border-gray-100">
+                  <SelectTrigger id="card-status" className="bg-surface-2 border-border">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-surface border-border">
                     <SelectItem value="ACTIVE">활성</SelectItem>
                     <SelectItem value="LOST">분실</SelectItem>
                     <SelectItem value="INACTIVE">비활성</SelectItem>
                   </SelectContent>
                 </Select>
                 {status === "LOST" && (
-                  <p className="text-xs text-amber-600 font-medium">
+                  <p className="text-xs text-warning-fg font-medium">
                     분실 처리 시 본인 외 명령 — ADMIN 권한으로 강제 변경됩니다.
                   </p>
                 )}
@@ -169,7 +169,7 @@ export function NfcCardDetailDrawer({ cardId, onClose }: NfcCardDetailDrawerProp
                   type="datetime-local"
                   value={effectiveExpiredAt}
                   onChange={(e) => setExpiredAt(e.target.value)}
-                  className="bg-gray-50 border-gray-100"
+                  className="bg-surface-2 border-border"
                 />
               </div>
             </div>
@@ -181,18 +181,18 @@ export function NfcCardDetailDrawer({ cardId, onClose }: NfcCardDetailDrawerProp
             <Button
               variant="ghost"
               onClick={() => setConfirmDelete(true)}
-              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+              className="text-error-fg hover:text-error-fg hover:bg-error-bg"
               disabled={deleteMutation.isPending}
             >
               카드 삭제
             </Button>
-            <Button variant="ghost" onClick={onClose} className="text-gray-400">
+            <Button variant="ghost" onClick={onClose} className="text-muted-foreground hover:text-foreground hover:bg-surface-2">
               닫기
             </Button>
             <Button
               onClick={handleSave}
               disabled={!isDirty || updateMutation.isPending}
-              className="bg-black text-white hover:bg-black/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {updateMutation.isPending ? "저장 중..." : "변경 저장"}
             </Button>
@@ -201,14 +201,14 @@ export function NfcCardDetailDrawer({ cardId, onClose }: NfcCardDetailDrawerProp
 
         {confirmDelete && data && (
           <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-            <DialogContent className="bg-white border-gray-100 text-black max-w-md rounded-3xl">
+            <DialogContent className="bg-surface border-border text-foreground max-w-md rounded-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold">카드 삭제 확인</DialogTitle>
-                <DialogDescription className="text-gray-500">
+                <DialogDescription className="text-muted-foreground">
                   본인이 아닌 자료 변경입니다. ADMIN 권한으로 카드를 영구 삭제합니다.
                 </DialogDescription>
               </DialogHeader>
-              <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-xs text-red-600 font-medium">
+              <div className="bg-error-bg border border-error-fg/20 rounded-2xl p-3 text-xs text-error-fg font-medium">
                 UID {data.uid} ({data.userName}) 을 삭제합니다. 출입 로그 보유 카드는 백엔드가
                 삭제를 차단합니다.
               </div>
@@ -216,14 +216,14 @@ export function NfcCardDetailDrawer({ cardId, onClose }: NfcCardDetailDrawerProp
                 <Button
                   variant="ghost"
                   onClick={() => setConfirmDelete(false)}
-                  className="text-gray-400"
+                  className="text-muted-foreground hover:text-foreground hover:bg-surface-2"
                 >
                   돌아가기
                 </Button>
                 <Button
                   onClick={handleDelete}
                   disabled={deleteMutation.isPending}
-                  className="bg-red-500 hover:bg-red-600 text-white"
+                  className="bg-error text-white hover:bg-error/90"
                 >
                   {deleteMutation.isPending ? "삭제 중..." : "강제 삭제"}
                 </Button>
@@ -249,11 +249,11 @@ function ReadField({
 }) {
   return (
     <div>
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] mb-1">{label}</p>
       {children ? (
         children
       ) : (
-        <p className={cn("text-sm text-gray-900 font-medium", mono && "font-mono")}>
+        <p className={cn("text-sm text-foreground font-medium", mono && "font-mono")}>
           {value ?? "-"}
         </p>
       )}

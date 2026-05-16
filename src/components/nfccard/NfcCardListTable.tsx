@@ -18,9 +18,9 @@ import { useNfcCards } from "@/src/features/nfccard/hooks";
 import type { NfcCardListItem, NfcCardStatus } from "@/src/features/nfccard/types";
 
 const STATUS_BADGE: Record<NfcCardStatus, string> = {
-  ACTIVE: "bg-emerald-50 text-emerald-600",
-  LOST: "bg-red-50 text-red-500",
-  INACTIVE: "bg-gray-100 text-gray-500",
+  ACTIVE: "bg-success-bg text-success-fg",
+  LOST: "bg-error-bg text-error-fg",
+  INACTIVE: "bg-surface-2 text-muted-foreground",
 };
 const STATUS_LABEL: Record<NfcCardStatus, string> = {
   ACTIVE: "활성",
@@ -67,33 +67,33 @@ export function NfcCardListTable({ onSelect }: NfcCardListTableProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatCard icon={<KeyRound className="w-5 h-5" />} label="총 카드" value={stats.all} accent="bg-gray-100 text-gray-700" />
-        <StatCard icon={<ShieldCheck className="w-5 h-5" />} label="활성" value={stats.active} accent="bg-emerald-50 text-emerald-600" />
-        <StatCard icon={<AlertTriangle className="w-5 h-5" />} label="분실" value={stats.lost} accent="bg-red-50 text-red-500" />
-        <StatCard icon={<Power className="w-5 h-5" />} label="비활성" value={stats.inactive} accent="bg-gray-100 text-gray-500" />
+        <StatCard icon={<KeyRound className="w-5 h-5" />} label="총 카드" value={stats.all} accent="bg-surface-2 text-foreground" />
+        <StatCard icon={<ShieldCheck className="w-5 h-5" />} label="활성" value={stats.active} accent="bg-success-bg text-success-fg" />
+        <StatCard icon={<AlertTriangle className="w-5 h-5" />} label="분실" value={stats.lost} accent="bg-error-bg text-error-fg" />
+        <StatCard icon={<Power className="w-5 h-5" />} label="비활성" value={stats.inactive} accent="bg-surface-2 text-muted-foreground" />
       </div>
 
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
+      <div className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)] p-6 space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">발급 카드 목록</h2>
-            <p className="text-sm text-gray-400">총 {filtered.length} 건 (서버 {cards.length})</p>
+            <h2 className="text-xl font-bold text-foreground">발급 카드 목록</h2>
+            <p className="text-sm text-muted-foreground">총 {filtered.length} 건 (서버 {cards.length})</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="이름/사번/UID 검색"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                className="pl-9 w-56 h-10 rounded-xl bg-gray-50 border-gray-100"
+                className="pl-9 w-56 h-10 rounded-xl bg-surface-2 border-border"
               />
             </div>
             <Select value={cardType} onValueChange={(v) => setCardType(v)}>
-              <SelectTrigger className="w-32 h-10 rounded-xl bg-gray-50 border-gray-100">
+              <SelectTrigger className="w-32 h-10 rounded-xl bg-surface-2 border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-border">
                 <SelectItem value="ALL">전체 유형</SelectItem>
                 <SelectItem value="EMPLOYEE">EMPLOYEE</SelectItem>
                 <SelectItem value="VISITOR">VISITOR</SelectItem>
@@ -101,10 +101,10 @@ export function NfcCardListTable({ onSelect }: NfcCardListTableProps) {
               </SelectContent>
             </Select>
             <Select value={status} onValueChange={(v) => setStatus(v as NfcCardStatus | "ALL")}>
-              <SelectTrigger className="w-32 h-10 rounded-xl bg-gray-50 border-gray-100">
+              <SelectTrigger className="w-32 h-10 rounded-xl bg-surface-2 border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-border">
                 <SelectItem value="ALL">전체 상태</SelectItem>
                 <SelectItem value="ACTIVE">활성</SelectItem>
                 <SelectItem value="LOST">분실</SelectItem>
@@ -121,38 +121,38 @@ export function NfcCardListTable({ onSelect }: NfcCardListTableProps) {
             ))}
           </div>
         ) : isError ? (
-          <p className="py-12 text-center text-sm font-bold text-red-500">
+          <p className="py-12 text-center text-sm font-bold text-error-fg">
             NFC 카드 목록을 불러오지 못했습니다: {error?.message ?? ""}
           </p>
         ) : filtered.length === 0 ? (
-          <p className="py-12 text-center text-gray-400">조건에 맞는 카드가 없습니다.</p>
+          <p className="py-12 text-center text-muted-foreground">조건에 맞는 카드가 없습니다.</p>
         ) : (
-          <div className="border border-gray-100 rounded-2xl overflow-hidden">
+          <div className="border border-border rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr className="text-left text-xs font-bold text-gray-500 uppercase">
-                  <th className="px-4 py-3">UID</th>
-                  <th className="px-4 py-3">유형</th>
-                  <th className="px-4 py-3">소유자</th>
-                  <th className="px-4 py-3">발급일</th>
-                  <th className="px-4 py-3">만료일</th>
-                  <th className="px-4 py-3">상태</th>
+              <thead className="bg-surface-2">
+                <tr className="text-left text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em]">
+                  <th className="px-4 py-3 whitespace-nowrap">UID</th>
+                  <th className="px-4 py-3 whitespace-nowrap">유형</th>
+                  <th className="px-4 py-3 whitespace-nowrap">소유자</th>
+                  <th className="px-4 py-3 whitespace-nowrap">발급일</th>
+                  <th className="px-4 py-3 whitespace-nowrap">만료일</th>
+                  <th className="px-4 py-3 whitespace-nowrap">상태</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((c) => (
                   <tr
                     key={c.id}
-                    className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
+                    className="border-t border-border hover:bg-surface-2 cursor-pointer"
                     onClick={() => onSelect(c.id)}
                   >
-                    <td className="px-4 py-3 font-mono text-gray-900">{c.uid}</td>
-                    <td className="px-4 py-3 text-gray-700">{c.cardType}</td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {c.userName} <span className="text-gray-400">({c.employeeNumber})</span>
+                    <td className="px-4 py-3 font-mono text-foreground">{c.uid}</td>
+                    <td className="px-4 py-3 text-foreground">{c.cardType}</td>
+                    <td className="px-4 py-3 text-foreground">
+                      {c.userName} <span className="text-muted-foreground">({c.employeeNumber})</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{formatDate(c.issuedAt)}</td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3 text-foreground">{formatDate(c.issuedAt)}</td>
+                    <td className="px-4 py-3 text-foreground">
                       {c.expiredAt ? formatDate(c.expiredAt) : "-"}
                     </td>
                     <td className="px-4 py-3">
@@ -188,11 +188,11 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+    <div className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)] p-5 flex items-center gap-4">
       <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center", accent)}>{icon}</div>
       <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">{label}</p>
+        <p className="text-2xl font-bold text-foreground">{value}</p>
       </div>
     </div>
   );

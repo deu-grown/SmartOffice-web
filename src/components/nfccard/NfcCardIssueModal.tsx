@@ -104,10 +104,10 @@ export function NfcCardIssueModal({ open, onClose, prefillUser }: NfcCardIssueMo
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="bg-white border-gray-100 text-black max-w-lg rounded-3xl">
+      <DialogContent className="bg-surface border-border text-foreground max-w-lg rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">NFC 카드 발급</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             {targetUser
               ? `${targetUser.name} (${targetUser.employeeNumber}) 에게 카드를 발급합니다.`
               : "발급 대상 직원을 먼저 선택해 주세요."}
@@ -119,18 +119,18 @@ export function NfcCardIssueModal({ open, onClose, prefillUser }: NfcCardIssueMo
             <div className="space-y-2">
               <Label>직원 검색</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="이름/사번/이메일로 검색"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  className="pl-9 bg-gray-50 border-gray-100"
+                  className="pl-9 bg-surface-2 border-border"
                 />
               </div>
               {keyword.trim() && (
-                <div className="max-h-48 overflow-y-auto border border-gray-100 rounded-2xl divide-y divide-gray-50">
+                <div className="max-h-48 overflow-y-auto border border-border rounded-2xl divide-y divide-border">
                   {candidates.length === 0 ? (
-                    <p className="px-3 py-3 text-xs text-gray-400">검색 결과가 없습니다.</p>
+                    <p className="px-3 py-3 text-xs text-muted-foreground">검색 결과가 없습니다.</p>
                   ) : (
                     candidates.map((u) => (
                       <button
@@ -140,12 +140,12 @@ export function NfcCardIssueModal({ open, onClose, prefillUser }: NfcCardIssueMo
                           setPickedUser(u);
                           setKeyword("");
                         }}
-                        className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between text-sm"
+                        className="w-full text-left px-3 py-2 hover:bg-surface-2 flex items-center justify-between text-sm"
                       >
                         <span className="font-medium">
-                          {u.name} <span className="text-gray-400">({u.employeeNumber})</span>
+                          {u.name} <span className="text-muted-foreground">({u.employeeNumber})</span>
                         </span>
-                        <span className="text-xs text-gray-400">{u.department ?? "-"}</span>
+                        <span className="text-xs text-muted-foreground">{u.department ?? "-"}</span>
                       </button>
                     ))
                   )}
@@ -162,16 +162,16 @@ export function NfcCardIssueModal({ open, onClose, prefillUser }: NfcCardIssueMo
                 value={uid}
                 onChange={(e) => setUid(e.target.value)}
                 placeholder="예: 04A1B2C3D4E5F6"
-                className="font-mono bg-gray-50 border-gray-100"
+                className="font-mono bg-surface-2 border-border"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="card-type">카드 유형</Label>
               <Select value={cardType} onValueChange={(v) => setCardType(v)}>
-                <SelectTrigger id="card-type" className="bg-gray-50 border-gray-100">
+                <SelectTrigger id="card-type" className="bg-surface-2 border-border">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-surface border-border">
                   <SelectItem value="EMPLOYEE">EMPLOYEE</SelectItem>
                   <SelectItem value="VISITOR">VISITOR</SelectItem>
                   <SelectItem value="TEMP">TEMP</SelectItem>
@@ -187,20 +187,20 @@ export function NfcCardIssueModal({ open, onClose, prefillUser }: NfcCardIssueMo
               type="datetime-local"
               value={expiredAt}
               onChange={(e) => setExpiredAt(e.target.value)}
-              className="bg-gray-50 border-gray-100"
+              className="bg-surface-2 border-border"
             />
-            <p className="text-xs text-gray-400">미입력 시 만료 없음 (관리자가 추후 수정 가능).</p>
+            <p className="text-xs text-muted-foreground">미입력 시 만료 없음 (관리자가 추후 수정 가능).</p>
           </div>
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="ghost" onClick={handleClose} className="text-gray-400">
+          <Button variant="ghost" onClick={handleClose} className="text-muted-foreground hover:text-foreground hover:bg-surface-2">
             취소
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={registerMutation.isPending}
-            className="bg-black text-white hover:bg-black/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {registerMutation.isPending ? "발급 중..." : "발급하기"}
           </Button>
