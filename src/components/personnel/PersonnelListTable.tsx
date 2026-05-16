@@ -127,20 +127,20 @@ export function PersonnelListTable({
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-3xl">
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               placeholder="이름, 사번, 이메일 검색"
               value={searchKeyword}
               onChange={(e) => onSearchKeywordChange(e.target.value)}
-              className="pl-12 bg-white border-gray-100 text-black h-12 rounded-2xl focus-visible:ring-black/5 shadow-sm"
+              className="pl-12 bg-surface-2 border-border text-foreground h-12 rounded-2xl focus-visible:ring-ring/30 shadow-sm"
             />
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <Select value={filterStatus} onValueChange={onFilterStatusChange}>
-              <SelectTrigger className="w-full md:w-32 h-12 bg-white border-gray-100 rounded-xl shadow-sm">
+              <SelectTrigger className="w-full md:w-32 h-12 bg-surface-2 border-border rounded-xl shadow-sm">
                 <SelectValue placeholder="상태" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-gray-100 text-black">
+              <SelectContent className="bg-surface border-border text-foreground">
                 {STATUS_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -157,7 +157,7 @@ export function PersonnelListTable({
                   onResetDepartmentFilter();
                   onFilterStatusChange("전체");
                 }}
-                className="h-12 w-12 rounded-xl text-gray-400 hover:text-black hover:bg-gray-100"
+                className="h-12 w-12 rounded-xl text-muted-foreground hover:text-foreground hover:bg-surface-2"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -167,16 +167,16 @@ export function PersonnelListTable({
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger
             render={
-              <Button className="bg-black text-white hover:bg-black/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2 shadow-md">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-12 px-6 font-bold flex items-center gap-2 shadow-[var(--shadow-action)]">
                 <UserPlus className="w-4 h-4" />
                 직원 등록
               </Button>
             }
           />
-          <DialogContent className="bg-white border-gray-100 text-black max-w-lg rounded-3xl">
+          <DialogContent className="bg-surface border-border text-foreground max-w-lg rounded-3xl">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">신규 직원 등록</DialogTitle>
-              <DialogDescription className="text-gray-400">
+              <DialogDescription className="text-muted-foreground">
                 필수 항목(사번·이름·이메일·역할·직급·부서·입사일)을 입력해주세요. 초기 비밀번호는 사번입니다.
               </DialogDescription>
             </DialogHeader>
@@ -184,25 +184,25 @@ export function PersonnelListTable({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="employeeNumber">사번</Label>
-                  <Input id="employeeNumber" name="employeeNumber" required className="bg-gray-50 border-gray-100" />
+                  <Input id="employeeNumber" name="employeeNumber" required className="bg-surface-2 border-border" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="name">이름</Label>
-                  <Input id="name" name="name" required className="bg-gray-50 border-gray-100" />
+                  <Input id="name" name="name" required className="bg-surface-2 border-border" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">이메일</Label>
-                <Input id="email" name="email" type="email" required className="bg-gray-50 border-gray-100" />
+                <Input id="email" name="email" type="email" required className="bg-surface-2 border-border" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role">역할</Label>
                   <Select name="role" defaultValue="USER">
-                    <SelectTrigger className="bg-gray-50 border-gray-100">
+                    <SelectTrigger className="bg-surface-2 border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-100 text-black">
+                    <SelectContent className="bg-surface border-border text-foreground">
                       <SelectItem value="USER">USER</SelectItem>
                       <SelectItem value="ADMIN">ADMIN</SelectItem>
                     </SelectContent>
@@ -210,17 +210,17 @@ export function PersonnelListTable({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="position">직급</Label>
-                  <Input id="position" name="position" required className="bg-gray-50 border-gray-100" />
+                  <Input id="position" name="position" required className="bg-surface-2 border-border" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="departmentId">부서</Label>
                   <Select name="departmentId" defaultValue={departments[0] ? String(departments[0].id) : ""}>
-                    <SelectTrigger className="bg-gray-50 border-gray-100">
+                    <SelectTrigger className="bg-surface-2 border-border">
                       <SelectValue placeholder="부서 선택" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-100 text-black">
+                    <SelectContent className="bg-surface border-border text-foreground">
                       {departments.map((d) => (
                         <SelectItem key={d.id} value={String(d.id)}>
                           {d.name}
@@ -237,19 +237,19 @@ export function PersonnelListTable({
                     type="date"
                     required
                     defaultValue={new Date().toISOString().slice(0, 10)}
-                    className="bg-gray-50 border-gray-100"
+                    className="bg-surface-2 border-border"
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">연락처</Label>
-                <Input id="phone" name="phone" placeholder="010-0000-0000" className="bg-gray-50 border-gray-100" />
+                <Input id="phone" name="phone" placeholder="010-0000-0000" className="bg-surface-2 border-border" />
               </div>
               <DialogFooter className="pt-4">
-                <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)} className="text-gray-400">
+                <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)} className="text-muted-foreground">
                   취소
                 </Button>
-                <Button type="submit" disabled={isAdding} className="bg-black text-white hover:bg-black/90">
+                <Button type="submit" disabled={isAdding} className="bg-primary text-primary-foreground hover:bg-primary/90">
                   {isAdding ? "등록 중..." : "등록 완료"}
                 </Button>
               </DialogFooter>
@@ -258,26 +258,26 @@ export function PersonnelListTable({
         </Dialog>
       </div>
 
-      <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-[var(--shadow-card)]">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="bg-gray-50 text-gray-400 text-xs font-bold uppercase tracking-wider">
-                <th className="px-6 py-5">직원 정보</th>
-                <th className="px-6 py-5">부서/직급</th>
-                <th className="px-6 py-5">이메일</th>
-                <th className="px-6 py-5">연락처</th>
-                <th className="px-6 py-5">입사일</th>
-                <th className="px-6 py-5">상태</th>
-                <th className="px-6 py-5 text-right">관리</th>
+              <tr className="bg-surface-2 text-muted-foreground text-[11.5px] font-semibold uppercase tracking-[0.07em]">
+                <th className="px-[18px] py-[14px] whitespace-nowrap">직원 정보</th>
+                <th className="px-[18px] py-[14px] whitespace-nowrap">부서/직급</th>
+                <th className="px-[18px] py-[14px] whitespace-nowrap">이메일</th>
+                <th className="px-[18px] py-[14px] whitespace-nowrap">연락처</th>
+                <th className="px-[18px] py-[14px] whitespace-nowrap">입사일</th>
+                <th className="px-[18px] py-[14px] whitespace-nowrap">상태</th>
+                <th className="px-[18px] py-[14px] whitespace-nowrap text-right">관리</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {isLoading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 7 }).map((__, j) => (
-                        <td key={j} className="px-6 py-4">
+                        <td key={j} className="px-[18px] py-[14px]">
                           <Skeleton className="h-4 w-full" />
                         </td>
                       ))}
@@ -286,7 +286,7 @@ export function PersonnelListTable({
                 : isError
                   ? (
                       <tr>
-                        <td colSpan={7} className="px-6 py-12 text-center text-sm font-bold text-red-500">
+                        <td colSpan={7} className="px-[18px] py-12 text-center text-sm font-bold text-error-fg">
                           직원 목록을 불러오지 못했습니다: {errorMessage ?? ""}
                         </td>
                       </tr>
@@ -294,48 +294,48 @@ export function PersonnelListTable({
                   : users.length === 0
                     ? (
                         <tr>
-                          <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                          <td colSpan={7} className="px-[18px] py-12 text-center text-muted-foreground">
                             조건에 맞는 직원이 없습니다.
                           </td>
                         </tr>
                       )
                     : users.map((u) => (
-                        <tr key={u.id} className="hover:bg-gray-50 transition-colors group">
-                          <td className="px-6 py-4">
+                        <tr key={u.id} className="hover:bg-surface-2 transition-colors group">
+                          <td className="px-[18px] py-[14px]">
                             <div className="flex flex-col">
-                              <span className="text-black font-bold">{u.name}</span>
-                              <span className="text-gray-400 text-xs">사번: {u.employeeNumber}</span>
+                              <span className="text-foreground font-bold">{u.name}</span>
+                              <span className="text-muted-foreground text-xs">사번: {u.employeeNumber}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-[18px] py-[14px]">
                             <div className="flex flex-col">
-                              <span className="text-gray-700 font-medium">{u.department ?? "-"}</span>
-                              <span className="text-gray-400 text-xs">{u.position}</span>
+                              <span className="text-foreground font-medium">{u.department ?? "-"}</span>
+                              <span className="text-muted-foreground text-xs">{u.position}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-gray-500 text-sm">{u.email}</td>
-                          <td className="px-6 py-4 text-gray-500 text-sm">{u.phone ?? "-"}</td>
-                          <td className="px-6 py-4 text-gray-500 text-sm">{u.hiredAt}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-[18px] py-[14px] text-muted-foreground text-sm">{u.email}</td>
+                          <td className="px-[18px] py-[14px] text-muted-foreground text-sm">{u.phone ?? "-"}</td>
+                          <td className="px-[18px] py-[14px] text-muted-foreground text-sm">{u.hiredAt}</td>
+                          <td className="px-[18px] py-[14px]">
                             <Badge
                               className={cn(
-                                "border-none px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                                "border-none px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0",
                                 u.status === "ACTIVE"
-                                  ? "bg-green-500/10 text-green-600"
+                                  ? "bg-success-bg text-success-fg"
                                   : u.status === "INACTIVE"
-                                    ? "bg-red-500/10 text-red-600"
-                                    : "bg-orange-500/10 text-orange-600",
+                                    ? "bg-error-bg text-error-fg"
+                                    : "bg-warning-bg text-warning-fg",
                               )}
                             >
                               {STATUS_LABEL[u.status] ?? u.status}
                             </Badge>
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-[18px] py-[14px] text-right">
                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="w-8 h-8 rounded-lg text-gray-400 hover:text-black hover:bg-gray-100"
+                                className="w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-2"
                                 onClick={() => onEditUser(u)}
                               >
                                 <Edit2 className="w-4 h-4" />
@@ -343,7 +343,7 @@ export function PersonnelListTable({
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-500/10"
+                                className="w-8 h-8 rounded-lg text-muted-foreground hover:text-error-fg hover:bg-error-bg"
                                 onClick={() => onDeleteUser(u.id, u.name)}
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -359,8 +359,8 @@ export function PersonnelListTable({
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2 py-4">
-          <p className="text-sm text-gray-500">
-            전체 <span className="font-bold text-black">{totalElements}</span>명 중 {startIdx}-
+          <p className="text-sm text-muted-foreground">
+            전체 <span className="font-bold text-foreground">{totalElements}</span>명 중 {startIdx}-
             {endIdx} 표시
           </p>
           <div className="flex items-center gap-1">
@@ -369,7 +369,7 @@ export function PersonnelListTable({
               size="icon"
               onClick={() => onPageChange(Math.max(page - 1, 0))}
               disabled={page === 0}
-              className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30"
+              className="w-10 h-10 rounded-xl border-border disabled:opacity-30"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -382,7 +382,7 @@ export function PersonnelListTable({
                   if (!isFirstSet && !isLastSet && !isMiddle) {
                     if (i === 3 || i === totalPages - 4)
                       return (
-                        <span key={i} className="text-gray-300 px-1">
+                        <span key={i} className="text-muted-foreground px-1">
                           ...
                         </span>
                       );
@@ -395,10 +395,10 @@ export function PersonnelListTable({
                     variant={page === i ? "default" : "ghost"}
                     onClick={() => onPageChange(i)}
                     className={cn(
-                      "w-10 h-10 rounded-xl font-bold transition-all",
+                      "w-10 h-10 rounded-xl font-bold transition-all tabular-nums",
                       page === i
-                        ? "bg-black text-white shadow-lg"
-                        : "text-gray-400 hover:text-black hover:bg-gray-100",
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-surface-2",
                     )}
                   >
                     {i + 1}
@@ -411,7 +411,7 @@ export function PersonnelListTable({
               size="icon"
               onClick={() => onPageChange(Math.min(page + 1, totalPages - 1))}
               disabled={page >= totalPages - 1}
-              className="w-10 h-10 rounded-xl border-gray-100 disabled:opacity-30"
+              className="w-10 h-10 rounded-xl border-border disabled:opacity-30"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>

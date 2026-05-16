@@ -18,7 +18,7 @@ export function MyProfileSection() {
 
   if (meQuery.isLoading) {
     return (
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-4">
+      <div className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)] p-8 space-y-4">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-12 w-full" />
         <Skeleton className="h-12 w-full" />
@@ -27,8 +27,8 @@ export function MyProfileSection() {
   }
   if (meQuery.isError || !meQuery.data) {
     return (
-      <div className="bg-white rounded-3xl border border-red-100 shadow-sm p-8">
-        <p className="text-sm font-bold text-red-500">
+      <div className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)] p-8">
+        <p className="text-sm font-bold text-error-fg">
           본인 정보를 불러오지 못했습니다: {meQuery.error?.message ?? ""}
         </p>
       </div>
@@ -64,10 +64,10 @@ export function MyProfileSection() {
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-6 max-w-2xl">
+    <div className="bg-surface rounded-2xl border border-border shadow-[var(--shadow-card)] p-8 space-y-6 max-w-2xl">
       <header>
-        <h2 className="text-2xl font-bold text-gray-900">내 정보</h2>
-        <p className="text-sm text-gray-500">
+        <h2 className="text-2xl font-bold text-foreground">내 정보</h2>
+        <p className="text-sm text-muted-foreground">
           본인 정보를 조회·수정합니다. 사번/이메일/부서는 관리자에게 문의해 주세요.
         </p>
       </header>
@@ -81,7 +81,7 @@ export function MyProfileSection() {
         <ReadField label="입사일" value={me.hiredAt} />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 pt-2 border-t border-gray-100">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-2 border-t border-border">
         <div className="space-y-2">
           <Label htmlFor="me-phone">연락처</Label>
           <Input
@@ -89,11 +89,11 @@ export function MyProfileSection() {
             name="phone"
             defaultValue={me.phone ?? ""}
             placeholder="010-0000-0000"
-            className="bg-gray-50 border-gray-100"
+            className="bg-surface-2 border-border"
           />
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-foreground">
           <input
             type="checkbox"
             checked={changePassword}
@@ -111,7 +111,7 @@ export function MyProfileSection() {
                 id="me-current"
                 name="currentPassword"
                 type="password"
-                className="bg-gray-50 border-gray-100"
+                className="bg-surface-2 border-border"
               />
             </div>
             <div className="space-y-2">
@@ -120,7 +120,7 @@ export function MyProfileSection() {
                 id="me-new"
                 name="password"
                 type="password"
-                className="bg-gray-50 border-gray-100"
+                className="bg-surface-2 border-border"
               />
             </div>
           </div>
@@ -130,7 +130,7 @@ export function MyProfileSection() {
           <Button
             type="submit"
             disabled={updateMutation.isPending}
-            className="bg-black text-white hover:bg-black/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 px-[22px]"
           >
             {updateMutation.isPending ? "저장 중..." : "저장"}
           </Button>
@@ -143,8 +143,8 @@ export function MyProfileSection() {
 function ReadField({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
-      <p className="text-sm text-gray-900 font-medium">{value ?? "-"}</p>
+      <p className="text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.06em] mb-1">{label}</p>
+      <p className="text-sm text-foreground font-medium">{value ?? "-"}</p>
     </div>
   );
 }

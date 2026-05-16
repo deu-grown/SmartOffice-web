@@ -16,7 +16,7 @@ export function DepartmentSidebar({ selectedDepartmentId, onSelect }: Department
 
   if (isLoading) {
     return (
-      <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
+      <div className="bg-surface p-4 rounded-2xl border border-border shadow-[var(--shadow-card)]">
         <Skeleton className="h-10 w-full" />
       </div>
     );
@@ -24,8 +24,8 @@ export function DepartmentSidebar({ selectedDepartmentId, onSelect }: Department
 
   if (isError) {
     return (
-      <div className="bg-white p-4 rounded-3xl border border-red-100 shadow-sm">
-        <p className="text-sm font-bold text-red-500">
+      <div className="bg-surface p-4 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+        <p className="text-sm font-bold text-error-fg">
           부서 목록을 불러오지 못했습니다: {error?.message ?? ""}
         </p>
       </div>
@@ -35,7 +35,7 @@ export function DepartmentSidebar({ selectedDepartmentId, onSelect }: Department
   const departments = data ?? [];
 
   return (
-    <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
+    <div className="bg-surface p-4 rounded-2xl border border-border shadow-[var(--shadow-card)]">
       <div className="flex items-center flex-wrap gap-2">
         <DepartmentChip
           label="전체"
@@ -72,10 +72,10 @@ function DepartmentChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 px-4 h-10 rounded-xl text-xs font-bold transition-colors",
+        "inline-flex items-center gap-[7px] px-[14px] py-[7px] rounded-full text-[13px] font-medium border transition-colors whitespace-nowrap",
         isSelected
-          ? "bg-black text-white"
-          : "bg-gray-50 text-gray-600 hover:bg-gray-100",
+          ? "bg-primary text-primary-foreground border-primary shadow-[var(--shadow-action)]"
+          : "bg-surface border-border text-foreground hover:bg-surface-2",
       )}
     >
       <Users className="w-3.5 h-3.5" />
@@ -83,8 +83,8 @@ function DepartmentChip({
       {typeof count === "number" && (
         <span
           className={cn(
-            "px-2 py-0.5 rounded-full text-[10px]",
-            isSelected ? "bg-white/20 text-white" : "bg-white text-gray-500",
+            "text-[11.5px] font-semibold px-[6px] py-px rounded-full",
+            isSelected ? "bg-white/[0.18]" : "bg-black/[0.07]",
           )}
         >
           {count}

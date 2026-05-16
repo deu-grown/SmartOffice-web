@@ -12,9 +12,9 @@ import { useNfcCards } from "@/src/features/nfccard/hooks";
 import type { NfcCardStatus } from "@/src/features/nfccard/types";
 
 const STATUS_BADGE: Record<NfcCardStatus, string> = {
-  ACTIVE: "bg-emerald-50 text-emerald-600",
-  LOST: "bg-red-50 text-red-500",
-  INACTIVE: "bg-gray-100 text-gray-500",
+  ACTIVE: "bg-success-bg text-success-fg",
+  LOST: "bg-error-bg text-error-fg",
+  INACTIVE: "bg-surface-2 text-muted-foreground",
 };
 const STATUS_LABEL: Record<NfcCardStatus, string> = {
   ACTIVE: "활성",
@@ -34,13 +34,13 @@ export function PersonnelNfcCardTab({ user }: PersonnelNfcCardTabProps) {
   return (
     <div className="py-4 space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-400 font-medium">
+        <p className="text-xs text-muted-foreground font-medium">
           {user.name} 직원에게 발급된 카드 {cards.length} 건
         </p>
         <Button
           size="sm"
           onClick={() => setIssueOpen(true)}
-          className="bg-black text-white hover:bg-black/90 rounded-xl font-bold h-9 px-3"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-bold h-9 px-3"
         >
           <Plus className="w-3.5 h-3.5 mr-1" /> 카드 발급
         </Button>
@@ -53,28 +53,28 @@ export function PersonnelNfcCardTab({ user }: PersonnelNfcCardTabProps) {
           ))}
         </div>
       ) : isError ? (
-        <p className="py-4 text-sm font-bold text-red-500">
+        <p className="py-4 text-sm font-bold text-error-fg">
           카드 목록을 불러오지 못했습니다: {error?.message ?? ""}
         </p>
       ) : cards.length === 0 ? (
-        <p className="py-12 text-center text-gray-400">발급된 카드가 없습니다.</p>
+        <p className="py-12 text-center text-muted-foreground">발급된 카드가 없습니다.</p>
       ) : (
         <div className="space-y-2 max-h-[360px] overflow-y-auto custom-scrollbar">
           {cards.map((c) => (
             <div
               key={c.id}
-              className="flex items-center justify-between p-3 rounded-2xl bg-gray-50"
+              className="flex items-center justify-between p-3 rounded-2xl bg-surface-2"
             >
               <div className="space-y-0.5">
-                <p className="text-sm font-mono font-bold text-gray-900">{c.uid}</p>
-                <p className="text-xs text-gray-400 font-medium">
+                <p className="text-sm font-mono font-bold text-foreground">{c.uid}</p>
+                <p className="text-xs text-muted-foreground font-medium">
                   {c.cardType} · 발급 {c.issuedAt.slice(0, 10)}
                   {c.expiredAt && ` · 만료 ${c.expiredAt.slice(0, 10)}`}
                 </p>
               </div>
               <span
                 className={cn(
-                  "text-[11px] font-bold px-2 py-1 rounded-full",
+                  "inline-flex items-center px-[9px] py-[3px] rounded-full text-[12px] font-semibold whitespace-nowrap shrink-0",
                   STATUS_BADGE[c.status],
                 )}
               >
