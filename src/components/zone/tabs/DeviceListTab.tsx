@@ -9,7 +9,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -118,7 +117,7 @@ export function DeviceListTab({ zoneId }: DeviceListTabProps) {
 
   if (devicesQuery.isLoading) {
     return (
-      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm space-y-3">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-3">
         <Skeleton className="h-12 w-full" />
         <Skeleton className="h-12 w-full" />
         <Skeleton className="h-12 w-full" />
@@ -128,42 +127,42 @@ export function DeviceListTab({ zoneId }: DeviceListTabProps) {
 
   if (devicesQuery.isError) {
     return (
-      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-        <p className="text-red-500 text-sm font-medium">장치 목록을 불러오지 못했습니다.</p>
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+        <p className="text-error-fg text-sm font-medium">장치 목록을 불러오지 못했습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm space-y-6">
+    <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-6">
       {/* 등록 모달 */}
       {isAddOpen && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-6"
+            className="bg-surface rounded-[32px] w-full max-w-md p-10 shadow-2xl space-y-6"
           >
-            <h2 className="text-2xl font-bold text-gray-900">장치 등록</h2>
+            <h2 className="text-2xl font-bold text-foreground">장치 등록</h2>
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">장치명</label>
-                <Input value={newName} onChange={(e) => setNewName(e.target.value)} className="h-12 rounded-2xl" placeholder="예: 환경 센서 B" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">장치명</label>
+                <Input value={newName} onChange={(e) => setNewName(e.target.value)} className="h-12 rounded-2xl bg-surface-2 border-border" placeholder="예: 환경 센서 B" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">유형</label>
-                <Input value={newType} onChange={(e) => setNewType(e.target.value)} className="h-12 rounded-2xl font-mono" placeholder="ENV_SENSOR / NFC_READER / POWER_METER 등" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">유형</label>
+                <Input value={newType} onChange={(e) => setNewType(e.target.value)} className="h-12 rounded-2xl font-mono bg-surface-2 border-border" placeholder="ENV_SENSOR / NFC_READER / POWER_METER 등" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">시리얼 번호 (선택)</label>
-                <Input value={newSerial} onChange={(e) => setNewSerial(e.target.value)} className="h-12 rounded-2xl font-mono" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">시리얼 번호 (선택)</label>
+                <Input value={newSerial} onChange={(e) => setNewSerial(e.target.value)} className="h-12 rounded-2xl font-mono bg-surface-2 border-border" />
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="ghost" onClick={() => setIsAddOpen(false)} disabled={createMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold">
+              <Button variant="ghost" onClick={() => setIsAddOpen(false)} disabled={createMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold text-muted-foreground">
                 취소
               </Button>
-              <Button onClick={handleCreate} disabled={createMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold bg-black text-white hover:bg-black/90">
+              <Button onClick={handleCreate} disabled={createMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold bg-primary text-primary-foreground hover:bg-primary/90">
                 {createMutation.isPending ? "등록 중..." : "등록"}
               </Button>
             </div>
@@ -177,33 +176,33 @@ export function DeviceListTab({ zoneId }: DeviceListTabProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-[40px] w-full max-w-md p-10 shadow-2xl space-y-6"
+            className="bg-surface rounded-[32px] w-full max-w-md p-10 shadow-2xl space-y-6"
           >
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">장치 수정</h2>
-              <p className="text-xs font-mono text-gray-400">#{editTarget.id}</p>
+              <h2 className="text-2xl font-bold text-foreground">장치 수정</h2>
+              <p className="text-xs font-mono text-muted-foreground">#{editTarget.id}</p>
             </div>
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">장치명</label>
-                <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="h-12 rounded-2xl" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">장치명</label>
+                <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="h-12 rounded-2xl bg-surface-2 border-border" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">유형</label>
-                <Input value={editType} onChange={(e) => setEditType(e.target.value)} className="h-12 rounded-2xl font-mono" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">유형</label>
+                <Input value={editType} onChange={(e) => setEditType(e.target.value)} className="h-12 rounded-2xl font-mono bg-surface-2 border-border" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">시리얼</label>
-                <Input value={editSerial} onChange={(e) => setEditSerial(e.target.value)} className="h-12 rounded-2xl font-mono" />
+                <label className="text-sm font-bold text-muted-foreground ml-1">시리얼</label>
+                <Input value={editSerial} onChange={(e) => setEditSerial(e.target.value)} className="h-12 rounded-2xl font-mono bg-surface-2 border-border" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 ml-1">상태</label>
+                <label className="text-sm font-bold text-muted-foreground ml-1">상태</label>
                 <Select value={editStatus} onValueChange={(v) => setEditStatus(v as DeviceStatus)}>
-                  <SelectTrigger className="h-12 rounded-2xl">
+                  <SelectTrigger className="h-12 rounded-2xl bg-surface-2 border-border">
                     {/* SelectValue 자동 매핑 결함 회피 — 명시 텍스트 렌더. */}
                     <span>{editStatus}</span>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-surface border-border">
                     <SelectItem value="ACTIVE">ACTIVE</SelectItem>
                     <SelectItem value="INACTIVE">INACTIVE</SelectItem>
                   </SelectContent>
@@ -211,10 +210,10 @@ export function DeviceListTab({ zoneId }: DeviceListTabProps) {
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="ghost" onClick={() => setEditTarget(null)} disabled={updateMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold">
+              <Button variant="ghost" onClick={() => setEditTarget(null)} disabled={updateMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold text-muted-foreground">
                 취소
               </Button>
-              <Button onClick={handleUpdate} disabled={updateMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold bg-black text-white hover:bg-black/90">
+              <Button onClick={handleUpdate} disabled={updateMutation.isPending} className="flex-1 h-12 rounded-2xl font-bold bg-primary text-primary-foreground hover:bg-primary/90">
                 {updateMutation.isPending ? "저장 중..." : "저장"}
               </Button>
             </div>
@@ -223,39 +222,39 @@ export function DeviceListTab({ zoneId }: DeviceListTabProps) {
       )}
 
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-gray-400" />
+        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <Cpu className="w-5 h-5 text-muted-foreground" />
           설치 장치 ({filtered.length})
         </h3>
-        <Button onClick={() => setIsAddOpen(true)} disabled={Number.isNaN(zoneIdNum)} className="bg-black text-white hover:bg-black/90 rounded-xl h-10 px-4 font-bold flex items-center gap-2">
+        <Button onClick={() => setIsAddOpen(true)} disabled={Number.isNaN(zoneIdNum)} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-10 px-4 font-bold flex items-center gap-2">
           <Plus className="w-4 h-4" />
           장치 추가
         </Button>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="py-10 text-center text-sm text-gray-400">본 구역에 설치된 장치가 없습니다.</div>
+        <div className="py-10 text-center text-sm text-muted-foreground">본 구역에 설치된 장치가 없습니다.</div>
       ) : (
         <div className="space-y-3">
           {filtered.map((d) => (
             <div
               key={d.id}
-              className="p-4 rounded-2xl border border-gray-100 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors cursor-pointer"
+              className="p-4 rounded-2xl border border-border flex items-center justify-between gap-4 hover:bg-surface-2 transition-colors cursor-pointer"
               onClick={() => openEdit(d)}
             >
               <div className="flex items-center gap-4 min-w-0">
-                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", d.status === "ACTIVE" ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-300")}>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", d.status === "ACTIVE" ? "bg-success-bg text-success-fg" : "bg-surface-2 text-muted-foreground")}>
                   {d.status === "ACTIVE" ? <Wifi className="w-5 h-5" /> : <WifiOff className="w-5 h-5" />}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-bold text-sm text-gray-900 truncate">{d.name}</p>
-                  <p className="text-[10px] text-gray-400 font-mono truncate">
+                  <p className="font-bold text-sm text-foreground truncate">{d.name}</p>
+                  <p className="text-[10px] text-muted-foreground font-mono truncate">
                     {d.deviceType} · {d.serialNumber ?? "—"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <Badge className={cn("rounded-full font-bold px-3 py-1 border-none", d.status === "ACTIVE" ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-400")}>
+                <Badge className={cn("rounded-full font-bold px-3 py-1 border-none shrink-0", d.status === "ACTIVE" ? "bg-success-bg text-success-fg" : "bg-surface-2 text-muted-foreground")}>
                   {d.status}
                 </Badge>
                 <button
@@ -263,7 +262,7 @@ export function DeviceListTab({ zoneId }: DeviceListTabProps) {
                     e.stopPropagation();
                     handleDelete(d.id, d.name);
                   }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-error-fg hover:bg-error-bg transition-colors"
                   aria-label="장치 삭제"
                 >
                   <Trash2 className="w-4 h-4" />

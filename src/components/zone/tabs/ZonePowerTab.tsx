@@ -19,16 +19,16 @@ export function ZonePowerTab({ zoneId }: ZonePowerTabProps) {
 
   if (!hasPowerMeter) {
     return (
-      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-            <Zap className="w-8 h-8 text-gray-300" />
+          <div className="w-16 h-16 bg-surface-2 rounded-full flex items-center justify-center mb-6">
+            <Zap className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">POWER 미터 미보유</h3>
-          <p className="text-gray-400 text-sm max-w-[300px]">
+          <h3 className="text-lg font-bold text-foreground mb-2">POWER 미터 미보유</h3>
+          <p className="text-muted-foreground text-sm max-w-[300px]">
             본 구역에는 전력 미터가 설치되어 있지 않습니다. 지원 zone:
           </p>
-          <p className="text-[10px] text-gray-400 font-mono mt-2">
+          <p className="text-[10px] text-muted-foreground font-mono mt-2">
             {(powerZones ?? []).map((p) => p.zoneName).join(" · ")}
           </p>
         </div>

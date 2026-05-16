@@ -15,7 +15,7 @@ export function ZoneReservationTab({ zoneId }: ZoneReservationTabProps) {
 
   if (!numericZoneId || Number.isNaN(numericZoneId)) {
     return (
-      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm text-center text-gray-400">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] text-center text-muted-foreground">
         구역을 선택하면 예약 현황이 표시됩니다.
       </div>
     );
@@ -26,7 +26,7 @@ export function ZoneReservationTab({ zoneId }: ZoneReservationTabProps) {
       <div className="flex items-center justify-end">
         <Link
           to={ROUTES.MEETING_ROOMS}
-          className="inline-flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-black px-3 py-2 rounded-xl hover:bg-gray-50"
+          className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground px-3 py-2 rounded-xl hover:bg-surface-2"
         >
           회의실 관리 페이지에서 편집
           <ExternalLink className="w-3.5 h-3.5" />

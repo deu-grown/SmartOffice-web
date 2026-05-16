@@ -38,9 +38,9 @@ export function ZoneDetailView({ selectedZoneId, onEditClick, onDeleteClick }: Z
 
   if (selectedZoneId === null) {
     return (
-      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <p className="text-gray-400 text-sm">좌측 그리드에서 구역을 선택해 주세요.</p>
+          <p className="text-muted-foreground text-sm">좌측 그리드에서 구역을 선택해 주세요.</p>
         </div>
       </div>
     );
@@ -49,13 +49,13 @@ export function ZoneDetailView({ selectedZoneId, onEditClick, onDeleteClick }: Z
   return (
     <div className="space-y-6">
       {/* 헤더 */}
-      <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)]">
         <div className="flex items-center justify-between mb-6">
           <div className="min-w-0">
-            <h3 className="text-3xl font-bold text-gray-900 truncate">
+            <h3 className="text-3xl font-bold text-foreground truncate">
               {detail.data?.name ?? "구역 상세"}
             </h3>
-            <p className="text-base font-medium text-gray-400">
+            <p className="text-base font-medium text-muted-foreground">
               {detail.data ? `#${detail.data.id}` : "—"}
             </p>
           </div>
@@ -65,32 +65,32 @@ export function ZoneDetailView({ selectedZoneId, onEditClick, onDeleteClick }: Z
               size="icon"
               onClick={onEditClick}
               disabled={!detail.data}
-              className="rounded-xl hover:bg-gray-100 h-12 w-12 transition-all active:scale-90 group"
+              className="rounded-xl hover:bg-surface-2 h-12 w-12 transition-all active:scale-90 group"
               aria-label="구역 정보 수정"
             >
-              <Settings className="w-6 h-6 text-gray-400 group-hover:text-black group-hover:rotate-90 transition-all duration-300" />
+              <Settings className="w-6 h-6 text-muted-foreground group-hover:text-foreground group-hover:rotate-90 transition-all duration-300" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={onDeleteClick}
               disabled={!detail.data}
-              className="rounded-xl hover:bg-red-50 h-12 w-12 transition-all active:scale-90 group"
+              className="rounded-xl hover:bg-error-bg h-12 w-12 transition-all active:scale-90 group"
               aria-label="구역 삭제"
             >
-              <Trash2 className="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors" />
+              <Trash2 className="w-5 h-5 text-muted-foreground group-hover:text-error-fg transition-colors" />
             </Button>
           </div>
         </div>
 
-        <div className="flex bg-gray-50 p-1 rounded-2xl gap-1">
+        <div className="flex bg-surface-2 p-1 rounded-xl gap-1">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
               className={cn(
-                "flex-1 py-2.5 rounded-xl text-xs font-bold transition-all",
-                activeTab === t.id ? "bg-white text-black shadow-sm" : "text-gray-400 hover:text-gray-600"
+                "flex-1 py-2.5 rounded-lg text-xs font-bold transition-all",
+                activeTab === t.id ? "bg-surface text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               )}
             >
               {t.label}
