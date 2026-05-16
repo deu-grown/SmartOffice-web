@@ -255,14 +255,14 @@ export function ParkingSpotsTable({ zoneId }: Props) {
   };
 
   return (
-    <div className="bg-white p-10 rounded-[50px] border border-gray-100 shadow-sm space-y-8">
+    <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-8">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-            <LayoutGrid className="w-5 h-5 text-indigo-600" />
+          <div className="w-10 h-10 bg-[oklch(0.555_0.180_258/0.10)] rounded-xl flex items-center justify-center">
+            <LayoutGrid className="w-5 h-5 text-primary" />
           </div>
-          <h3 className="text-xl font-black">주차면 관리</h3>
-          <span className="text-xs font-bold text-gray-400">{items.length}개</span>
+          <h3 className="text-xl font-black text-foreground">주차면 관리</h3>
+          <span className="text-xs font-bold text-muted-foreground">{items.length}개</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -270,14 +270,14 @@ export function ParkingSpotsTable({ zoneId }: Props) {
             value={filterSpotType}
             onValueChange={(v) => setFilterSpotType(v as "ALL" | SpotType)}
           >
-            <SelectTrigger className="w-[140px] h-10 bg-gray-50 border-none rounded-xl text-xs font-bold px-4">
+            <SelectTrigger className="w-[140px] h-10 bg-surface-2 border-border rounded-xl text-xs font-bold px-4">
               {filterSpotType === "ALL" ? (
                 <span>모든 유형</span>
               ) : (
                 <span>{SPOT_TYPE_LABEL[filterSpotType]}</span>
               )}
             </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100 rounded-xl font-bold">
+            <SelectContent className="bg-surface border-border rounded-xl font-bold">
               <SelectItem value="ALL">모든 유형</SelectItem>
               {SPOT_TYPES.map((t) => (
                 <SelectItem key={t} value={t}>
@@ -291,14 +291,14 @@ export function ParkingSpotsTable({ zoneId }: Props) {
             value={filterStatus}
             onValueChange={(v) => setFilterStatus(v as "ALL" | SpotStatus)}
           >
-            <SelectTrigger className="w-[140px] h-10 bg-gray-50 border-none rounded-xl text-xs font-bold px-4">
+            <SelectTrigger className="w-[140px] h-10 bg-surface-2 border-border rounded-xl text-xs font-bold px-4">
               {filterStatus === "ALL" ? (
                 <span>모든 상태</span>
               ) : (
                 <span>{SPOT_STATUS_LABEL[filterStatus]}</span>
               )}
             </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100 rounded-xl font-bold">
+            <SelectContent className="bg-surface border-border rounded-xl font-bold">
               <SelectItem value="ALL">모든 상태</SelectItem>
               {SPOT_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>
@@ -313,17 +313,17 @@ export function ParkingSpotsTable({ zoneId }: Props) {
               render={
                 <Button
                   onClick={handleOpenRegister}
-                  className="h-10 px-6 bg-zinc-900 text-white rounded-xl font-bold gap-2 shadow-md hover:bg-black"
+                  className="h-10 px-6 bg-primary text-primary-foreground rounded-xl font-bold gap-2 shadow-[var(--shadow-action)] hover:bg-primary/90"
                 />
               }
             >
               <Plus className="w-4 h-4" />
               주차면 등록
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[560px] bg-white rounded-[32px] p-10 border-none shadow-2xl">
+            <DialogContent className="sm:max-w-[560px] bg-surface rounded-2xl p-10 border-border shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-black">주차면 신규 등록</DialogTitle>
-                <DialogDescription className="text-gray-500 font-medium">
+                <DialogDescription className="text-muted-foreground font-medium">
                   IoT 센서 매핑은 선택사항입니다 (deviceId 미지정 시 수동 점유 갱신).
                 </DialogDescription>
               </DialogHeader>
@@ -332,14 +332,14 @@ export function ParkingSpotsTable({ zoneId }: Props) {
                 <Button
                   variant="ghost"
                   onClick={() => setRegisterOpen(false)}
-                  className="rounded-2xl font-bold h-14 flex-1"
+                  className="rounded-2xl font-bold h-14 flex-1 text-muted-foreground"
                 >
                   취소
                 </Button>
                 <Button
                   onClick={handleRegister}
                   disabled={createMutation.isPending}
-                  className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-2xl font-bold h-14 flex-1 shadow-xl shadow-indigo-100"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl font-bold h-14 flex-1"
                 >
                   {createMutation.isPending ? "등록 중..." : "등록"}
                 </Button>
@@ -352,26 +352,26 @@ export function ParkingSpotsTable({ zoneId }: Props) {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-50">
-              <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+            <tr className="border-b border-border">
+              <th className="text-left py-[14px] text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-2 whitespace-nowrap">
                 주차면 번호
               </th>
-              <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+              <th className="text-left py-[14px] text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-2 whitespace-nowrap">
                 구역
               </th>
-              <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+              <th className="text-left py-[14px] text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-2 whitespace-nowrap">
                 유형
               </th>
-              <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+              <th className="text-left py-[14px] text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-2 whitespace-nowrap">
                 센서
               </th>
-              <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+              <th className="text-left py-[14px] text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-2 whitespace-nowrap">
                 점유
               </th>
-              <th className="text-left py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+              <th className="text-left py-[14px] text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-2 whitespace-nowrap">
                 상태
               </th>
-              <th className="text-right py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+              <th className="text-right py-[14px] text-[11.5px] font-semibold text-muted-foreground uppercase tracking-[0.07em] px-2 whitespace-nowrap">
                 관리
               </th>
             </tr>
@@ -383,71 +383,71 @@ export function ParkingSpotsTable({ zoneId }: Props) {
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                className="group border-b border-border hover:bg-surface-2 transition-colors"
               >
-                <td className="py-5 px-2 font-mono text-sm font-bold text-gray-900">
+                <td className="py-[14px] px-2 font-mono text-sm font-bold text-foreground">
                   {s.spotNumber}
                 </td>
-                <td className="py-5 px-2 text-sm font-medium text-gray-600">{s.zoneName}</td>
-                <td className="py-5 px-2">
-                  <Badge className="rounded-lg font-bold border-none px-3 py-1 text-[11px] bg-gray-100 text-gray-700">
+                <td className="py-[14px] px-2 text-sm font-medium text-foreground">{s.zoneName}</td>
+                <td className="py-[14px] px-2">
+                  <Badge className="rounded-lg font-bold border-none px-3 py-1 text-[11px] bg-surface-2 text-foreground shrink-0">
                     {SPOT_TYPE_LABEL[s.spotType]}
                   </Badge>
                 </td>
-                <td className="py-5 px-2 text-xs font-mono text-gray-500">
+                <td className="py-[14px] px-2 text-xs font-mono text-muted-foreground">
                   {s.deviceName ?? "—"}
                 </td>
-                <td className="py-5 px-2">
+                <td className="py-[14px] px-2">
                   {s.occupied ? (
-                    <span className="text-xs font-bold text-emerald-600">점유 중</span>
+                    <span className="text-xs font-bold text-success-fg">점유 중</span>
                   ) : (
-                    <span className="text-xs font-bold text-gray-400">비어있음</span>
+                    <span className="text-xs font-bold text-muted-foreground">비어있음</span>
                   )}
                 </td>
-                <td className="py-5 px-2">
+                <td className="py-[14px] px-2">
                   <Badge
                     className={cn(
-                      "rounded-lg font-bold border-none px-3 py-1 text-[11px]",
+                      "rounded-lg font-bold border-none px-3 py-1 text-[11px] shrink-0",
                       s.spotStatus === "ACTIVE"
-                        ? "bg-emerald-50 text-emerald-600"
-                        : "bg-gray-100 text-gray-500",
+                        ? "bg-success-bg text-success-fg"
+                        : "bg-surface-2 text-muted-foreground",
                     )}
                   >
                     {SPOT_STATUS_LABEL[s.spotStatus]}
                   </Badge>
                 </td>
-                <td className="py-5 px-2 text-right">
+                <td className="py-[14px] px-2 text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       render={
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="rounded-xl hover:bg-white shadow-sm border border-transparent hover:border-gray-100 group/btn"
+                          className="rounded-xl hover:bg-surface-2 border border-border group/btn"
                         />
                       }
                     >
-                      <MoreHorizontal className="w-4 h-4 text-gray-400 group-hover/btn:text-gray-900" />
+                      <MoreHorizontal className="w-4 h-4 text-muted-foreground group-hover/btn:text-foreground" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="bg-white border-gray-100 rounded-2xl w-40 p-2 z-[200] shadow-xl overflow-hidden"
+                      className="bg-surface border-border rounded-2xl w-40 p-2 z-[200] shadow-xl overflow-hidden"
                     >
                       <DropdownMenuGroup>
-                        <DropdownMenuLabel className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-3 py-2">
+                        <DropdownMenuLabel className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-3 py-2">
                           주차면 관리
                         </DropdownMenuLabel>
                       </DropdownMenuGroup>
-                      <DropdownMenuSeparator className="bg-gray-100 mb-1" />
+                      <DropdownMenuSeparator className="bg-border mb-1" />
                       <DropdownMenuItem
-                        className="rounded-xl px-3 py-2 font-bold cursor-pointer hover:bg-gray-50 outline-none"
+                        className="rounded-xl px-3 py-2 font-bold cursor-pointer hover:bg-surface-2 outline-none"
                         onClick={() => openEdit(s)}
                       >
                         주차면 수정
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-gray-100 my-1" />
+                      <DropdownMenuSeparator className="bg-border my-1" />
                       <DropdownMenuItem
-                        className="rounded-xl px-3 py-2 font-bold cursor-pointer text-red-500 hover:bg-red-50"
+                        className="rounded-xl px-3 py-2 font-bold cursor-pointer text-error-fg hover:bg-error-bg"
                         onClick={() => setDeleteTarget(s)}
                       >
                         주차면 삭제
@@ -460,15 +460,15 @@ export function ParkingSpotsTable({ zoneId }: Props) {
           </tbody>
         </table>
         {!listQuery.isLoading && items.length === 0 && (
-          <div className="py-20 text-center text-gray-400 text-sm">
+          <div className="py-20 text-center text-muted-foreground text-sm">
             {zoneId !== undefined ? "해당 구역에 등록된 주차면이 없습니다." : "등록된 주차면이 없습니다."}
           </div>
         )}
         {listQuery.isLoading && (
-          <div className="py-20 text-center text-gray-400 text-sm">주차면 목록 불러오는 중...</div>
+          <div className="py-20 text-center text-muted-foreground text-sm">주차면 목록 불러오는 중...</div>
         )}
         {listQuery.isError && (
-          <div className="py-20 text-center text-red-500 text-sm">
+          <div className="py-20 text-center text-error-fg text-sm">
             주차면 목록 조회 중 오류가 발생했습니다.
           </div>
         )}
@@ -481,10 +481,10 @@ export function ParkingSpotsTable({ zoneId }: Props) {
           if (!open) setEditTarget(null);
         }}
       >
-        <DialogContent className="sm:max-w-[560px] bg-white rounded-[32px] p-10 border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[560px] bg-surface rounded-2xl p-10 border-border shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black">주차면 수정</DialogTitle>
-            <DialogDescription className="text-gray-500 font-medium">
+            <DialogDescription className="text-muted-foreground font-medium">
               {editTarget?.spotNumber}
             </DialogDescription>
           </DialogHeader>
@@ -493,14 +493,14 @@ export function ParkingSpotsTable({ zoneId }: Props) {
             <Button
               variant="ghost"
               onClick={() => setEditTarget(null)}
-              className="rounded-2xl font-bold h-14 flex-1"
+              className="rounded-2xl font-bold h-14 flex-1 text-muted-foreground"
             >
               취소
             </Button>
             <Button
               onClick={handleSaveEdit}
               disabled={updateMutation.isPending}
-              className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-2xl font-bold h-14 flex-1 shadow-xl shadow-indigo-100"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl font-bold h-14 flex-1"
             >
               {updateMutation.isPending ? "수정 중..." : "수정 저장"}
             </Button>
@@ -515,14 +515,14 @@ export function ParkingSpotsTable({ zoneId }: Props) {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <DialogContent className="sm:max-w-[420px] bg-white rounded-[32px] p-10 border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[420px] bg-surface rounded-2xl p-10 border-border shadow-2xl">
           <DialogHeader className="space-y-3">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 bg-error-bg text-error-fg rounded-2xl flex items-center justify-center mx-auto">
               <AlertTriangle className="w-8 h-8" />
             </div>
             <DialogTitle className="text-xl font-black text-center">주차면 삭제 확인</DialogTitle>
-            <DialogDescription className="text-gray-500 font-medium text-center">
-              <span className="font-bold text-gray-900">{deleteTarget?.spotNumber}</span> 주차면을
+            <DialogDescription className="text-muted-foreground font-medium text-center">
+              <span className="font-bold text-foreground">{deleteTarget?.spotNumber}</span> 주차면을
               삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
             </DialogDescription>
           </DialogHeader>
@@ -530,14 +530,14 @@ export function ParkingSpotsTable({ zoneId }: Props) {
             <Button
               variant="ghost"
               onClick={() => setDeleteTarget(null)}
-              className="rounded-2xl font-bold h-12 flex-1"
+              className="rounded-2xl font-bold h-12 flex-1 text-muted-foreground"
             >
               취소
             </Button>
             <Button
               onClick={handleConfirmDelete}
               disabled={deleteMutation.isPending}
-              className="bg-red-500 text-white hover:bg-red-600 rounded-2xl font-bold h-12 flex-1"
+              className="bg-error text-white hover:bg-error/90 rounded-2xl font-bold h-12 flex-1"
             >
               {deleteMutation.isPending ? "삭제 중..." : "삭제"}
             </Button>
@@ -562,42 +562,42 @@ function SpotFormFields({
   return (
     <div className="space-y-6 py-6 font-sans">
       <div className="space-y-2">
-        <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1">
           구역
         </Label>
         <ZoneSelect
           options={zoneOptions}
           value={form.zoneId}
           onChange={(id) => onChange({ ...form, zoneId: id })}
-          triggerClassName="h-12 bg-gray-50 border-none rounded-2xl px-5 font-bold w-full"
+          triggerClassName="h-12 bg-surface-2 border-border rounded-2xl px-5 font-bold w-full"
           disabled={disableZone}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1">
             주차면 번호
           </Label>
           <Input
             value={form.spotNumber}
             onChange={(e) => onChange({ ...form, spotNumber: e.target.value })}
             placeholder="B1-001"
-            className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
+            className="h-12 bg-surface-2 border-border rounded-2xl px-5 font-mono"
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1">
             유형
           </Label>
           <Select
             value={form.spotType}
             onValueChange={(v) => onChange({ ...form, spotType: v as SpotType })}
           >
-            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-bold">
+            <SelectTrigger className="h-12 bg-surface-2 border-border rounded-2xl px-5 font-bold">
               <span>{SPOT_TYPE_LABEL[form.spotType]}</span>
             </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100 rounded-2xl font-bold">
+            <SelectContent className="bg-surface border-border rounded-2xl font-bold">
               {SPOT_TYPES.map((t) => (
                 <SelectItem key={t} value={t}>
                   {SPOT_TYPE_LABEL[t]}
@@ -610,17 +610,17 @@ function SpotFormFields({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1">
             상태
           </Label>
           <Select
             value={form.spotStatus}
             onValueChange={(v) => onChange({ ...form, spotStatus: v as SpotStatus })}
           >
-            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-bold">
+            <SelectTrigger className="h-12 bg-surface-2 border-border rounded-2xl px-5 font-bold">
               <span>{SPOT_STATUS_LABEL[form.spotStatus]}</span>
             </SelectTrigger>
-            <SelectContent className="bg-white border-gray-100 rounded-2xl font-bold">
+            <SelectContent className="bg-surface border-border rounded-2xl font-bold">
               {SPOT_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>
                   {SPOT_STATUS_LABEL[s]}
@@ -630,21 +630,21 @@ function SpotFormFields({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1">
             센서 device ID (선택)
           </Label>
           <Input
             value={form.deviceId}
             onChange={(e) => onChange({ ...form, deviceId: e.target.value })}
             placeholder="11"
-            className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
+            className="h-12 bg-surface-2 border-border rounded-2xl px-5 font-mono"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1">
             좌표 X (선택, 정수 grid)
           </Label>
           <Input
@@ -654,11 +654,11 @@ function SpotFormFields({
             value={form.positionX}
             onChange={(e) => onChange({ ...form, positionX: e.target.value })}
             placeholder="예: 1~10"
-            className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
+            className="h-12 bg-surface-2 border-border rounded-2xl px-5 font-mono"
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">
+          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.07em] px-1">
             좌표 Y (선택, 정수 grid)
           </Label>
           <Input
@@ -668,7 +668,7 @@ function SpotFormFields({
             value={form.positionY}
             onChange={(e) => onChange({ ...form, positionY: e.target.value })}
             placeholder="예: 1~2"
-            className="h-12 bg-gray-50 border-none rounded-2xl px-5 font-mono"
+            className="h-12 bg-surface-2 border-border rounded-2xl px-5 font-mono"
           />
         </div>
       </div>

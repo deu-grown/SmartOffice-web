@@ -16,7 +16,7 @@ export function ParkingZoneSummary({ zoneId }: Props) {
 
   if (zoneId === undefined) {
     return (
-      <div className="bg-white p-10 rounded-[50px] border border-gray-100 shadow-sm text-center text-sm text-gray-400">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] text-center text-sm text-muted-foreground">
         구역을 선택하면 점유 요약이 표시됩니다.
       </div>
     );
@@ -24,7 +24,7 @@ export function ParkingZoneSummary({ zoneId }: Props) {
 
   if (summaryQuery.isLoading) {
     return (
-      <div className="bg-white p-10 rounded-[50px] border border-gray-100 shadow-sm text-center text-sm text-gray-400">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] text-center text-sm text-muted-foreground">
         구역 요약 불러오는 중...
       </div>
     );
@@ -32,7 +32,7 @@ export function ParkingZoneSummary({ zoneId }: Props) {
 
   if (summaryQuery.isError || !summaryQuery.data) {
     return (
-      <div className="bg-white p-10 rounded-[50px] border border-gray-100 shadow-sm text-center text-sm text-red-500">
+      <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] text-center text-sm text-error-fg">
         구역 요약 조회 중 오류가 발생했습니다.
       </div>
     );
@@ -46,37 +46,37 @@ export function ParkingZoneSummary({ zoneId }: Props) {
       label: "총 주차면",
       value: totalSpots,
       icon: ParkingCircle,
-      color: "text-zinc-700",
-      bg: "bg-white",
+      color: "text-foreground",
+      bg: "bg-surface",
     },
     {
       label: "점유",
       value: occupiedSpots,
       icon: Car,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50/40 border-emerald-100",
+      color: "text-success-fg",
+      bg: "bg-success-bg/40 border-success-bg",
     },
     {
       label: "여유",
       value: availableSpots,
       icon: ParkingMeter,
-      color: "text-indigo-600",
-      bg: "bg-white",
+      color: "text-primary",
+      bg: "bg-surface",
     },
     {
       label: "비활성",
       value: inactiveSpots,
       icon: Activity,
-      color: "text-gray-400",
-      bg: "bg-white",
+      color: "text-muted-foreground",
+      bg: "bg-surface",
     },
   ];
 
   return (
-    <div className="bg-white p-10 rounded-[50px] border border-gray-100 shadow-sm space-y-8">
+    <div className="bg-surface p-8 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-8">
       <div className="flex items-center gap-3">
-        <h3 className="text-xl font-black">{zoneName} 요약</h3>
-        <span className="text-xs font-bold text-gray-400">전체 {totalSpots}면</span>
+        <h3 className="text-xl font-black text-foreground">{zoneName} 요약</h3>
+        <span className="text-xs font-bold text-muted-foreground">전체 {totalSpots}면</span>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -89,18 +89,18 @@ export function ParkingZoneSummary({ zoneId }: Props) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.08 }}
               className={cn(
-                "p-6 rounded-[30px] border border-gray-100 shadow-sm flex flex-col justify-between h-32",
+                "p-6 rounded-2xl border border-border shadow-[var(--shadow-card)] flex flex-col justify-between h-32",
                 card.bg,
               )}
             >
-              <div className={cn("w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center", card.color)}>
+              <div className={cn("w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center", card.color)}>
                 <Icon className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 block">
+                <span className="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-muted-foreground block">
                   {card.label}
                 </span>
-                <span className={cn("text-2xl font-black tracking-tighter", card.color)}>{card.value}</span>
+                <span className={cn("text-2xl font-black tracking-tighter tabular-nums", card.color)}>{card.value}</span>
               </div>
             </motion.div>
           );
