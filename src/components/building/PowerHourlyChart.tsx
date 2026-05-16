@@ -44,20 +44,20 @@ function PowerHourlyChartInner({ zoneId }: PowerHourlyChartProps) {
 
   if (zoneId === undefined) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-        <p className="text-sm text-gray-400">zone 을 선택해 주세요.</p>
+      <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+        <p className="text-sm text-muted-foreground">zone 을 선택해 주세요.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+    <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-gray-400" />
+        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-muted-foreground" />
           시간별 전력 사용량 (zone #{zoneId})
         </h3>
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em]">
           {defaults.startDate} ~ {defaults.endDate}
         </span>
       </div>
@@ -65,11 +65,11 @@ function PowerHourlyChartInner({ zoneId }: PowerHourlyChartProps) {
       {hourly.isLoading ? (
         <Skeleton className="h-64 w-full rounded-2xl" />
       ) : hourly.isError ? (
-        <div className="h-64 flex items-center justify-center text-red-500 text-sm font-bold">
+        <div className="h-64 flex items-center justify-center text-error-fg text-sm font-bold">
           전력 이력을 불러오지 못했습니다.
         </div>
       ) : chartData.length === 0 ? (
-        <div className="h-64 flex flex-col items-center justify-center gap-2 text-gray-400 text-sm">
+        <div className="h-64 flex flex-col items-center justify-center gap-2 text-muted-foreground text-sm">
           <Activity className="w-8 h-8" />
           <p>이력 데이터가 없습니다.</p>
         </div>
@@ -78,15 +78,15 @@ function PowerHourlyChartInner({ zoneId }: PowerHourlyChartProps) {
           <AreaChart data={chartData}>
             <defs>
               <linearGradient id="powerArea" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8E8FFA" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#8E8FFA" stopOpacity={0} />
+                <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "#9ca3af" }} />
-            <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
+            <YAxis tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
             <RechartsTooltip />
-            <Area type="monotone" dataKey="kwh" stroke="#8E8FFA" fill="url(#powerArea)" strokeWidth={2} />
+            <Area type="monotone" dataKey="kwh" stroke="var(--chart-1)" fill="url(#powerArea)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
       )}
@@ -96,7 +96,7 @@ function PowerHourlyChartInner({ zoneId }: PowerHourlyChartProps) {
 
 export function PowerHourlyChart(props: PowerHourlyChartProps) {
   return (
-    <ErrorBoundary fallback={<div className="bg-white p-6 rounded-3xl border border-red-100 shadow-sm"><p className="text-sm text-red-500 font-bold">전력 차트 렌더 오류</p></div>}>
+    <ErrorBoundary fallback={<div className="bg-surface p-6 rounded-2xl border border-error-bg shadow-[var(--shadow-card)]"><p className="text-sm text-error-fg font-bold">전력 차트 렌더 오류</p></div>}>
       <PowerHourlyChartInner {...props} />
     </ErrorBoundary>
   );

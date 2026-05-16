@@ -32,16 +32,16 @@ function PowerZoneBillingTableInner({ zoneId, year, month }: PowerZoneBillingTab
 
   if (zoneId === undefined) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-        <p className="text-sm text-gray-400">zone 을 선택해 주세요.</p>
+      <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+        <p className="text-sm text-muted-foreground">zone 을 선택해 주세요.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
-      <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-        <Receipt className="w-5 h-5 text-gray-400" />
+    <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-4">
+      <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+        <Receipt className="w-5 h-5 text-muted-foreground" />
         구역 월 요금 내역 (zone #{zoneId})
       </h3>
 
@@ -51,24 +51,24 @@ function PowerZoneBillingTableInner({ zoneId, year, month }: PowerZoneBillingTab
           <Skeleton className="h-10 w-full" />
         </div>
       ) : billing.isError ? (
-        <p className="text-red-500 text-sm font-bold">요금 내역을 불러오지 못했습니다.</p>
+        <p className="text-error-fg text-sm font-bold">요금 내역을 불러오지 못했습니다.</p>
       ) : (billing.data?.records ?? []).length === 0 ? (
-        <p className="text-sm text-gray-400 py-6 text-center">산출된 요금 내역이 없습니다.</p>
+        <p className="text-sm text-muted-foreground py-6 text-center">산출된 요금 내역이 없습니다.</p>
       ) : (
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-none">
-              <TableHead className="font-bold text-gray-400 uppercase tracking-widest text-[10px] pb-3">기간</TableHead>
-              <TableHead className="font-bold text-gray-400 uppercase tracking-widest text-[10px] pb-3">총 kWh</TableHead>
-              <TableHead className="font-bold text-gray-400 uppercase tracking-widest text-[10px] pb-3">단가</TableHead>
-              <TableHead className="font-bold text-gray-400 uppercase tracking-widest text-[10px] pb-3">기본료</TableHead>
-              <TableHead className="font-bold text-gray-400 uppercase tracking-widest text-[10px] pb-3">사용료</TableHead>
-              <TableHead className="font-bold text-gray-400 uppercase tracking-widest text-[10px] pb-3">총액</TableHead>
+              <TableHead className="font-semibold text-muted-foreground uppercase tracking-[0.07em] text-[11.5px] pb-3">기간</TableHead>
+              <TableHead className="font-semibold text-muted-foreground uppercase tracking-[0.07em] text-[11.5px] pb-3">총 kWh</TableHead>
+              <TableHead className="font-semibold text-muted-foreground uppercase tracking-[0.07em] text-[11.5px] pb-3">단가</TableHead>
+              <TableHead className="font-semibold text-muted-foreground uppercase tracking-[0.07em] text-[11.5px] pb-3">기본료</TableHead>
+              <TableHead className="font-semibold text-muted-foreground uppercase tracking-[0.07em] text-[11.5px] pb-3">사용료</TableHead>
+              <TableHead className="font-semibold text-muted-foreground uppercase tracking-[0.07em] text-[11.5px] pb-3">총액</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {(billing.data?.records ?? []).map((r) => (
-              <TableRow key={r.id} className="border-none hover:bg-gray-50">
+              <TableRow key={r.id} className="border-none hover:bg-surface-2">
                 <TableCell className="py-3 font-bold">
                   {r.year}.{String(r.month).padStart(2, "0")}
                 </TableCell>
@@ -88,7 +88,7 @@ function PowerZoneBillingTableInner({ zoneId, year, month }: PowerZoneBillingTab
 
 export function PowerZoneBillingTable(props: PowerZoneBillingTableProps) {
   return (
-    <ErrorBoundary fallback={<div className="bg-white p-6 rounded-3xl border border-red-100 shadow-sm"><p className="text-sm text-red-500 font-bold">요금 표 렌더 오류</p></div>}>
+    <ErrorBoundary fallback={<div className="bg-surface p-6 rounded-2xl border border-error-bg shadow-[var(--shadow-card)]"><p className="text-sm text-error-fg font-bold">요금 표 렌더 오류</p></div>}>
       <PowerZoneBillingTableInner {...props} />
     </ErrorBoundary>
   );

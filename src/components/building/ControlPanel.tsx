@@ -24,10 +24,10 @@ import { useDevices } from "@/src/features/device/hooks";
 // 백엔드 control_commands.command_type = varchar(15) 자유 string pass-through 이므로 IoT 가 이해할 수 있는 값이어야 함.
 // 채택 시 BACKEND_SUGGESTIONS #12 (control commands 메타 엔드포인트) 후 hook 으로 전환.
 const QUICK_COMMANDS = [
-  { id: "AC", label: "공조 가동", icon: Wind, color: "bg-blue-50 text-blue-600" },
-  { id: "LIGHT", label: "조명 토글", icon: Lightbulb, color: "bg-yellow-50 text-yellow-600" },
-  { id: "FAN", label: "환기팬", icon: Fan, color: "bg-cyan-50 text-cyan-600" },
-  { id: "DOOR_LOCK", label: "출입문 잠금", icon: DoorOpen, color: "bg-red-50 text-red-600" },
+  { id: "AC", label: "공조 가동", icon: Wind, color: "bg-info-bg text-info-fg" },
+  { id: "LIGHT", label: "조명 토글", icon: Lightbulb, color: "bg-warning-bg text-warning-fg" },
+  { id: "FAN", label: "환기팬", icon: Fan, color: "bg-info-bg text-info-fg" },
+  { id: "DOOR_LOCK", label: "출입문 잠금", icon: DoorOpen, color: "bg-error-bg text-error-fg" },
 ];
 
 interface ControlPanelProps {
@@ -69,24 +69,24 @@ function ControlPanelInner({ zoneId }: ControlPanelProps) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+    <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Power className="w-5 h-5 text-gray-400" />
+        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <Power className="w-5 h-5 text-muted-foreground" />
           장치 제어
         </h3>
-        {sendMutation.isPending && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
+        {sendMutation.isPending && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-2 md:col-span-2">
-          <label className="text-xs font-bold text-gray-400 ml-1">대상 장치</label>
+          <label className="text-xs font-bold text-muted-foreground ml-1">대상 장치</label>
           <Select
             value={selectedDeviceId !== null ? String(selectedDeviceId) : ""}
             onValueChange={(v) => setSelectedDeviceId(v ? Number(v) : null)}
             disabled={zoneDevices.length === 0}
           >
-            <SelectTrigger className="h-11 rounded-2xl">
+            <SelectTrigger className="h-11 rounded-2xl border-border bg-surface-2">
               {/* SelectValue children 자동 매핑 결함 회피 — 명시 텍스트 렌더 (옵션 b, 사용처 1곳). */}
               {(() => {
                 const sel = selectedDeviceId !== null ? zoneDevices.find((d) => d.id === selectedDeviceId) : undefined;
@@ -99,7 +99,7 @@ function ControlPanelInner({ zoneId }: ControlPanelProps) {
                 );
               })()}
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-surface border-border">
               {zoneDevices.map((d) => (
                 <SelectItem key={d.id} value={String(d.id)}>
                   {d.name} ({d.deviceType})
@@ -109,8 +109,8 @@ function ControlPanelInner({ zoneId }: ControlPanelProps) {
           </Select>
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-bold text-gray-400 ml-1">값 (선택)</label>
-          <Input value={commandValue} onChange={(e) => setCommandValue(e.target.value)} className="h-11 rounded-2xl font-mono" placeholder="예: 24" />
+          <label className="text-xs font-bold text-muted-foreground ml-1">값 (선택)</label>
+          <Input value={commandValue} onChange={(e) => setCommandValue(e.target.value)} className="h-11 rounded-2xl font-mono border-border bg-surface-2" placeholder="예: 24" />
         </div>
       </div>
 
@@ -121,7 +121,7 @@ function ControlPanelInner({ zoneId }: ControlPanelProps) {
             onClick={() => handleSend(c.id)}
             disabled={sendMutation.isPending || selectedDeviceId === null}
             className={cn(
-              "p-4 rounded-2xl border-2 border-gray-50 transition-all flex flex-col items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:border-gray-200",
+              "p-4 rounded-2xl border-2 border-border transition-all flex flex-col items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:border-primary/30",
               c.color
             )}
           >
@@ -131,25 +131,25 @@ function ControlPanelInner({ zoneId }: ControlPanelProps) {
         ))}
       </div>
 
-      <div className="pt-4 border-t border-gray-50">
-        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">최근 명령 이력</h4>
+      <div className="pt-4 border-t border-border">
+        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-[0.07em] mb-3">최근 명령 이력</h4>
         {historyQuery.isLoading ? (
           <div className="space-y-2">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-full" />
           </div>
         ) : (historyQuery.data?.controlList ?? []).length === 0 ? (
-          <p className="text-sm text-gray-400 py-4 text-center">제어 이력이 없습니다.</p>
+          <p className="text-sm text-muted-foreground py-4 text-center">제어 이력이 없습니다.</p>
         ) : (
           <div className="space-y-2 max-h-[200px] overflow-y-auto">
             {(historyQuery.data?.controlList ?? []).slice(0, 8).map((h) => (
-              <div key={h.id} className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors text-xs">
+              <div key={h.id} className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl hover:bg-surface-2 transition-colors text-xs">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-mono text-gray-400">#{h.id}</span>
-                  <span className="font-bold text-gray-700 truncate">{h.command}</span>
-                  <span className="text-gray-400 font-mono">→ device #{h.deviceId}</span>
+                  <span className="font-mono text-muted-foreground">#{h.id}</span>
+                  <span className="font-bold text-foreground truncate">{h.command}</span>
+                  <span className="text-muted-foreground font-mono">→ device #{h.deviceId}</span>
                 </div>
-                <Badge className={cn("rounded-full font-bold px-2 py-0.5 border-none text-[10px]", h.status === "COMPLETED" ? "bg-green-50 text-green-600" : h.status === "FAILED" ? "bg-red-50 text-red-600" : "bg-gray-100 text-gray-500")}>
+                <Badge className={cn("rounded-full font-bold px-2 py-0.5 border-none text-[10px]", h.status === "COMPLETED" ? "bg-success-bg text-success-fg" : h.status === "FAILED" ? "bg-error-bg text-error-fg" : "bg-surface-2 text-muted-foreground")}>
                   {h.status}
                 </Badge>
               </div>
@@ -163,7 +163,7 @@ function ControlPanelInner({ zoneId }: ControlPanelProps) {
 
 export function ControlPanel(props: ControlPanelProps) {
   return (
-    <ErrorBoundary fallback={<div className="bg-white p-6 rounded-3xl border border-red-100 shadow-sm"><p className="text-sm text-red-500 font-bold">제어 패널 렌더 오류</p></div>}>
+    <ErrorBoundary fallback={<div className="bg-surface p-6 rounded-2xl border border-error-bg shadow-[var(--shadow-card)]"><p className="text-sm text-error-fg font-bold">제어 패널 렌더 오류</p></div>}>
       <ControlPanelInner {...props} />
     </ErrorBoundary>
   );

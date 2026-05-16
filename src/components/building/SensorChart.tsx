@@ -43,15 +43,15 @@ function SensorChartInner({ zoneId, startDate, endDate }: SensorChartProps) {
 
   if (zoneId === undefined) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-        <p className="text-sm text-gray-400">zone 을 선택해 주세요.</p>
+      <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)]">
+        <p className="text-sm text-muted-foreground">zone 을 선택해 주세요.</p>
       </div>
     );
   }
 
   if (latest.isLoading) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-3">
+      <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-3">
         <Skeleton className="h-4 w-32" />
         <div className="grid grid-cols-3 gap-3">
           <Skeleton className="h-20" />
@@ -64,41 +64,41 @@ function SensorChartInner({ zoneId, startDate, endDate }: SensorChartProps) {
 
   if (latest.isError) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-red-100 shadow-sm">
-        <p className="text-sm text-red-500 font-bold">센서 데이터를 불러오지 못했습니다.</p>
+      <div className="bg-surface p-6 rounded-2xl border border-error-bg shadow-[var(--shadow-card)]">
+        <p className="text-sm text-error-fg font-bold">센서 데이터를 불러오지 못했습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+    <div className="bg-surface p-6 rounded-2xl border border-border shadow-[var(--shadow-card)] space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-gray-400" />
+        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <Activity className="w-5 h-5 text-muted-foreground" />
           환경 센서 (zone #{zoneId})
         </h3>
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.07em]">
           최신 {latestCards.length} · 이력 {historyCount}
         </span>
       </div>
 
       {latestCards.length === 0 ? (
-        <p className="text-sm text-gray-400 py-6 text-center">본 구역에 환경 센서 데이터가 없습니다.</p>
+        <p className="text-sm text-muted-foreground py-6 text-center">본 구역에 환경 센서 데이터가 없습니다.</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {latestCards.map((s) => {
             const Icon = pickIcon(s.sensorType);
             return (
-              <div key={s.id} className="bg-gray-50 rounded-2xl p-4 space-y-2">
-                <div className="flex items-center gap-2 text-gray-400">
+              <div key={s.id} className="bg-surface-2 rounded-2xl p-4 space-y-2">
+                <div className="flex items-center gap-2 text-muted-foreground">
                   <Icon className="w-4 h-4" />
                   <span className="text-[10px] font-bold uppercase tracking-widest">{s.sensorType}</span>
                 </div>
                 <p className="text-2xl font-black font-mono">
                   {toNumber(s.value).toFixed(1)}
-                  <span className="text-xs text-gray-400 font-medium ml-1">{s.unit}</span>
+                  <span className="text-xs text-muted-foreground font-medium ml-1">{s.unit}</span>
                 </p>
-                <p className="text-[10px] text-gray-400 font-mono truncate">{s.timestamp}</p>
+                <p className="text-[10px] text-muted-foreground font-mono truncate">{s.timestamp}</p>
               </div>
             );
           })}
@@ -110,7 +110,7 @@ function SensorChartInner({ zoneId, startDate, endDate }: SensorChartProps) {
 
 export function SensorChart(props: SensorChartProps) {
   return (
-    <ErrorBoundary fallback={<div className="bg-white p-6 rounded-3xl border border-red-100 shadow-sm"><p className="text-sm text-red-500 font-bold">센서 차트 렌더 오류</p></div>}>
+    <ErrorBoundary fallback={<div className="bg-surface p-6 rounded-2xl border border-error-bg shadow-[var(--shadow-card)]"><p className="text-sm text-error-fg font-bold">센서 차트 렌더 오류</p></div>}>
       <SensorChartInner {...props} />
     </ErrorBoundary>
   );
